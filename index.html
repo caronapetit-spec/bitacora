@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Bitácora</title>
 <meta name="description" content="Hábitos, tareas, gastos, notas y gimnasio en una sola app.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -666,7 +667,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v21";
+const BUILD = "v22";
 
 function seed(){
   const H = (name,offs)=>{
@@ -787,7 +788,10 @@ function seed(){
       {id:uid(),cat:"series",title:"Severance",by:"Dan Erickson",started:daysAgo(6),done:null,score:null},
       {id:uid(),cat:"series",title:"Andor",by:"Tony Gilroy",started:daysAgo(140),done:daysAgo(119),score:9}
     ],
-    push:{url:"",token:"",on:false},
+    srv:{url:"",token:""},
+    push:{on:false},
+    sync:{on:false, rev:0, at:null},
+    changedAt:new Date().toISOString(),
     gym:{
       exercises:EJERCICIOS.slice(),
       sessions:sess,
@@ -826,14 +830,30 @@ function load(){
     s.gymTab = s.gymTab || "sesion";
     s.culTab = s.culTab || "libros";
     s.cultura = s.cultura || [];
-    s.push = s.push || {url:"",token:"",on:false};
+    /* La configuración del servidor pasó a ser una sola, compartida por los
+       avisos y la sincronización: antes vivía duplicada dentro de push. */
+    s.push = s.push || {on:false};
+    s.srv  = s.srv  || {url:"", token:""};
+    if(!s.srv.url && s.push.url){ s.srv.url = s.push.url; s.srv.token = s.push.token || ""; }
+    delete s.push.url; delete s.push.token;
+    s.sync = s.sync || {on:false, rev:0, at:null};
+    s.changedAt = s.changedAt || new Date().toISOString();
     s.notes = s.notes || []; s.tasks = s.tasks || []; s.expenses = s.expenses || [];
     return s;
   }catch(e){ return seed(); }
 }
 let S = load();
-function save(){ try{ localStorage.setItem(LS,JSON.stringify(S)); }catch(e){} }
-save();   /* deja guardadas las conversiones de formato hechas al cargar */
+
+function persist(){ try{ localStorage.setItem(LS,JSON.stringify(S)); }catch(e){} }
+
+/* Cada cambio deja un sello de cuándo se hizo. Es lo que permite decidir qué
+   dispositivo va por delante sin tener que comparar los datos uno a uno. */
+function save(){
+  S.changedAt = new Date().toISOString();
+  persist();
+  syncPendiente();
+}
+persist();   /* deja guardadas las conversiones de formato hechas al cargar */
 
 /* Vacía el contenido de ejemplo pero conserva los hábitos y el catálogo
    de ejercicios, que son estructura útil y no datos inventados. */
@@ -1195,7 +1215,6 @@ function b64ToU8(b64){
 }
 
 async function pushEnable(url, token, say){
-  const p = S.push;
   try{
     if(!url || !token){ say("Rellena la dirección del servidor y el token."); return; }
     if(!("serviceWorker" in navigator) || !("PushManager" in window)){
@@ -1231,7 +1250,7 @@ async function pushEnable(url, token, say){
       return;
     }
 
-    p.url = url; p.token = token; p.on = true; save();
+    S.srv.url = url; S.srv.token = token; S.push.on = true; save();
     say("Activado. El aviso te llegará también con la app cerrada.");
     setTimeout(()=>{ closeSheet(); render(); }, 1500);
   }catch(e){
@@ -1240,20 +1259,138 @@ async function pushEnable(url, token, say){
 }
 
 function pushScheduleRest(secs){
-  const p = S.push;
-  if(!p.on || !p.url || !p.token) return;
-  fetch(api(p.url,"/api/push/schedule-rest"),{
+  if(!S.push.on || !S.srv.url || !S.srv.token) return;
+  srvFetch("/api/push/schedule-rest",{
     method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":"Bearer "+p.token},
+    headers:{"Content-Type":"application/json"},
     body:JSON.stringify({seconds:secs})
   }).catch(()=>{});
 }
 function pushCancelRest(){
-  const p = S.push;
-  if(!p.on || !p.url || !p.token) return;
-  fetch(api(p.url,"/api/push/cancel-rest"),{
-    method:"POST", headers:{"Authorization":"Bearer "+p.token}
-  }).catch(()=>{});
+  if(!S.push.on || !S.srv.url || !S.srv.token) return;
+  srvFetch("/api/push/cancel-rest",{method:"POST"}).catch(()=>{});
+}
+
+/* ══════════ sincronización entre dispositivos ══════════
+   El servidor no entiende los datos: solo guarda el JSON entero y un número de
+   revisión que sube en cada escritura. Con eso basta para saber si el otro
+   dispositivo escribió mientras tanto.
+
+   Cada dispositivo recuerda con qué revisión se sincronizó por última vez y con
+   qué sello de cambio. De ahí salen los tres casos posibles:
+     · el servidor sigue donde lo dejé y yo tengo cambios  → subo
+     · el servidor avanzó y yo no he tocado nada           → bajo
+     · los dos hemos cambiado                              → pregunto, no piso nada  */
+
+function srvFetch(path, opts){
+  opts = opts || {};
+  opts.headers = Object.assign({"Authorization":"Bearer "+S.srv.token}, opts.headers||{});
+  opts.cache = "no-store";
+  return fetch(api(S.srv.url, path), opts);
+}
+
+/* Lo que se sube son los datos, nunca la configuración del dispositivo: el
+   token y la dirección del servidor se quedan en casa. */
+function estadoParaSubir(){
+  const copia = JSON.parse(JSON.stringify(S));
+  delete copia.srv; delete copia.sync; delete copia.push;
+  return JSON.stringify(copia);
+}
+
+let syncT = null, sincronizando = false;
+function syncPendiente(){
+  if(!S.sync || !S.sync.on) return;
+  clearTimeout(syncT);
+  syncT = setTimeout(function(){ syncSubir(true); }, 4000);
+}
+function syncCaducado(){
+  S.sync.on = false; persist(); render();
+  toast("La sesi\u00f3n del servidor ha caducado. Pega un token nuevo en Ajustes.");
+}
+
+async function syncSubir(silencioso){
+  if(!S.sync.on || sincronizando) return null;
+  sincronizando = true;
+  try{
+    const r = await srvFetch("/api/bitacora",{
+      method:"PUT",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({data:estadoParaSubir(), changedAt:S.changedAt, baseRev:S.sync.rev})
+    });
+    if(r.status===401){ syncCaducado(); return null; }
+    if(r.status===409){
+      const d = await r.json().catch(()=>null);
+      const meta = (d && d.detail) ? d.detail : {};
+      sheetConflicto(meta);
+      return "conflicto";
+    }
+    if(!r.ok) return null;
+    const j = await r.json();
+    S.sync.rev = j.rev; S.sync.at = S.changedAt;
+    persist();
+    if(!silencioso) toast("Datos subidos al servidor.");
+    return "subido";
+  }catch(e){ return null; }
+  finally{ sincronizando = false; }
+}
+
+async function syncBajar(silencioso){
+  try{
+    const r = await srvFetch("/api/bitacora");
+    if(r.status===401){ syncCaducado(); return null; }
+    if(!r.ok) return null;
+    const j = await r.json();
+    if(!j.data) return null;
+    const n = JSON.parse(j.data);
+    if(!n || !n.habits) return null;
+    /* La configuraci\u00f3n de este dispositivo no se toca. */
+    n.srv = S.srv;
+    n.push = S.push;
+    n.sync = {on:true, rev:j.rev, at:j.changedAt};
+    n.changedAt = j.changedAt;
+    S = n;
+    persist(); render();
+    if(!silencioso) toast("Datos tra\u00eddos del otro dispositivo.");
+    return "bajado";
+  }catch(e){ return null; }
+}
+
+async function syncAhora(silencioso){
+  if(!S.sync.on || !S.srv.url || !S.srv.token) return null;
+  try{
+    const r = await srvFetch("/api/bitacora/meta");
+    if(r.status===401){ syncCaducado(); return null; }
+    if(!r.ok) return null;
+    const meta = await r.json();
+    const pendiente = S.changedAt !== S.sync.at;   /* cambios sin subir */
+
+    if(meta.rev === S.sync.rev){
+      if(pendiente) return await syncSubir(silencioso);
+      if(!silencioso) toast("Todo al d\u00eda.");
+      return "al dia";
+    }
+    if(!pendiente) return await syncBajar(silencioso);
+    sheetConflicto(meta);
+    return "conflicto";
+  }catch(e){
+    if(!silencioso) toast("No he podido hablar con el servidor.");
+    return null;
+  }
+}
+
+function sheetConflicto(meta){
+  const cuando = t => { try{ return new Date(t).toLocaleString("es-ES"); }catch(e){ return t||"?"; } };
+  openSheet("Cambios en los dos sitios",
+    '<p class="hint">Has tocado datos <b>aqu\u00ed</b> y <b>en el otro dispositivo</b> desde la \u00faltima vez que se sincronizaron. No voy a pisar nada sin que lo decidas.</p>'+
+    '<div class="panel">'+
+      '<div class="kv"><span>Este dispositivo</span><b class="mono">'+esc(cuando(S.changedAt))+'</b></div>'+
+      '<div class="kv"><span>El servidor</span><b class="mono">'+esc(cuando(meta.changedAt))+'</b></div>'+
+    '</div>'+
+    '<button class="btn ghost wide" data-act="dlData">Descargar copia de los de aqu\u00ed, por si acaso</button>'+
+    '<p class="hint" id="bkMsg"></p>'+
+    '<button class="btn wide" data-act="cfQuedarme" data-rev="'+(meta.rev||0)+'">Quedarme con los de este dispositivo</button>'+
+    '<button class="btn ghost wide" data-act="cfTraer">Traer los del servidor y descartar los de aqu\u00ed</button>'
+  );
 }
 function restBar(){
   if(!rest) return "";
@@ -2206,8 +2343,40 @@ function sheetProfile(){
     '<p class="hint">La altura solo se usa para el índice de masa corporal. La <b>subida de peso</b> es cuánto sube un ejercicio al clavar el tope del intervalo de repeticiones: 2,5 kg en barra, pero quizá 2 en mancuernas o 5 en prensa.</p>'
   );
 }
+function sheetSync(){
+  const c = S.srv, y = S.sync;
+  const cuando = t => { try{ return t ? new Date(t).toLocaleString("es-ES") : "nunca"; }catch(e){ return "?"; } };
+  const pendiente = S.changedAt !== y.at;
+
+  openSheet("Sincronizar dispositivos",
+    '<p class="hint">Por defecto tus datos viven <b>solo en este dispositivo</b>. Si enciendes esto, se guardan tambi\u00e9n en <b>tu propio servidor</b> (el de FitPals) y el m\u00f3vil y el ordenador se ponen de acuerdo solos al abrir la app.</p>'+
+
+    (y.on
+      ? '<div class="panel">'+
+          '<div class="kv"><span>Estado</span><b style="color:var(--accent)">activada</b></div>'+
+          '<div class="kv"><span>\u00daltima sincronizaci\u00f3n</span><b class="mono">'+esc(cuando(y.at))+'</b></div>'+
+          '<div class="kv"><span>Versi\u00f3n en el servidor</span><b class="mono">'+y.rev+'</b></div>'+
+          '<div class="kv"><span>Cambios sin subir</span><b class="mono">'+(pendiente?"s\u00ed":"no")+'</b></div>'+
+        '</div>'+
+        '<button class="btn wide" data-act="syncYa">Sincronizar ahora</button>'+
+        '<p class="hint" id="syMsg"></p>'+
+        '<button class="btn ghost wide" data-act="syncOff">Desactivar la sincronizaci\u00f3n</button>'
+      : '<div><label class="lbl-s" for="syUrl">Direcci\u00f3n del servidor</label>'+
+          '<input class="field" id="syUrl" placeholder="https://tu-servidor.onrender.com" value="'+esc(c.url)+'" autocomplete="off" spellcheck="false" style="margin-bottom:8px">'+
+          '<label class="lbl-s" for="syTok">Token de FitPals</label>'+
+          '<textarea class="field mono" id="syTok" placeholder="Pega aqu\u00ed el token" spellcheck="false" style="min-height:64px;font-size:11px">'+esc(c.token)+'</textarea>'+
+          '<button class="btn wide" data-act="syncOn" style="margin-top:10px">Activar</button>'+
+          '<p class="hint" id="syMsg" style="margin-top:9px"></p>'+
+        '</div>')+
+
+    '<div><span class="lbl-s">C\u00f3mo se resuelven los choques</span>'+
+    '<p class="hint">Si cambias cosas en un dispositivo, el otro las recoge al abrirse. Si has cambiado cosas <b>en los dos</b> sin sincronizar entremedias, la app <b>no elige por ti</b>: te ense\u00f1a las dos fechas y decides cu\u00e1l conservar, con la opci\u00f3n de descargarte antes una copia de la que vas a descartar.</p>'+
+    '<p class="hint">No hay mezcla autom\u00e1tica de las dos versiones. Para un uso normal \u2014 el m\u00f3vil en el gimnasio, el ordenador en casa \u2014 no deber\u00edas ver esa pantalla casi nunca.</p></div>'
+  );
+}
+
 function sheetAvisos(){
-  const p = S.push;
+  const p = {on:S.push.on, url:S.srv.url, token:S.srv.token};
   const perm = (window.Notification ? Notification.permission : "no disponible");
   const permTxt = {granted:"concedido", denied:"denegado", default:"sin pedir"}[perm] || perm;
   const instalada = (window.navigator.standalone===true) ||
@@ -2254,6 +2423,9 @@ function sheetAjustes(){
       '<div class="kv"><span>Instalada</span><b class="mono">'+BUILD+'</b></div>'+
       '<button class="btn ghost wide" data-act="buscarAct" style="margin-top:9px">Buscar actualizaciones</button>'+
       '<p class="hint" style="margin-top:8px">La app se actualiza sola al abrirla. Este bot\u00f3n fuerza la comprobaci\u00f3n.</p></div>'+
+    '<div><span class="lbl-s">Sincronizaci\u00f3n</span>'+
+      '<button class="btn ghost wide" data-act="sync">Sincronizar dispositivos</button>'+
+      '<p class="hint" style="margin-top:8px">'+(S.sync.on?"Activada. Los datos se guardan tambi\u00e9n en tu servidor.":"Desactivada: los datos viven solo aqu\u00ed.")+'</p></div>'+
     '<div><span class="lbl-s">Avisos</span>'+
       '<button class="btn ghost wide" data-act="avisos">Aviso de fin de descanso</button>'+
       '<p class="hint" style="margin-top:8px">Alarma sonora con el móvil bloqueado, notificaciones y push. '+(S.push.on?"Push activado.":"")+'</p></div>'+
@@ -2310,6 +2482,64 @@ document.addEventListener("click", function(e){
 
     /* avisos */
     case "avisos": sheetAvisos(); break;
+
+    /* ─── sincronización ─── */
+    case "sync": sheetSync(); break;
+    case "syncOn": {
+      const url = $("#syUrl").value.trim(), tok = $("#syTok").value.trim();
+      const say = t => { const m = $("#syMsg"); if(m) m.textContent = t; };
+      if(!url || !tok){ say("Rellena la direcci\u00f3n y el token."); return; }
+      say("Conectando\u2026");
+      S.srv.url = url; S.srv.token = tok;
+      srvFetch("/api/bitacora/meta").then(function(r){
+        if(r.status===401){ say("El token no vale o ha caducado."); return; }
+        if(!r.ok){ say("El servidor respondi\u00f3 "+r.status+"."); return; }
+        return r.json().then(function(meta){
+          S.sync.on = true;
+          if(meta.rev === 0){
+            /* Buz\u00f3n vac\u00edo: este dispositivo siembra los datos. */
+            S.sync.rev = 0; S.sync.at = null;
+            persist();
+            return syncSubir(true).then(function(){ say("Activada. Tus datos ya est\u00e1n en el servidor."); });
+          }
+          /* Ya hay datos de otro dispositivo: que decida el usuario. */
+          S.sync.rev = 0; S.sync.at = null;
+          persist();
+          closeSheet();
+          sheetConflicto(meta);
+        });
+      }).catch(function(){
+        say("No he podido conectar. Revisa la direcci\u00f3n y que el servidor permita este dominio (CORS).");
+      });
+      break;
+    }
+    case "syncOff":
+      S.sync.on = false; persist(); closeSheet(); render();
+      toast("Sincronizaci\u00f3n desactivada. Los datos siguen aqu\u00ed.");
+      break;
+    case "syncYa": {
+      const say = t => { const m = $("#syMsg"); if(m) m.textContent = t; };
+      say("Sincronizando\u2026");
+      syncAhora(false).then(function(r){
+        if(r==="conflicto") return;
+        say(r ? "Listo." : "No he podido hablar con el servidor.");
+      });
+      break;
+    }
+    case "cfQuedarme": {
+      /* Escribimos sobre la revisi\u00f3n que hay ahora en el servidor: eso
+         sustituye lo suyo por lo nuestro. */
+      S.sync.rev = +el.dataset.rev || 0;
+      S.sync.on = true;
+      persist(); closeSheet();
+      syncSubir(true).then(function(){ toast("Se ha subido lo de este dispositivo."); render(); });
+      break;
+    }
+    case "cfTraer":
+      S.sync.on = true;
+      closeSheet();
+      syncBajar(true).then(function(){ toast("Tra\u00eddos los datos del servidor."); });
+      break;
     case "buscarAct":
       el.textContent = "Comprobando\u2026";
       buscarActualizacion(false).then(function(r){
@@ -2331,7 +2561,7 @@ document.addEventListener("click", function(e){
       break;
     }
     case "pushOff":
-      S.push.on = false; S.push.token = "";
+      S.push.on = false;
       save(); closeSheet(); render(); break;
 
     /* hábitos */
@@ -2767,10 +2997,17 @@ function buscarActualizacion(silencioso){
     .catch(()=>null);
 }
 document.addEventListener("visibilitychange", function(){
-  if(!document.hidden) buscarActualizacion(true);
+  if(!document.hidden){
+    buscarActualizacion(true);
+    syncAhora(true);            /* al volver, recoge lo del otro dispositivo */
+  }else{
+    clearTimeout(syncT);
+    syncSubir(true);            /* al irte, deja subido lo de aqu\u00ed */
+  }
 });
 
 /* arranque */
 render();
+syncAhora(true);
 })();
 </script>

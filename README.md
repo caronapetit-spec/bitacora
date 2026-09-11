@@ -99,6 +99,48 @@ espera a que lo cierres para no cortarte a media serie.
 En **Ajustes → Versión** se ve la que tienes instalada y hay un botón para forzar la
 comprobación.
 
+## Sincronizar entre el móvil y el ordenador
+
+Por defecto **no hay sincronización**: cada dispositivo guarda lo suyo. Si quieres que el
+móvil y el ordenador vayan a la vez, se enciende en **Ajustes → Sincronización**, y los
+datos pasan a guardarse también en **tu propio servidor** (el backend de FitPals).
+
+### Cómo funciona
+
+El servidor no entiende los datos: guarda el JSON entero y un número de **revisión** que
+sube en cada escritura. Cada dispositivo recuerda con qué revisión se sincronizó por
+última vez y con qué sello de cambio. De ahí salen los tres únicos casos:
+
+| Situación | Qué hace |
+|---|---|
+| El servidor sigue donde lo dejé y yo tengo cambios | sube |
+| El servidor avanzó y yo no he tocado nada | baja |
+| Los dos hemos cambiado | **pregunta**, no pisa nada |
+
+Sube sola a los pocos segundos de cualquier cambio y al dejar la app en segundo plano;
+baja al abrirla y al volver a primer plano.
+
+**No hay mezcla automática de las dos versiones.** Ante un choque te enseña las dos fechas
+y eliges cuál conservar, con la opción de descargarte antes una copia de la que vas a
+descartar. Para un uso normal — el móvil en el gimnasio, el ordenador en casa — esa
+pantalla no debería salir casi nunca.
+
+**El token no se sube nunca**: la configuración del servidor se queda en cada dispositivo,
+fuera del bloque de datos que viaja.
+
+### Qué hace falta en el servidor
+
+El backend de FitPals (`../RegistroFuerza`) ya trae los endpoints:
+
+- `GET /api/bitacora/meta` — pregunta barata: ¿hay algo nuevo?
+- `GET /api/bitacora` — lee el estado completo
+- `PUT /api/bitacora` — lo escribe; responde **409** si el otro dispositivo escribió
+  entremedias, que es lo que dispara la pantalla de choque
+
+Y la variable de entorno **`CORS_ORIGINS`** con los dominios permitidos, separados por
+comas. Sin ella el navegador bloquea las peticiones, porque la app vive en un dominio
+distinto del servidor. Por defecto ya admite `https://caronapetit-spec.github.io`.
+
 ## Dónde se guardan los datos
 
 En el **almacenamiento local del propio teléfono** (`localStorage`), bajo la clave
