@@ -147,6 +147,10 @@ button{background:none;border:0;padding:0;cursor:pointer}
   flex-direction:column;
   gap:22px;
 }
+/* Los hijos de un flex de altura fija se encogen por defecto. Combinado con el
+   overflow:hidden de .stack, eso recortaba filas de las listas en vez de dejar
+   que la pantalla hiciera scroll. */
+.view > *{flex:none}
 
 .tabbar{
   display:grid;
