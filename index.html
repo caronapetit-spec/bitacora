@@ -21,6 +21,7 @@
   --m-gastos:#B5822A;
   --m-notas:#AF5486;
   --m-gym:#C9503B;
+  --m-cultura:#2A8C9E;
   --bad:#C2403C;
   --shadow:0 1px 2px rgba(20,24,35,.05), 0 10px 30px rgba(20,24,35,.07);
   --r:15px;
@@ -43,6 +44,7 @@
     --m-gastos:#DDA857;
     --m-notas:#DB84B2;
     --m-gym:#EE8168;
+    --m-cultura:#57C4D6;
     --bad:#EF7A74;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
     color-scheme:dark;
@@ -63,6 +65,7 @@
   --m-gastos:#DDA857;
   --m-notas:#DB84B2;
   --m-gym:#EE8168;
+  --m-cultura:#57C4D6;
   --bad:#EF7A74;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
   color-scheme:dark;
@@ -107,6 +110,7 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .app[data-mod="gastos"]{--accent:var(--m-gastos)}
 .app[data-mod="notas"]{--accent:var(--m-notas)}
 .app[data-mod="gym"]{--accent:var(--m-gym)}
+.app[data-mod="cultura"]{--accent:var(--m-cultura)}
 @media (min-width:520px) and (min-height:700px){
   .app{height:min(880px,94dvh);border-radius:26px;box-shadow:var(--shadow);border:1px solid var(--line)}
 }
@@ -154,7 +158,7 @@ button{background:none;border:0;padding:0;cursor:pointer}
 
 .tabbar{
   display:grid;
-  grid-template-columns:repeat(5,1fr);
+  grid-template-columns:repeat(6,1fr);
   border-top:1px solid var(--line);
   background:var(--surface);
   padding-bottom:env(safe-area-inset-bottom);
@@ -163,11 +167,11 @@ button{background:none;border:0;padding:0;cursor:pointer}
   display:flex;flex-direction:column;align-items:center;gap:3px;
   padding:9px 0 7px;
   color:var(--text-3);
-  font-size:10px;
+  font-size:9.5px;
   letter-spacing:.02em;
   transition:color .15s;
 }
-.tabbar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tabbar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .tabbar button[aria-current="true"]{color:var(--accent);font-weight:600}
 
 /* ───────── type ───────── */
@@ -381,6 +385,23 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
   padding:2px 7px;border-radius:99px;letter-spacing:.02em;
 }
 
+/* ─── cultura ─── */
+.cul-prog{display:grid;grid-template-columns:1fr auto;gap:4px 9px;align-items:center;margin-top:6px}
+.cul-prog .bar{margin-top:0;grid-column:1}
+.cul-prog .pc{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums}
+.score{
+  font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;
+  color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.score small{color:var(--text-3);font-weight:400;font-size:10px}
+.chips.notas{gap:6px}
+.chips.notas .chip{min-width:38px;text-align:center;padding:8px 0;font-family:"IBM Plex Mono",monospace}
+.cul-year{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+  color:var(--text-3);margin:14px 0 7px;
+}
+.cul-year:first-child{margin-top:0}
+
 /* ─── tabla de series de la sesión ─── */
 .strows{display:flex;flex-direction:column;gap:5px}
 .sthead,.strow{display:grid;grid-template-columns:16px 1fr 1fr 28px 30px 24px;gap:4px;align-items:center}
@@ -490,6 +511,7 @@ button.set:hover{border-color:var(--accent)}
 .sheet-wrap[data-mod="gastos"]{--accent:var(--m-gastos)}
 .sheet-wrap[data-mod="notas"]{--accent:var(--m-notas)}
 .sheet-wrap[data-mod="gym"]{--accent:var(--m-gym)}
+.sheet-wrap[data-mod="cultura"]{--accent:var(--m-cultura)}
 .sheet-back{position:absolute;inset:0;background:rgba(10,12,18,.5);backdrop-filter:blur(3px);animation:fade .2s ease}
 .sheet{
   position:relative;
@@ -600,6 +622,7 @@ const I = {
   gym:'<path d="M4 9.5v5M7.5 6.5v11M16.5 6.5v11M20 9.5v5M7.5 12h9"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
   timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/>',
+  cultura:'<path d="M12 7.5v12M12 7.5C10.6 6 8.7 5.5 4.5 5.5v12c4.2 0 6.1.5 7.5 2 1.4-1.5 3.3-2 7.5-2v-12c-4.2 0-6.1.5-7.5 2"/>',
   check:'<path d="m4 12 5 5L20 6"/>',
   x:'<path d="M18 6 6 18M6 6l12 12"/>',
   pin:'<path d="M12 2 9 9H2l5.5 4L5 20l7-4.5L19 20l-2.5-7L22 9h-7z"/>'
@@ -611,8 +634,19 @@ const TABS = [
   {id:"tareas",  label:"Listas",  top:"Listas"},
   {id:"gastos",  label:"Gastos",  top:"Gastos"},
   {id:"notas",   label:"Notas",   top:"Notas"},
-  {id:"gym",     label:"Gym",     top:"Gimnasio"}
+  {id:"gym",     label:"Gym",     top:"Gimnasio"},
+  {id:"cultura", label:"Cultura", top:"Cultura"}
 ];
+
+/* Las cuatro categorias de la lista de cultura. Cada una llama de otra forma a
+   "quien lo hizo" y al verbo de estar consumiendolo. */
+const CULTURA = [
+  {id:"libros", label:"Libros", uno:"libro",      verbo:"Leyendo",  quien:"Autor"},
+  {id:"juegos", label:"Juegos", uno:"juego",      verbo:"Jugando",  quien:"Estudio"},
+  {id:"pelis",  label:"Pelis",  uno:"película",  verbo:"Viendo",   quien:"Director"},
+  {id:"series", label:"Series", uno:"serie",      verbo:"Viendo",   quien:"Creador"}
+];
+const culCat = id => CULTURA.filter(c=>c.id===id)[0] || CULTURA[0];
 
 const CATS = ["Comida","Casa","Transporte","Ocio","Salud","Compras","Otros"];
 
@@ -742,6 +776,16 @@ function seed(){
       {id:uid(),text:"Proveedores\n\nQueso azul — pedir antes del jueves\nCecina — subió un 8 %",pinned:false,ts:Date.now()-9e6}
     ],
     gymTab:"sesion",
+    culTab:"libros",
+    cultura:[
+      {id:uid(),cat:"libros",title:"Dune",by:"Frank Herbert",started:daysAgo(24),done:null,score:null,page:212,pages:680},
+      {id:uid(),cat:"libros",title:"El nombre del viento",by:"Patrick Rothfuss",started:daysAgo(96),done:daysAgo(41),score:9,page:662,pages:662},
+      {id:uid(),cat:"juegos",title:"Hollow Knight",by:"Team Cherry",started:daysAgo(11),done:null,score:null},
+      {id:uid(),cat:"juegos",title:"Elden Ring",by:"FromSoftware",started:daysAgo(210),done:daysAgo(88),score:10},
+      {id:uid(),cat:"pelis",title:"Dune: parte dos",by:"Denis Villeneuve",started:daysAgo(33),done:daysAgo(33),score:8},
+      {id:uid(),cat:"series",title:"Severance",by:"Dan Erickson",started:daysAgo(6),done:null,score:null},
+      {id:uid(),cat:"series",title:"Andor",by:"Tony Gilroy",started:daysAgo(140),done:daysAgo(119),score:9}
+    ],
     push:{url:"",token:"",on:false},
     gym:{
       exercises:EJERCICIOS.slice(),
@@ -779,6 +823,8 @@ function load(){
     if(!s.gym.stepKg) s.gym.stepKg = 2.5;
     migrateRoutines(s.gym);
     s.gymTab = s.gymTab || "sesion";
+    s.culTab = s.culTab || "libros";
+    s.cultura = s.cultura || [];
     s.push = s.push || {url:"",token:"",on:false};
     s.notes = s.notes || []; s.tasks = s.tasks || []; s.expenses = s.expenses || [];
     return s;
@@ -791,7 +837,7 @@ save();   /* deja guardadas las conversiones de formato hechas al cargar */
 /* Vacía el contenido de ejemplo pero conserva los hábitos y el catálogo
    de ejercicios, que son estructura útil y no datos inventados. */
 function wipeContent(){
-  S.tasks = []; S.expenses = []; S.notes = [];
+  S.tasks = []; S.expenses = []; S.notes = []; S.cultura = [];
   S.habits.forEach(h=>h.days = {});
   S.gym.sessions = []; S.gym.active = null;
   S.gym.routines = []; S.gym.goals = []; S.gym.weights = [];
@@ -1676,6 +1722,125 @@ function gymProgreso(){
     '<section><h2 class="sec">Logros · '+unl+' de '+tot+'</h2><div class="panel">'+logros+'</div></section>';
 }
 
+/* ══════════ cultura ══════════ */
+const culPct = it => (it.pages>0) ? Math.max(0, Math.min(100, Math.round((it.page||0)/it.pages*100))) : 0;
+function culDias(it){
+  if(!it.done) return "";
+  const d = Math.round((parseKey(it.done)-parseKey(it.started))/86400000);
+  if(d<=0) return "en el día";
+  return "en "+d+" día"+(d===1?"":"s");
+}
+function culFila(it){
+  const pct = culPct(it);
+  const sub = it.done
+    ? ("terminado "+relDate(it.done)+(culDias(it)?" · "+culDias(it):""))
+    : ("empezado "+relDate(it.started)+(it.by?" · "+it.by:""));
+  return '<button class="row" data-act="culOpen" data-id="'+it.id+'">'+
+    '<div class="row-main">'+
+      '<span class="row-title">'+esc(it.title)+'</span>'+
+      '<span class="row-sub mono">'+esc(sub)+'</span>'+
+      (!it.done && it.pages>0
+        ? '<span class="cul-prog"><span class="bar"><i style="width:'+pct+'%"></i></span>'+
+          '<span class="pc">'+pct+'%</span>'+
+          '<span class="row-sub mono" style="grid-column:1/-1">página '+(it.page||0)+' de '+it.pages+'</span></span>'
+        : '')+
+    '</div>'+
+    (it.score ? '<span class="score">'+it.score+'<small>/10</small></span>' : '<span class="row-val">→</span>')+
+  '</button>';
+}
+function vCultura(){
+  const c = culCat(S.culTab);
+  const items = S.cultura.filter(x=>x.cat===S.culTab);
+  const curso = items.filter(x=>!x.done).sort((a,b)=>b.started.localeCompare(a.started));
+  const fin = items.filter(x=>x.done).sort((a,b)=>b.done.localeCompare(a.done));
+
+  const notas = fin.filter(x=>x.score);
+  const media = notas.length ? (notas.reduce((t,x)=>t+x.score,0)/notas.length) : 0;
+  const esteAno = S.cultura.filter(x=>x.done && x.done.slice(0,4)===String(new Date().getFullYear())).length;
+
+  /* Los terminados se agrupan por año: es la forma natural de mirar atrás. */
+  let ultimoAno = null, finHtml = "";
+  fin.forEach(it=>{
+    const ano = it.done.slice(0,4);
+    if(ano!==ultimoAno){
+      if(ultimoAno!==null) finHtml += '</div>';
+      finHtml += '<div class="cul-year">'+ano+'</div><div class="stack">';
+      ultimoAno = ano;
+    }
+    finHtml += culFila(it);
+  });
+  if(ultimoAno!==null) finHtml += '</div>';
+
+  return demoBanner()+
+    '<div class="hero">'+
+      '<span class="eyebrow">'+esteAno+' terminado'+(esteAno===1?"":"s")+' en '+new Date().getFullYear()+'</span>'+
+      '<h1 class="title">Cultura</h1>'+
+    '</div>'+
+    '<div class="seg" role="group">'+
+      CULTURA.map(x=>'<button data-act="culTab" data-c="'+x.id+'" aria-pressed="'+(S.culTab===x.id)+'">'+x.label+'</button>').join("")+
+    '</div>'+
+    '<section><h2 class="sec">'+c.verbo+' ahora</h2>'+
+      (curso.length ? '<div class="stack">'+curso.map(culFila).join("")+'</div>'
+        : '<div class="empty">Nada empezado.<br>Toca <b>+</b> para añadir un '+c.uno+'.</div>')+
+    '</section>'+
+    '<section><h2 class="sec">Terminados'+(notas.length?' · nota media '+media.toFixed(1).replace(".",","):'')+'</h2>'+
+      (fin.length ? finHtml : '<div class="empty">Todavía no has terminado ningún '+c.uno+'.</div>')+
+    '</section>';
+}
+
+function sheetCulNuevo(){
+  const c = culCat(S.culTab);
+  openSheet("Añadir "+c.uno,
+    '<div><label class="lbl-s" for="cuT">Título</label>'+
+    '<input class="field" id="cuT" enterkeyhint="done" autocomplete="off"></div>'+
+    '<div><label class="lbl-s" for="cuB">'+c.quien+' (opcional)</label>'+
+    '<input class="field" id="cuB" autocomplete="off"></div>'+
+    (S.culTab==="libros"
+      ? '<div><label class="lbl-s" for="cuP">Páginas totales (opcional)</label>'+
+        '<input class="field mono" id="cuP" inputmode="numeric" placeholder="0" style="text-align:center"></div>'
+      : '')+
+    '<button class="btn wide" data-act="culSave">Añadir</button>',
+    b=>$("#cuT",b).focus());
+}
+
+function sheetCulItem(id){
+  const it = S.cultura.filter(x=>x.id===id)[0]; if(!it) return;
+  const c = culCat(it.cat);
+  const pct = culPct(it);
+  const libro = it.cat==="libros";
+
+  const marcador = (libro && !it.done)
+    ? '<div><span class="lbl-s">Punto de libro</span>'+
+        '<div class="setform" style="grid-template-columns:1fr 1fr">'+
+          '<div><label class="lbl-s" for="cuPg">Página</label><input class="field mono" id="cuPg" inputmode="numeric" value="'+(it.page||0)+'" style="text-align:center"></div>'+
+          '<div><label class="lbl-s" for="cuPt">De un total de</label><input class="field mono" id="cuPt" inputmode="numeric" value="'+(it.pages||0)+'" style="text-align:center"></div>'+
+        '</div>'+
+        (it.pages>0 ? '<div class="cul-prog" style="margin-top:11px"><span class="bar"><i style="width:'+pct+'%"></i></span><span class="pc">'+pct+'%</span></div>' : '')+
+        '<button class="btn ghost sm wide" data-act="culPage" data-id="'+it.id+'" style="margin-top:11px">Guardar el punto de libro</button>'+
+      '</div>'
+    : '';
+
+  const notas = '<div><span class="lbl-s">Puntuación</span><div class="chips notas" id="cuNota" data-id="'+it.id+'">'+
+    [1,2,3,4,5,6,7,8,9,10].map(n=>'<button class="chip" data-act="culScore" data-n="'+n+'" aria-pressed="'+(it.score===n)+'">'+n+'</button>').join("")+
+    '</div></div>';
+
+  const datos = '<div class="panel">'+
+    (it.by?'<div class="kv"><span>'+c.quien+'</span><b>'+esc(it.by)+'</b></div>':'')+
+    '<div class="kv"><span>Empezado</span><b class="mono">'+relDate(it.started)+'</b></div>'+
+    (it.done?'<div class="kv"><span>Terminado</span><b class="mono">'+relDate(it.done)+'</b></div>':'')+
+    (it.done&&culDias(it)?'<div class="kv"><span>Tardaste</span><b class="mono">'+culDias(it)+'</b></div>':'')+
+    (libro&&it.pages>0?'<div class="kv"><span>Páginas</span><b class="mono">'+(it.done?String(it.pages):(it.page||0)+" de "+it.pages)+'</b></div>':'')+
+  '</div>';
+
+  openSheet(it.title,
+    datos + marcador + notas +
+    (it.done
+      ? '<button class="btn ghost wide" data-act="culReopen" data-id="'+it.id+'">Volver a ponerlo en curso</button>'
+      : '<button class="btn wide" data-act="culFinish" data-id="'+it.id+'">Marcar como terminado</button>')+
+    '<button class="btn danger wide" data-act="culDel" data-id="'+it.id+'">Eliminar de la lista</button>'
+  );
+}
+
 function vGym(){
   const a = S.gym.active;
   const sess = S.gym.sessions.slice().sort((x,y)=>y.start-x.start);
@@ -1721,12 +1886,13 @@ function render(){
     : S.tab==="tareas" ? vTareas()
     : S.tab==="gastos" ? vGastos()
     : S.tab==="notas"  ? vNotas()
+    : S.tab==="cultura" ? vCultura()
     : vGym();
   view.scrollTop = keepScroll;
 
   const pb = $("#primaryBtn");
   pb.hidden = false;
-  pb.setAttribute("aria-label", {habitos:"Nuevo hábito",tareas:"Añadir",gastos:"Nuevo gasto",notas:"Nueva nota",gym:"Añadir ejercicio"}[S.tab]);
+  pb.setAttribute("aria-label", {habitos:"Nuevo hábito",tareas:"Añadir",gastos:"Nuevo gasto",notas:"Nueva nota",gym:"Añadir ejercicio",cultura:"Añadir a la lista"}[S.tab]);
 
   const f = $("#taskForm");
   if(f) f.addEventListener("submit", e=>{
@@ -2117,6 +2283,7 @@ document.addEventListener("click", function(e){
       else if(S.tab==="tareas"){ const i=$("#taskInput"); if(i) i.focus(); }
       else if(S.tab==="gastos") sheetGasto();
       else if(S.tab==="notas") sheetNota(null);
+      else if(S.tab==="cultura") sheetCulNuevo();
       else if(S.gymTab==="rutinas") openRoutine(null);
       else if(S.gymTab==="progreso") sheetGoal();
       else if(S.gym.active) sheetAddEx("session");
@@ -2183,6 +2350,57 @@ document.addEventListener("click", function(e){
       save(); closeSheet(); render(); break;
     }
     case "delNote": S.notes = S.notes.filter(x=>x.id!==id); save(); closeSheet(); render(); break;
+
+    /* ─── cultura ─── */
+    case "culTab": S.culTab = el.dataset.c; save(); render(); break;
+    case "culOpen": sheetCulItem(id); break;
+    case "culSave": {
+      const t = $("#cuT").value.trim();
+      if(!t){ $("#cuT").focus(); break; }
+      const pg = $("#cuP");
+      S.cultura.unshift({
+        id:uid(), cat:S.culTab, title:t,
+        by:$("#cuB").value.trim(),
+        started:today(), done:null, score:null,
+        page:0, pages: pg ? (parseInt(pg.value,10)||0) : 0
+      });
+      save(); closeSheet(); render(); break;
+    }
+    case "culScore": {
+      /* La nota se elige aquí y se guarda al momento: así vale tanto para
+         puntuar al terminar como para cambiar la nota de algo ya terminado. */
+      const it = S.cultura.filter(x=>x.id===$("#cuNota").dataset.id)[0];
+      const n = +el.dataset.n;
+      Array.prototype.forEach.call($("#cuNota").children, c=>c.setAttribute("aria-pressed","false"));
+      el.setAttribute("aria-pressed","true");
+      if(it){ it.score = n; save(); }
+      break;
+    }
+    case "culPage": {
+      const it = S.cultura.filter(x=>x.id===id)[0]; if(!it) break;
+      it.page  = Math.max(0, parseInt($("#cuPg").value,10)||0);
+      it.pages = Math.max(0, parseInt($("#cuPt").value,10)||0);
+      if(it.pages && it.page>it.pages) it.page = it.pages;
+      save(); closeSheet(); render();
+      toast("Punto de libro en la página "+it.page+(it.pages?" · "+culPct(it)+"% leído":""));
+      break;
+    }
+    case "culFinish": {
+      const it = S.cultura.filter(x=>x.id===id)[0]; if(!it) break;
+      it.done = today();
+      if(it.pages>0) it.page = it.pages;
+      save(); closeSheet(); render();
+      toast(esc(it.title)+": terminado"+(it.score?" · "+it.score+"/10":". Puedes ponerle nota cuando quieras."));
+      break;
+    }
+    case "culReopen": {
+      const it = S.cultura.filter(x=>x.id===id)[0]; if(!it) break;
+      it.done = null;
+      save(); closeSheet(); render(); break;
+    }
+    case "culDel":
+      S.cultura = S.cultura.filter(x=>x.id!==id);
+      save(); closeSheet(); render(); break;
 
     /* gym · navegación */
     case "gymTab": S.gymTab = el.dataset.gt; save(); render(); break;
