@@ -416,10 +416,19 @@ button.set:hover{border-color:var(--accent)}
 .rt-row:last-child{border-bottom:0}
 .rt-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .rt-head b{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.rt-grid.two{grid-template-columns:repeat(2,1fr);margin-top:6px}
-.rt-grid .field{padding:8px 4px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:13px}
-.rt-grid label{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);display:block;margin-bottom:4px;text-align:center}
+.rt-sub{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2);margin-bottom:4px}
+.rt-sub .field{width:68px;padding:7px 4px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:13px}
+
+/* Una fila por serie: numero, reps, kilos, calentamiento y quitar. */
+.rt-set,.rt-cols{display:grid;grid-template-columns:20px 1fr 1fr 38px 26px;gap:6px;align-items:center}
+.rt-set{margin-bottom:6px}
+.rt-set .field{padding:8px 4px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:13px}
+.rt-cols span{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);text-align:center}
+.rt-n{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--text-3);text-align:center;font-variant-numeric:tabular-nums}
+.rt-n.cal{color:var(--accent);font-weight:600}
+.chip.mini{padding:7px 0;font-size:10px;text-align:center;border-radius:8px;letter-spacing:.03em}
+.rt-set .x{width:26px;height:26px}
+.rt-set .x svg{width:13px;height:13px}
 
 /* ───────── sheet ───────── */
 .sheet-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
@@ -619,25 +628,29 @@ function seed(){
   ]);
 
   const R = (name,exs)=>({id:uid(),name:name,exercises:exs});
-  const E = (name,reps,sets,kg,rest,warm)=>({name:name,targetSets:sets,targetReps:reps,targetWeight:kg,restSeconds:rest,warmupSets:warm||0});
+  const E = (name,rest,sets)=>({name:name,restSeconds:rest,sets:sets});
+  const X  = (reps,kg)=>({reps:String(reps), kg:kg});          /* serie efectiva */
+  const C  = (reps,kg)=>({reps:String(reps), kg:kg, warmup:true}); /* calentamiento */
+  const xN = (n,reps,kg)=>{ const a=[]; for(let i=0;i<n;i++) a.push(X(reps,kg)); return a; };
+
   const routines = [
     R("Empuje",[
-      E("Press banca","6-8",4,70,150,2),
-      E("Press militar","8-10",3,35,120,1),
-      E("Aperturas con mancuernas","10-12",3,12,90,0),
-      E("Extensión de tríceps en polea","12-15",3,25,60,0)
+      E("Press banca",150,[C(10,35), C(8,50), X("6-8",70), X("6-8",70), X("6-8",72.5), X(6,75)]),
+      E("Press militar",120,[C(10,20), X("8-10",35), X("8-10",35), X(8,37.5)]),
+      E("Aperturas con mancuernas",90, xN(3,"10-12",12)),
+      E("Extensión de tríceps en polea",60, xN(3,"12-15",25))
     ]),
     R("Tirón",[
-      E("Dominadas","6-10",4,0,150,1),
-      E("Remo con barra","8-10",4,55,120,1),
-      E("Jalón al pecho","10-12",3,45,90,0),
-      E("Curl de bíceps con barra","10-12",3,27.5,60,0)
+      E("Dominadas",150,[C(5,0)].concat(xN(4,"6-10",0))),
+      E("Remo con barra",120,[C(10,30), X("8-10",55), X("8-10",55), X("8-10",57.5), X(8,60)]),
+      E("Jalón al pecho",90, xN(3,"10-12",45)),
+      E("Curl de bíceps con barra",60, xN(3,"10-12",27.5))
     ]),
     R("Pierna",[
-      E("Sentadilla","5-8",4,90,180,2),
-      E("Peso muerto rumano","8-10",3,70,150,1),
-      E("Curl femoral tumbado","10-12",3,40,90,0),
-      E("Elevación de talones de pie","12-15",4,50,60,0)
+      E("Sentadilla",180,[C(10,40), C(6,60), X("5-8",90), X("5-8",90), X("5-8",92.5), X(5,95)]),
+      E("Peso muerto rumano",150,[C(8,40), X("8-10",70), X("8-10",70), X(8,72.5)]),
+      E("Curl femoral tumbado",90, xN(3,"10-12",40)),
+      E("Elevación de talones de pie",60, xN(4,"12-15",50))
     ])
   ];
 
@@ -702,6 +715,7 @@ function load(){
     s.gym.profile   = s.gym.profile   || {};
     if(s.gym.active===undefined) s.gym.active = null;
     if(!s.gym.restDefault) s.gym.restDefault = 90;
+    migrateRoutines(s.gym);
     s.gymTab = s.gymTab || "sesion";
     s.push = s.push || {url:"",token:"",on:false};
     s.notes = s.notes || []; s.tasks = s.tasks || []; s.expenses = s.expenses || [];
@@ -767,19 +781,55 @@ function repsRange(v){
   return {min:0, max:0, label:""};
 }
 
-/* Series que la rutina deja preparadas en pantalla: primero el calentamiento
-   (con la mitad del peso como sugerencia) y después las series efectivas. */
-function planSets(e){
+/* Cada ejercicio de una rutina guarda su lista de series, una a una, con sus
+   propias reps y kilos. Las rutinas viejas guardaban solo "N series × R reps ×
+   K kg" y se convierten a esa forma al abrirlas. */
+function routineSets(e){
+  if(Array.isArray(e.sets) && e.sets.length) return e.sets;
   const out = [];
-  const r = repsRange(e.targetReps);
+  const r = repsRange(e.targetReps).label || "10";
   const kg = Number(e.targetWeight)||0;
   const w = Math.max(0, Number(e.warmupSets)||0);
-  for(let i=0;i<w;i++)
-    out.push({plan:true, todo:true, warmup:true, tReps:r.label, tKg:kg ? Math.round(kg*0.5/2.5)*2.5 : 0});
+  for(let i=0;i<w;i++) out.push({reps:r, kg: kg ? Math.round(kg*0.5/2.5)*2.5 : 0, warmup:true});
   const n = Math.max(1, Number(e.targetSets)||1);
-  for(let i=0;i<n;i++)
-    out.push({plan:true, todo:true, tReps:r.label, tKg:kg});
+  for(let i=0;i<n;i++) out.push({reps:r, kg:kg});
   return out;
+}
+function migrateRoutines(gym){
+  (gym.routines||[]).forEach(r=>{
+    (r.exercises||[]).forEach(e=>{
+      if(!Array.isArray(e.sets) || !e.sets.length){
+        e.sets = routineSets(e);
+        delete e.targetSets; delete e.targetReps; delete e.targetWeight; delete e.warmupSets;
+      }
+    });
+  });
+}
+function routineCount(r){
+  let work = 0, warm = 0;
+  (r.exercises||[]).forEach(e=>routineSets(e).forEach(s=>{ if(s.warmup) warm++; else work++; }));
+  return {work:work, warm:warm};
+}
+
+/* Series que la rutina deja preparadas en pantalla, en su orden. */
+function planSets(e){
+  return routineSets(e).map(s=>({
+    plan:true, todo:true,
+    warmup:!!s.warmup,
+    tReps:repsRange(s.reps).label,
+    tKg:Number(s.kg)||0
+  }));
+}
+function routineTarget(e){
+  const list = routineSets(e);
+  const work = list.filter(s=>!s.warmup);
+  return {
+    sets: work.length,
+    warm: list.length-work.length,
+    kg: work.length ? Number(work[0].kg)||0 : 0,
+    reps: work.length ? work[work.length-1].reps : "",
+    rest: e.restSeconds
+  };
 }
 
 function records(){
@@ -1265,8 +1315,9 @@ function sessionHtml(a){
   const ex = (a.entries||[]).map((en,i)=>{
     const t = en.target;
     const done = hechas(en).filter(s=>!isWarm(s)).length;
+    /* Con series a medida, el detalle ya lo lleva cada ficha: aquí solo el recuento. */
     const meta = t
-      ? (done+"/"+t.sets+" series · "+esc(repsRange(t.reps).label||"—")+" reps"+(t.kg?" · "+t.kg+" kg":"")+(t.rest?" · "+t.rest+"s":""))
+      ? (done+"/"+t.sets+" series"+(t.warm?" · "+t.warm+" cal":"")+(t.rest?" · descanso "+t.rest+"s":""))
       : (hechas(en).length+" serie"+(hechas(en).length===1?"":"s"));
     const best = Math.max.apply(null, hechas(en).filter(s=>!isWarm(s)).map(s=>s.kg).concat([0]));
     return '<div class="ex">'+
@@ -1311,10 +1362,10 @@ function gymSesion(){
   const rt = S.gym.routines.length
     ? '<section><h2 class="sec">Empezar con una rutina</h2><div class="stack">'+
         S.gym.routines.map(r=>{
-          const series = r.exercises.reduce((t,e)=>t+(e.targetSets||0),0);
+          const c = routineCount(r);
           return '<button class="row" data-act="startRoutine" data-id="'+r.id+'"><div class="row-main">'+
             '<span class="row-title">'+esc(r.name)+'</span>'+
-            '<span class="row-sub mono">'+r.exercises.length+' ejercicios · '+series+' series</span>'+
+            '<span class="row-sub mono">'+r.exercises.length+' ejercicios · '+c.work+' series'+(c.warm?" + "+c.warm+" cal":"")+'</span>'+
           '</div><span class="row-val">→</span></button>';
         }).join("")+'</div></section>'
     : "";
@@ -1330,12 +1381,11 @@ function gymRutinas(){
     return '<div class="empty">No tienes rutinas todavía.<br>Toca <b>+</b> arriba para crear la primera.</div>'+
            '<p class="hint">Una rutina guarda los ejercicios con sus series, reps, peso objetivo y segundos de descanso. Al empezar un entreno con ella, todo viene ya puesto.</p>';
   return '<div class="stack">'+S.gym.routines.map(r=>{
-      const series = r.exercises.reduce((t,e)=>t+(e.targetSets||0),0);
-      const cal = r.exercises.reduce((t,e)=>t+(e.warmupSets||0),0);
+      const c = routineCount(r);
       const usada = S.gym.sessions.filter(s=>s.routine===r.name).length;
       return '<button class="row" data-act="editRoutine" data-id="'+r.id+'"><div class="row-main">'+
         '<span class="row-title">'+esc(r.name)+'</span>'+
-        '<span class="row-sub mono">'+r.exercises.length+' ejercicios · '+series+' series'+(cal?" + "+cal+" cal":"")+(usada?" · usada "+usada+"×":"")+'</span>'+
+        '<span class="row-sub mono">'+r.exercises.length+' ejercicios · '+c.work+' series'+(c.warm?" + "+c.warm+" cal":"")+(usada?" · usada "+usada+"×":"")+'</span>'+
       '</div><span class="row-val">→</span></button>';
     }).join("")+'</div>'+
     '<button class="btn wide" data-act="newRoutine">Nueva rutina</button>';
@@ -1641,7 +1691,11 @@ function addExercise(name){
   if(S.gym.exercises.indexOf(name)<0) S.gym.exercises.push(name);
   if(exPickTo==="routine"){
     readRoutineDOM();
-    rtDraft.exercises.push({name:name,targetSets:3,targetReps:"8-10",targetWeight:0,restSeconds:S.gym.restDefault,warmupSets:0});
+    rtDraft.exercises.push({
+      name:name,
+      restSeconds:S.gym.restDefault,
+      sets:[{reps:"8-10",kg:0},{reps:"8-10",kg:0},{reps:"8-10",kg:0}]
+    });
     save(); renderRoutineSheet();
     return;
   }
@@ -1743,7 +1797,11 @@ let rtDraft = null;
 function openRoutine(id){
   const r = id ? S.gym.routines.filter(x=>x.id===id)[0] : null;
   rtDraft = r
-    ? {id:r.id, name:r.name, exercises:r.exercises.map(e=>({name:e.name,targetSets:e.targetSets,targetReps:e.targetReps,targetWeight:e.targetWeight,restSeconds:e.restSeconds,warmupSets:e.warmupSets}))}
+    ? {id:r.id, name:r.name, exercises:r.exercises.map(e=>({
+        name:e.name,
+        restSeconds:e.restSeconds,
+        sets:routineSets(e).map(s=>({reps:s.reps, kg:s.kg, warmup:!!s.warmup}))
+      }))}
     : {id:null, name:"", exercises:[]};
   renderRoutineSheet();
 }
@@ -1751,32 +1809,42 @@ function readRoutineDOM(){
   if(!rtDraft) return;
   const n = $("#rtName"); if(n) rtDraft.name = n.value;
   rtDraft.exercises.forEach((e,i)=>{
-    const g = (sel)=>{ const el = $("#"+sel+i); return el ? el.value : null; };
-    const s = g("rtS"), r = g("rtR"), k = g("rtK"), d = g("rtD"), w = g("rtW");
-    if(s!==null) e.targetSets   = parseInt(s,10)||1;
-    if(r!==null) e.targetReps   = repsRange(r).label || e.targetReps || "10";
-    if(k!==null) e.targetWeight = parseFloat((k||"0").replace(",","."))||0;
-    if(d!==null) e.restSeconds  = parseInt(d,10)||0;
-    if(w!==null) e.warmupSets   = Math.max(0, parseInt(w,10)||0);
+    const d = $("#rtD"+i);
+    if(d) e.restSeconds = Math.max(0, parseInt(d.value,10)||0);
+    (e.sets||[]).forEach((s,j)=>{
+      const r = $("#rsR"+i+"_"+j), k = $("#rsK"+i+"_"+j);
+      if(r) s.reps = repsRange(r.value).label || s.reps || "10";
+      if(k) s.kg = parseFloat((k.value||"0").replace(",","."))||0;
+    });
   });
 }
 function renderRoutineSheet(){
   const d = rtDraft;
   const rows = d.exercises.length
-    ? d.exercises.map((e,i)=>'<div class="rt-row">'+
-        '<div class="rt-head"><b>'+esc(e.name)+'</b>'+
-          '<button class="x" data-act="rtDelEx" data-i="'+i+'" aria-label="Quitar">'+svg(I.x)+'</button></div>'+
-        '<div class="rt-grid">'+
-          '<div><label for="rtS'+i+'">Series</label><input class="field" id="rtS'+i+'" inputmode="numeric" value="'+(e.targetSets||3)+'"></div>'+
-          '<div><label for="rtR'+i+'">Reps</label><input class="field" id="rtR'+i+'" inputmode="text" value="'+esc(repsRange(e.targetReps).label||"10")+'" placeholder="6-8"></div>'+
-          '<div><label for="rtK'+i+'">Kg</label><input class="field" id="rtK'+i+'" inputmode="decimal" value="'+(e.targetWeight||0)+'"></div>'+
-        '</div>'+
-        '<div class="rt-grid two">'+
-          '<div><label for="rtD'+i+'">Descanso (s)</label><input class="field" id="rtD'+i+'" inputmode="numeric" value="'+(e.restSeconds||90)+'"></div>'+
-          '<div><label for="rtW'+i+'">Calentamiento</label><input class="field" id="rtW'+i+'" inputmode="numeric" value="'+(e.warmupSets||0)+'"></div>'+
-        '</div>'+
-      '</div>').join("")
-    : '<p class="hint">Añade los ejercicios de esta rutina en el orden en que los haces.</p>';
+    ? d.exercises.map((e,i)=>{
+        let n = 0;
+        const sets = (e.sets||[]).map((s,j)=>{
+          const w = !!s.warmup;
+          if(!w) n++;
+          return '<div class="rt-set">'+
+            '<span class="rt-n'+(w?" cal":"")+'">'+(w?"C":n)+'</span>'+
+            '<input class="field" id="rsR'+i+'_'+j+'" value="'+esc(repsRange(s.reps).label||"")+'" placeholder="6-8" aria-label="Repeticiones de la serie '+(j+1)+'">'+
+            '<input class="field" id="rsK'+i+'_'+j+'" value="'+(s.kg||0)+'" inputmode="decimal" aria-label="Kilos de la serie '+(j+1)+'">'+
+            '<button class="chip mini" data-act="rtWarm" data-i="'+i+'" data-j="'+j+'" aria-pressed="'+w+'" title="Serie de calentamiento">cal</button>'+
+            '<button class="x" data-act="rtDelSet" data-i="'+i+'" data-j="'+j+'" aria-label="Quitar serie">'+svg(I.x)+'</button>'+
+          '</div>';
+        }).join("");
+        return '<div class="rt-row">'+
+          '<div class="rt-head"><b>'+esc(e.name)+'</b>'+
+            '<button class="x" data-act="rtDelEx" data-i="'+i+'" aria-label="Quitar ejercicio">'+svg(I.x)+'</button></div>'+
+          '<div class="rt-sub"><label for="rtD'+i+'">Descanso</label>'+
+            '<input class="field" id="rtD'+i+'" inputmode="numeric" value="'+(e.restSeconds||90)+'"><span>segundos entre series</span></div>'+
+          (sets ? '<div class="rt-cols"><span></span><span>reps</span><span>kg</span><span></span><span></span></div>'+sets
+                : '<p class="hint">Este ejercicio no tiene series.</p>')+
+          '<button class="btn ghost sm" data-act="rtAddSet" data-i="'+i+'">+ serie</button>'+
+        '</div>';
+      }).join("")
+    : '<p class="hint">Añade los ejercicios de esta rutina en el orden en que los haces. Luego podrás ajustar cada serie por separado: reps, kilos y cuáles son de calentamiento.</p>';
 
   openSheet(d.id?"Editar rutina":"Nueva rutina",
     '<div><label class="lbl-s" for="rtName">Nombre</label>'+
@@ -2000,11 +2068,7 @@ document.addEventListener("click", function(e){
       const r = S.gym.routines.filter(x=>x.id===id)[0]; if(!r) break;
       S.gym.active = {
         id:uid(), name:r.name, routine:r.name, date:today(), start:Date.now(), notes:"",
-        entries:r.exercises.map(e=>({
-          ex:e.name,
-          sets:planSets(e),
-          target:{sets:e.targetSets,reps:e.targetReps,kg:e.targetWeight,rest:e.restSeconds,warm:e.warmupSets}
-        }))
+        entries:r.exercises.map(e=>({ex:e.name, sets:planSets(e), target:routineTarget(e)}))
       };
       S.gymTab = "sesion"; save(); render(); break;
     }
@@ -2087,10 +2151,30 @@ document.addEventListener("click", function(e){
       readRoutineDOM();
       rtDraft.exercises.splice(+el.dataset.i,1);
       renderRoutineSheet(); break;
+    case "rtAddSet": {
+      readRoutineDOM();
+      const e = rtDraft.exercises[+el.dataset.i];
+      const last = (e.sets||[]).filter(s=>!s.warmup).slice(-1)[0];
+      e.sets = e.sets || [];
+      e.sets.push(last ? {reps:last.reps, kg:last.kg} : {reps:"8-10", kg:0});
+      renderRoutineSheet(); break;
+    }
+    case "rtDelSet": {
+      readRoutineDOM();
+      rtDraft.exercises[+el.dataset.i].sets.splice(+el.dataset.j,1);
+      renderRoutineSheet(); break;
+    }
+    case "rtWarm": {
+      readRoutineDOM();
+      const s = rtDraft.exercises[+el.dataset.i].sets[+el.dataset.j];
+      s.warmup = !s.warmup;
+      renderRoutineSheet(); break;
+    }
     case "rtSave": {
       readRoutineDOM();
       const nm = (rtDraft.name||"").trim();
       if(!nm){ $("#rtName").focus(); break; }
+      rtDraft.exercises = rtDraft.exercises.filter(e=>(e.sets||[]).length);
       if(!rtDraft.exercises.length){ sheetAddEx("routine"); break; }
       if(rtDraft.id){
         const r = S.gym.routines.filter(x=>x.id===rtDraft.id)[0];
