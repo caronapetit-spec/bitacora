@@ -72,13 +72,32 @@ Al abrirla desde ese icono no se ve nada del navegador: es la app a pantalla com
 
 ### Publicar un cambio
 
-Cada vez que edites `index.html`:
+Edita `index.html` y lanza:
 
-1. Sube el número de versión en `sw.js` (`bitacora-v1` → `bitacora-v2`). Si no lo haces,
-   el teléfono puede seguir sirviendo la versión vieja desde la caché.
-2. ```bash
-   cd "C:/Users/Usuario/Desktop/Proyectos/Bitacora" && git add . && git commit -m "Describe el cambio" && git push
-   ```
+```bash
+cd "C:/Users/Usuario/Desktop/Proyectos/Bitacora" && ./publicar.sh "describe el cambio"
+```
+
+El script sube el número de versión **en los tres sitios a la vez** y hace el push. Esos
+tres sitios tienen que ir sincronizados o el teléfono se queda con la versión vieja sin
+avisar:
+
+| Dónde | Qué hace |
+|---|---|
+| `index.html` → `BUILD` | lo que la app cree que es |
+| `version.json` → `build` | lo que hay publicado, para poder compararlo |
+| `sw.js` → `CACHE` | invalida la caché guardada en el teléfono |
+
+### Cómo llega la actualización al teléfono
+
+Una PWA instalada en iOS **no tiene botón de recargar ni "deslizar para actualizar"**, así
+que sin ayuda se queda clavada en la versión con la que la instalaste. Por eso la app
+compara su `BUILD` con el `version.json` publicado **al abrirse y cada vez que vuelve a
+primer plano**. Si hay algo nuevo, avisa y se recarga sola; si tienes un panel abierto,
+espera a que lo cierres para no cortarte a media serie.
+
+En **Ajustes → Versión** se ve la que tienes instalada y hay un botón para forzar la
+comprobación.
 
 ## Dónde se guardan los datos
 

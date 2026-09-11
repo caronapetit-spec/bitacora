@@ -666,7 +666,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v18";
+const BUILD = "v19";
 
 function seed(){
   const H = (name,offs)=>{
@@ -2671,7 +2671,7 @@ function iconDataURI(){
     if("serviceWorker" in navigator && location.protocol!=="file:"){
       navigator.serviceWorker.register("sw.js").then(function(reg){
         swReg = reg;
-        buscarActualizacion();
+        buscarActualizacion(true);   /* al abrir, en silencio */
       }).catch(()=>{});
 
       /* Cuando el service worker nuevo toma el control, la pagina que ves sigue
