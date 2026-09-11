@@ -2,7 +2,7 @@
 
 **En línea: <https://caronapetit-spec.github.io/bitacora/>**
 
-App personal para el iPhone: **hábitos, tareas/compra, gastos, notas y gimnasio** en una
+App personal para el iPhone: **hábitos, listas, gastos, notas, gimnasio y cultura** en una
 sola pantalla. Es una **PWA** (Progressive Web App): una web que se instala en la pantalla
 de inicio y se comporta como una app nativa — icono propio, pantalla completa, sin barra
 de navegador, y funciona sin internet.
@@ -93,6 +93,23 @@ Por eso Ajustes (el engranaje arriba a la izquierda) tiene **Copia de seguridad*
 ese bloque de texto de vez en cuando y guárdalo en un correo o en tus notas. Pegarlo ahí
 mismo y pulsar *Restaurar* devuelve todo. Es también la forma de pasar los datos de un
 dispositivo a otro.
+
+## La lista de cultura
+
+Cuatro categorías — **libros, juegos, películas y series** — con la misma mecánica en
+todas: añades lo que has empezado, y cuando lo acabas lo marcas como terminado y le pones
+nota del 1 al 10.
+
+Cada ficha guarda **qué** y **cuándo**: fecha de inicio, fecha de fin y cuánto tardaste.
+Los terminados se agrupan por año, y cada categoría muestra su nota media. La cabecera
+lleva la cuenta de lo terminado en el año en curso.
+
+Los **libros** llevan además **punto de libro**: página actual y total de páginas, con el
+porcentaje leído y una barra de progreso en la propia lista, sin tener que abrir la ficha.
+Al marcar un libro como terminado, la página salta al total automáticamente.
+
+Cada categoría adapta su vocabulario: un libro tiene *autor* y estás *leyendo*; un juego
+tiene *estudio* y estás *jugando*; una película tiene *director* y una serie, *creador*.
 
 ## El módulo de gimnasio
 
