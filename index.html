@@ -361,6 +361,12 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
 .setform .field{padding:9px 11px;text-align:center;font-family:"IBM Plex Mono",monospace}
 
 .set.warm{background:transparent;border:1px dashed var(--line-2);color:var(--text-3)}
+/* Serie planificada pero todavía no hecha: hueco a rellenar, no dato. */
+.set.todo{background:transparent;border:1px dashed var(--line-2);color:var(--text-3);opacity:.75}
+.set.todo b{color:var(--text-2);font-weight:500}
+.set.todo.warm{border-style:dotted}
+button.set{cursor:pointer;transition:border-color .15s,background .15s}
+button.set:hover{border-color:var(--accent)}
 .ex-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .ex-meta{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--text-3);letter-spacing:.03em}
 
@@ -408,7 +414,8 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
 .rt-row:last-child{border-bottom:0}
 .rt-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .rt-head b{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.rt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.rt-grid.two{grid-template-columns:repeat(2,1fr);margin-top:6px}
 .rt-grid .field{padding:8px 4px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:13px}
 .rt-grid label{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-3);display:block;margin-bottom:4px;text-align:center}
 
@@ -610,25 +617,25 @@ function seed(){
   ]);
 
   const R = (name,exs)=>({id:uid(),name:name,exercises:exs});
-  const E = (name,sets,reps,kg,rest,warm)=>({name:name,targetSets:sets,targetReps:reps,targetWeight:kg,restSeconds:rest,warmupSets:warm||0});
+  const E = (name,reps,sets,kg,rest,warm)=>({name:name,targetSets:sets,targetReps:reps,targetWeight:kg,restSeconds:rest,warmupSets:warm||0});
   const routines = [
     R("Empuje",[
-      E("Press banca",4,8,70,150,1),
-      E("Press militar",3,10,35,120,0),
-      E("Aperturas con mancuernas",3,12,12,90,0),
-      E("Extensión de tríceps en polea",3,12,25,60,0)
+      E("Press banca","6-8",4,70,150,2),
+      E("Press militar","8-10",3,35,120,1),
+      E("Aperturas con mancuernas","10-12",3,12,90,0),
+      E("Extensión de tríceps en polea","12-15",3,25,60,0)
     ]),
     R("Tirón",[
-      E("Dominadas",4,8,0,150,0),
-      E("Remo con barra",4,10,55,120,1),
-      E("Jalón al pecho",3,12,45,90,0),
-      E("Curl de bíceps con barra",3,12,27.5,60,0)
+      E("Dominadas","6-10",4,0,150,1),
+      E("Remo con barra","8-10",4,55,120,1),
+      E("Jalón al pecho","10-12",3,45,90,0),
+      E("Curl de bíceps con barra","10-12",3,27.5,60,0)
     ]),
     R("Pierna",[
-      E("Sentadilla",4,8,90,180,2),
-      E("Peso muerto rumano",3,10,70,150,0),
-      E("Curl femoral tumbado",3,12,40,90,0),
-      E("Elevación de talones de pie",4,15,50,60,0)
+      E("Sentadilla","5-8",4,90,180,2),
+      E("Peso muerto rumano","8-10",3,70,150,1),
+      E("Curl femoral tumbado","10-12",3,40,90,0),
+      E("Elevación de talones de pie","12-15",4,50,60,0)
     ])
   ];
 
@@ -738,25 +745,61 @@ const sum = a=>a.reduce((t,e)=>t+e.amount,0);
    Las series de calentamiento no cuentan para récords ni volumen,
    igual que en FitPals: son trabajo de aproximación, no rendimiento. */
 const isWarm = s=>!!s.warmup;
+/* Una serie "todo" está planificada por la rutina pero aún no hecha: se ve en
+   pantalla como hueco a rellenar, y no cuenta para nada hasta que la registras. */
+const isTodo = s=>!!s.todo;
+const hechas = en=>(en.sets||[]).filter(s=>!isTodo(s));
 function allSessions(){ return S.gym.sessions.concat(S.gym.active?[S.gym.active]:[]); }
+
+/* Las repeticiones de una rutina admiten un número ("8") o un intervalo ("6-8"). */
+function repsRange(v){
+  const s = String(v==null?"":v).trim();
+  const m = s.match(/^(\d+)\s*[-–a]\s*(\d+)$/);
+  if(m){
+    const a = +m[1], b = +m[2];
+    const lo = Math.min(a,b), hi = Math.max(a,b);
+    return {min:lo, max:hi, label:lo===hi ? String(lo) : lo+"-"+hi};
+  }
+  const n = parseInt(s,10);
+  if(n>0) return {min:n, max:n, label:String(n)};
+  return {min:0, max:0, label:""};
+}
+
+/* Series que la rutina deja preparadas en pantalla: primero el calentamiento
+   (con la mitad del peso como sugerencia) y después las series efectivas. */
+function planSets(e){
+  const out = [];
+  const r = repsRange(e.targetReps);
+  const kg = Number(e.targetWeight)||0;
+  const w = Math.max(0, Number(e.warmupSets)||0);
+  for(let i=0;i<w;i++)
+    out.push({plan:true, todo:true, warmup:true, tReps:r.label, tKg:kg ? Math.round(kg*0.5/2.5)*2.5 : 0});
+  const n = Math.max(1, Number(e.targetSets)||1);
+  for(let i=0;i<n;i++)
+    out.push({plan:true, todo:true, tReps:r.label, tKg:kg});
+  return out;
+}
 
 function records(){
   const r = {};
   allSessions().forEach(s=>(s.entries||[]).forEach(en=>en.sets.forEach(st=>{
-    if(isWarm(st)) return;
+    if(isWarm(st) || isTodo(st)) return;
     if(!r[en.ex] || st.kg>r[en.ex].kg) r[en.ex] = {kg:st.kg, reps:st.reps};
   })));
   return r;
 }
 function volumeOf(s){
   let t = 0;
-  (s.entries||[]).forEach(en=>en.sets.forEach(st=>{ if(!isWarm(st)) t += (st.kg||0)*(st.reps||0); }));
+  (s.entries||[]).forEach(en=>en.sets.forEach(st=>{
+    if(isWarm(st) || isTodo(st)) return;
+    t += (st.kg||0)*(st.reps||0);
+  }));
   return t;
 }
 function totalVolume(){ return S.gym.sessions.reduce((t,s)=>t+volumeOf(s),0); }
 function loggedExercises(){
   const set = {};
-  S.gym.sessions.forEach(s=>(s.entries||[]).forEach(en=>{ if(en.sets.length) set[en.ex]=1; }));
+  S.gym.sessions.forEach(s=>(s.entries||[]).forEach(en=>{ if(hechas(en).length) set[en.ex]=1; }));
   return Object.keys(set);
 }
 function mondayIndex(dateStr){
@@ -1201,23 +1244,34 @@ function fmtDur(ms){
   return m<60 ? m+" min" : Math.floor(m/60)+" h "+pad(m%60);
 }
 function setChip(s, isPR){
+  if(isTodo(s)){
+    const r = s.tReps || "—";
+    return '<span class="set todo'+(isWarm(s)?" warm":"")+'">'+
+      '<b>'+esc(r)+'</b>×'+(s.tKg?s.tKg+" kg":"pc")+(isWarm(s)?' <span style="font-size:9px">cal</span>':'')+'</span>';
+  }
   return '<span class="set'+(isWarm(s)?" warm":(isPR?" pr":""))+'">'+
     '<b>'+s.reps+'</b>×'+(s.kg?s.kg+" kg":"pc")+(isWarm(s)?' <span style="font-size:9px">cal</span>':'')+'</span>';
+}
+/* Igual que setChip pero pulsable, para la sesión en curso: cada serie —hecha o
+   pendiente— se toca para registrarla o corregirla. */
+function setBtn(s, isPR, i, j){
+  const inner = setChip(s, isPR).replace(/^<span class="/,'<button data-act="editSet" data-i="'+i+'" data-j="'+j+'" class="').replace(/<\/span>$/,'</button>');
+  return inner;
 }
 function sessionHtml(a){
   const prs = records();
   const ex = (a.entries||[]).map((en,i)=>{
     const t = en.target;
-    const hechas = en.sets.filter(s=>!isWarm(s)).length;
+    const done = hechas(en).filter(s=>!isWarm(s)).length;
     const meta = t
-      ? (hechas+"/"+t.sets+" series · "+t.reps+" reps"+(t.kg?" · "+t.kg+" kg":"")+(t.rest?" · "+t.rest+"s":""))
-      : (en.sets.length+" serie"+(en.sets.length===1?"":"s"));
-    const best = Math.max.apply(null, en.sets.filter(s=>!isWarm(s)).map(s=>s.kg).concat([0]));
+      ? (done+"/"+t.sets+" series · "+esc(repsRange(t.reps).label||"—")+" reps"+(t.kg?" · "+t.kg+" kg":"")+(t.rest?" · "+t.rest+"s":""))
+      : (hechas(en).length+" serie"+(hechas(en).length===1?"":"s"));
+    const best = Math.max.apply(null, hechas(en).filter(s=>!isWarm(s)).map(s=>s.kg).concat([0]));
     return '<div class="ex">'+
       '<div class="ex-head"><span class="ex-name">'+esc(en.ex)+'</span>'+
         '<span class="ex-meta">'+meta+'</span></div>'+
       '<div class="sets">'+
-        en.sets.map(s=>setChip(s, !!(s.kg && prs[en.ex] && s.kg===prs[en.ex].kg && s.kg===best))).join("")+
+        en.sets.map((s,j)=>setBtn(s, !!(!isTodo(s) && s.kg && prs[en.ex] && s.kg===prs[en.ex].kg && s.kg===best), i, j)).join("")+
         '<button class="btn ghost sm" data-act="addSet" data-i="'+i+'">+ serie</button>'+
       '</div>'+
     '</div>';
@@ -1275,10 +1329,11 @@ function gymRutinas(){
            '<p class="hint">Una rutina guarda los ejercicios con sus series, reps, peso objetivo y segundos de descanso. Al empezar un entreno con ella, todo viene ya puesto.</p>';
   return '<div class="stack">'+S.gym.routines.map(r=>{
       const series = r.exercises.reduce((t,e)=>t+(e.targetSets||0),0);
+      const cal = r.exercises.reduce((t,e)=>t+(e.warmupSets||0),0);
       const usada = S.gym.sessions.filter(s=>s.routine===r.name).length;
       return '<button class="row" data-act="editRoutine" data-id="'+r.id+'"><div class="row-main">'+
         '<span class="row-title">'+esc(r.name)+'</span>'+
-        '<span class="row-sub mono">'+r.exercises.length+' ejercicios · '+series+' series'+(usada?" · usada "+usada+"×":"")+'</span>'+
+        '<span class="row-sub mono">'+r.exercises.length+' ejercicios · '+series+' series'+(cal?" + "+cal+" cal":"")+(usada?" · usada "+usada+"×":"")+'</span>'+
       '</div><span class="row-val">→</span></button>';
     }).join("")+'</div>'+
     '<button class="btn wide" data-act="newRoutine">Nueva rutina</button>';
@@ -1584,7 +1639,7 @@ function addExercise(name){
   if(S.gym.exercises.indexOf(name)<0) S.gym.exercises.push(name);
   if(exPickTo==="routine"){
     readRoutineDOM();
-    rtDraft.exercises.push({name:name,targetSets:3,targetReps:10,targetWeight:0,restSeconds:S.gym.restDefault,warmupSets:0});
+    rtDraft.exercises.push({name:name,targetSets:3,targetReps:"8-10",targetWeight:0,restSeconds:S.gym.restDefault,warmupSets:0});
     save(); renderRoutineSheet();
     return;
   }
@@ -1594,22 +1649,49 @@ function addExercise(name){
   setTimeout(()=>sheetAddSet(S.gym.active.entries.length-1),120);
 }
 
-function sheetAddSet(i){
-  const en = S.gym.active && S.gym.active.entries[i]; if(!en) return;
+function sheetAddSet(i, j){
+  const a = S.gym.active; if(!a) return;
+  const en = a.entries[i]; if(!en) return;
   const t = en.target;
-  const lastReal = en.sets.filter(s=>!isWarm(s)).slice(-1)[0];
-  const last = lastReal || {reps:(t&&t.reps)||10, kg:(t&&t.kg)||""};
+  const slot = (j===undefined || j===null) ? null : en.sets[j];
+  const prev = hechas(en).filter(s=>!isWarm(s)).slice(-1)[0];
+
+  let reps, kg, warm, objetivo = "";
+  if(slot && !isTodo(slot)){
+    reps = slot.reps; kg = slot.kg; warm = isWarm(slot);
+  }else if(slot){
+    const r = repsRange(slot.tReps);
+    warm = isWarm(slot);
+    reps = warm ? (r.max||10) : (prev ? prev.reps : (r.max||10));
+    kg = slot.tKg || (!warm && prev ? prev.kg : 0);
+    objetivo = (slot.tReps||"—")+" reps"+(slot.tKg?" · "+slot.tKg+" kg":"")+(warm?" · calentamiento":"");
+  }else{
+    const r = t ? repsRange(t.reps) : {max:10};
+    warm = false;
+    reps = prev ? prev.reps : (r.max||10);
+    kg = prev ? prev.kg : ((t && t.kg) || "");
+  }
+
   const restSec = (t && t.rest) || S.gym.restDefault;
-  const warmDone = en.sets.filter(isWarm).length;
-  const warmSug = t && t.warm ? warmDone < t.warm : false;
+  const yaHecha = slot && !isTodo(slot);
+  const dj = (j===undefined || j===null) ? "" : j;
+
+  let borrar = "";
+  if(slot && isTodo(slot))
+    borrar = '<button class="btn ghost sm" data-act="delSet" data-i="'+i+'" data-j="'+j+'">Quitar esta serie del plan</button>';
+  else if(slot && slot.plan)
+    borrar = '<button class="btn ghost sm" data-act="undoSet" data-i="'+i+'" data-j="'+j+'">Marcar como no hecha</button>';
+  else if(slot)
+    borrar = '<button class="btn ghost sm" data-act="delSet" data-i="'+i+'" data-j="'+j+'">Borrar serie</button>';
 
   openSheet(en.ex,
+    (objetivo? '<p class="hint">Objetivo de la rutina: <b>'+esc(objetivo)+'</b></p>' : "")+
     '<div class="setform">'+
-      '<div><label class="lbl-s" for="sReps">Reps</label><input class="field" id="sReps" inputmode="numeric" value="'+last.reps+'"></div>'+
-      '<div><label class="lbl-s" for="sKg">Kilos</label><input class="field" id="sKg" inputmode="decimal" value="'+(last.kg||"")+'" placeholder="0"></div>'+
-      '<button class="btn" data-act="saveSet" data-i="'+i+'" style="margin-top:23px">Añadir</button>'+
+      '<div><label class="lbl-s" for="sReps">Reps</label><input class="field" id="sReps" inputmode="numeric" value="'+reps+'"></div>'+
+      '<div><label class="lbl-s" for="sKg">Kilos</label><input class="field" id="sKg" inputmode="decimal" value="'+(kg||"")+'" placeholder="0"></div>'+
+      '<button class="btn" data-act="saveSet" data-i="'+i+'" data-j="'+dj+'" style="margin-top:23px">'+(yaHecha?"Guardar":"Hecha")+'</button>'+
     '</div>'+
-    '<button class="chip" id="chWarm" data-act="toggleWarm" aria-pressed="'+warmSug+'" style="align-self:flex-start">Serie de calentamiento</button>'+
+    '<button class="chip" id="chWarm" data-act="toggleWarm" aria-pressed="'+warm+'" style="align-self:flex-start">Serie de calentamiento</button>'+
     '<div><label class="lbl-s" for="sRest">Descanso al guardar</label>'+
       '<div style="display:flex;gap:8px;align-items:center">'+
         '<input class="field mono" id="sRest" inputmode="numeric" value="'+restSec+'" style="text-align:center">'+
@@ -1617,10 +1699,8 @@ function sheetAddSet(i){
       '</div>'+
       '<p class="hint" style="margin-top:7px">A 0 no arranca cronómetro. Al terminar suena y vibra.</p>'+
     '</div>'+
-    (en.sets.length? '<div><span class="lbl-s">Series de hoy</span><div class="sets">'+
-      en.sets.map((s,j)=>'<span class="set'+(isWarm(s)?" warm":"")+'"><b>'+s.reps+'</b>×'+(s.kg?s.kg+" kg":"pc")+
-        ' <button data-act="delSet" data-i="'+i+'" data-j="'+j+'" style="color:var(--text-3);padding-left:3px" aria-label="Borrar serie">×</button></span>').join("")+
-    '</div></div>' : '<p class="hint">Deja los kilos vacíos para ejercicios de peso corporal, como las dominadas.</p>'),
+    borrar+
+    '<p class="hint">Deja los kilos vacíos para ejercicios de peso corporal, como las dominadas.</p>',
     b=>$("#sKg",b).focus());
 }
 
@@ -1670,11 +1750,12 @@ function readRoutineDOM(){
   const n = $("#rtName"); if(n) rtDraft.name = n.value;
   rtDraft.exercises.forEach((e,i)=>{
     const g = (sel)=>{ const el = $("#"+sel+i); return el ? el.value : null; };
-    const s = g("rtS"), r = g("rtR"), k = g("rtK"), d = g("rtD");
+    const s = g("rtS"), r = g("rtR"), k = g("rtK"), d = g("rtD"), w = g("rtW");
     if(s!==null) e.targetSets   = parseInt(s,10)||1;
-    if(r!==null) e.targetReps   = parseInt(r,10)||1;
+    if(r!==null) e.targetReps   = repsRange(r).label || e.targetReps || "10";
     if(k!==null) e.targetWeight = parseFloat((k||"0").replace(",","."))||0;
     if(d!==null) e.restSeconds  = parseInt(d,10)||0;
+    if(w!==null) e.warmupSets   = Math.max(0, parseInt(w,10)||0);
   });
 }
 function renderRoutineSheet(){
@@ -1685,9 +1766,12 @@ function renderRoutineSheet(){
           '<button class="x" data-act="rtDelEx" data-i="'+i+'" aria-label="Quitar">'+svg(I.x)+'</button></div>'+
         '<div class="rt-grid">'+
           '<div><label for="rtS'+i+'">Series</label><input class="field" id="rtS'+i+'" inputmode="numeric" value="'+(e.targetSets||3)+'"></div>'+
-          '<div><label for="rtR'+i+'">Reps</label><input class="field" id="rtR'+i+'" inputmode="numeric" value="'+(e.targetReps||10)+'"></div>'+
+          '<div><label for="rtR'+i+'">Reps</label><input class="field" id="rtR'+i+'" inputmode="text" value="'+esc(repsRange(e.targetReps).label||"10")+'" placeholder="6-8"></div>'+
           '<div><label for="rtK'+i+'">Kg</label><input class="field" id="rtK'+i+'" inputmode="decimal" value="'+(e.targetWeight||0)+'"></div>'+
-          '<div><label for="rtD'+i+'">Desc.</label><input class="field" id="rtD'+i+'" inputmode="numeric" value="'+(e.restSeconds||90)+'"></div>'+
+        '</div>'+
+        '<div class="rt-grid two">'+
+          '<div><label for="rtD'+i+'">Descanso (s)</label><input class="field" id="rtD'+i+'" inputmode="numeric" value="'+(e.restSeconds||90)+'"></div>'+
+          '<div><label for="rtW'+i+'">Calentamiento</label><input class="field" id="rtW'+i+'" inputmode="numeric" value="'+(e.warmupSets||0)+'"></div>'+
         '</div>'+
       '</div>').join("")
     : '<p class="hint">Añade los ejercicios de esta rutina en el orden en que los haces.</p>';
@@ -1914,7 +1998,11 @@ document.addEventListener("click", function(e){
       const r = S.gym.routines.filter(x=>x.id===id)[0]; if(!r) break;
       S.gym.active = {
         id:uid(), name:r.name, routine:r.name, date:today(), start:Date.now(), notes:"",
-        entries:r.exercises.map(e=>({ex:e.name,sets:[],target:{sets:e.targetSets,reps:e.targetReps,kg:e.targetWeight,rest:e.restSeconds,warm:e.warmupSets}}))
+        entries:r.exercises.map(e=>({
+          ex:e.name,
+          sets:planSets(e),
+          target:{sets:e.targetSets,reps:e.targetReps,kg:e.targetWeight,rest:e.restSeconds,warm:e.warmupSets}
+        }))
       };
       S.gymTab = "sesion"; save(); render(); break;
     }
@@ -1924,29 +2012,48 @@ document.addEventListener("click", function(e){
       const v = $("#exSearch").value.trim();
       if(v) addExercise(v); break;
     }
-    case "addSet": sheetAddSet(+el.dataset.i); break;
+    case "addSet": sheetAddSet(+el.dataset.i, null); break;
+    case "editSet": sheetAddSet(+el.dataset.i, +el.dataset.j); break;
     case "toggleWarm":
       el.setAttribute("aria-pressed", el.getAttribute("aria-pressed")!=="true"); break;
     case "pickRest": $("#sRest").value = el.dataset.s; break;
     case "saveSet": {
       const i = +el.dataset.i;
+      const dj = el.dataset.j;
       const reps = parseInt($("#sReps").value,10);
       const kg = parseFloat(($("#sKg").value||"0").replace(",","."))||0;
       if(!reps || reps<=0){ $("#sReps").focus(); break; }
       const warm = $("#chWarm").getAttribute("aria-pressed")==="true";
       const secs = parseInt($("#sRest").value,10)||0;
       const en = S.gym.active.entries[i];
-      const set = {reps:reps,kg:kg};
-      if(warm) set.warmup = true;
-      en.sets.push(set);
+
+      if(dj===""||dj===undefined){
+        const set = {reps:reps,kg:kg};
+        if(warm) set.warmup = true;
+        en.sets.push(set);
+      }else{
+        /* Rellenar o corregir una serie del plan: conserva que venía de la
+           rutina y sus objetivos, para poder marcarla como no hecha luego. */
+        const j = +dj, old = en.sets[j] || {};
+        const set = {reps:reps, kg:kg};
+        if(warm) set.warmup = true;
+        if(old.plan){ set.plan = true; set.tReps = old.tReps; set.tKg = old.tKg; }
+        en.sets[j] = set;
+      }
       save(); closeSheet();
       if(secs>0) startRest(secs, en.ex);
       render(); break;
     }
+    case "undoSet": {
+      const i = +el.dataset.i, j = +el.dataset.j;
+      const en = S.gym.active.entries[i], old = en.sets[j];
+      en.sets[j] = {plan:true, todo:true, warmup:old.warmup, tReps:old.tReps, tKg:old.tKg};
+      save(); closeSheet(); render(); break;
+    }
     case "delSet": {
       const i = +el.dataset.i, j = +el.dataset.j;
       S.gym.active.entries[i].sets.splice(j,1);
-      save(); render(); sheetAddSet(i); break;
+      save(); closeSheet(); render(); break;
     }
     case "stopRest": stopRest(); break;
     case "finishSheet": sheetFinish(); break;
@@ -1954,6 +2061,8 @@ document.addEventListener("click", function(e){
       const s = S.gym.active; if(!s) break;
       const n = $("#sNotes"); if(n) s.notes = n.value.trim();
       s.end = Date.now();
+      /* Las series que quedaron sin hacer no se guardan en el historial. */
+      s.entries.forEach(en=>{ en.sets = hechas(en); });
       s.entries = s.entries.filter(en=>en.sets.length);
       if(s.entries.length) S.gym.sessions.push(s);
       S.gym.active = null; stopRest();
