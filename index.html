@@ -921,7 +921,7 @@ function aplicarSobrecarga(a, en, s, j){
   const res = moverPesos(en, a, j, paso);
   en.bumped = paso; en.bumpedAt = j;
   toast(s.reps + " reps, tope del intervalo. Subes " + fmtKg(paso) + " kg" +
-        (res.rutina ? " — actualizado tambien en la rutina." : "."));
+        (res.rutina ? " — actualizado también en la rutina." : "."));
 }
 function revertirSobrecarga(a, en, j){
   if(!en.bumped || en.bumpedAt !== j) return;
