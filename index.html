@@ -887,9 +887,10 @@ const fmtKg = v => String(Math.round(v*100)/100).replace(".", ",");
    del tope, sube el peso de las series que queden por hacer y lo deja escrito en
    la rutina, para que el proximo entreno arranque ya con el peso nuevo.
 
-   Sube UNA vez por ejercicio y sesion: si clavas el tope en las cuatro series no
-   tiene sentido acabar +10 kg. Y se deshace si desmarcas la serie que lo provoco,
-   para que un toque accidental no te cambie la rutina para siempre. */
+   Sube CADA vez que clavas el tope, sin limite por sesion: si lo consigues en
+   varias series seguidas es que el peso de partida estaba corto, y la rutina debe
+   reflejarlo entero. Cada subida se anota en la serie que la provoco, asi que
+   desmarcarla la deshace y un toque accidental no cambia la rutina para siempre. */
 function moverPesos(en, a, j, delta){
   let n = 0;
   en.sets.forEach((x,k)=>{
@@ -914,20 +915,25 @@ function moverPesos(en, a, j, delta){
 }
 
 function aplicarSobrecarga(a, en, s, j){
-  if(s.warmup || en.bumped) return;
+  if(s.warmup) return;
   const r = repsRange(s.tReps);
   if(!r.max || !s.reps || s.reps < r.max) return;
   if(!Number(s.kg)) return;        /* peso corporal: no se sube solo */
   const paso = Number(S.gym.stepKg) || 2.5;
   const res = moverPesos(en, a, j, paso);
-  en.bumped = paso; en.bumpedAt = j;
+  s.bump = paso;                   /* anotado en la serie, para poder deshacerlo */
+  en.bumped = Math.round((((en.bumped||0) + paso))*100)/100;
   toast(s.reps + " reps: tope del intervalo. Subes " + fmtKg(paso) + " kg" +
+        (en.bumped > paso ? " (" + fmtKg(en.bumped) + " kg hoy)" : "") +
         (res.rutina ? ". Rutina actualizada." : "."));
 }
 function revertirSobrecarga(a, en, j){
-  if(!en.bumped || en.bumpedAt !== j) return;
-  moverPesos(en, a, j, -en.bumped);
-  delete en.bumped; delete en.bumpedAt;
+  const s = en.sets[j];
+  if(!s || !s.bump) return;
+  moverPesos(en, a, j, -s.bump);
+  en.bumped = Math.round((((en.bumped||0) - s.bump))*100)/100;
+  if(en.bumped <= 0) delete en.bumped;
+  delete s.bump;
 }
 
 /* Series que la rutina deja preparadas en pantalla, en su orden. */

@@ -128,13 +128,15 @@ sesión   35c 35c  70  72,5  75  77,5     (la que acabas de hacer no cambia)
 rutina   35c 35c  72,5 72,5  75  77,5    (la rampa se conserva)
 ```
 
-Cuatro decisiones que conviene conocer:
+Y si clavas el tope otra vez en la serie siguiente, **vuelve a subir**. No hay límite por
+sesión: conseguirlo varias veces seguidas significa que el peso de partida estaba corto, y
+la rutina debe reflejarlo entero, no a plazos. El aviso va contando el acumulado del día.
 
-- **Sube una sola vez por ejercicio y sesión.** Si clavas el tope en las cuatro series no
-  tiene sentido acabar +10 kg. Se avisa con un mensaje y queda un distintivo `+2,5 kg`
-  junto al nombre del ejercicio.
-- **Se revierte si desmarcas la serie que lo provocó**, para que un toque accidental no te
-  cambie la rutina para siempre.
+Tres decisiones que conviene conocer:
+
+- **Cada subida se anota en la serie que la provocó**, así que desmarcarla la deshace. Un
+  toque accidental no te cambia la rutina para siempre. Queda además un distintivo con el
+  acumulado (`+7,5 kg`) junto al nombre del ejercicio.
 - **El calentamiento no se toca**: ni lo dispara ni sube con el resto.
 - **Los ejercicios a peso corporal no suben solos.** Pasar de 0 a 2,5 kg significa ponerse
   cinturón de lastre, y esa es una decisión tuya, no de la app.
