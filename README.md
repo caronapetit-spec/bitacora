@@ -101,9 +101,12 @@ Tiene tres secciones dentro de su pestaña:
 - **Sesión** — entreno libre o arrancado desde una rutina. Cronómetro de la sesión,
   series con reps × kg, marcado de series de calentamiento, cronómetro de descanso
   automático (suena y vibra al acabar), notas del entreno e historial.
-- **Rutinas** — guarda cada rutina con sus ejercicios y, por ejercicio, series, reps,
-  peso objetivo, segundos de descanso y cuántas series de calentamiento. Al empezar un
-  entreno con ella, todo viene precargado.
+- **Rutinas** — cada ejercicio guarda **su lista de series, una a una**: cada serie tiene
+  sus propias reps (un número o un intervalo, `6-8`), sus kilos y si es de calentamiento.
+  Eso permite escribir progresiones reales dentro del ejercicio — `10×35 cal`, `8×50 cal`,
+  `6-8×70`, `6-8×70`, `6-8×72,5`, `6×75` — en vez de un único "4 series de 8".
+  El descanso se fija por ejercicio. Al empezar un entreno con la rutina, las series
+  aparecen ya puestas en pantalla como huecos que se tocan para registrar.
 - **Progreso** — entrenamientos, racha de semanas seguidas, volumen total y ejercicios
   distintos; objetivos con barra de avance; récords personales; evolución del peso de
   cualquier ejercicio; peso corporal con IMC; y logros por niveles.
