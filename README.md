@@ -112,6 +112,36 @@ Tiene tres secciones dentro de su pestaña:
   El descanso se fija por ejercicio y **por tipo**: uno tras las series de calentamiento
   y otro, normalmente más largo, tras las de trabajo. Al empezar un entreno con la rutina, las series
   aparecen ya puestas en pantalla como huecos que se tocan para registrar.
+### Sobrecarga progresiva
+
+Progresión doble, automática. Mientras no llegues al tope del intervalo repites peso; en
+cuanto lo clavas, subes. Al registrar una serie **de trabajo** con las reps del tope de su
+intervalo, la app sube el peso (2,5 kg por defecto) en **las series que queden por hacer**
+y lo deja escrito en **la rutina**, para que el próximo entreno arranque con el peso nuevo.
+
+Ejemplo, con `Press banca` a `6-8`:
+
+```
+antes    35c 35c  70  70  72,5  75
+haces la 3.ª serie a 70 × 8  ← tope del intervalo
+sesión   35c 35c  70  72,5  75  77,5     (la que acabas de hacer no cambia)
+rutina   35c 35c  72,5 72,5  75  77,5    (la rampa se conserva)
+```
+
+Cuatro decisiones que conviene conocer:
+
+- **Sube una sola vez por ejercicio y sesión.** Si clavas el tope en las cuatro series no
+  tiene sentido acabar +10 kg. Se avisa con un mensaje y queda un distintivo `+2,5 kg`
+  junto al nombre del ejercicio.
+- **Se revierte si desmarcas la serie que lo provocó**, para que un toque accidental no te
+  cambie la rutina para siempre.
+- **El calentamiento no se toca**: ni lo dispara ni sube con el resto.
+- **Los ejercicios a peso corporal no suben solos.** Pasar de 0 a 2,5 kg significa ponerse
+  cinturón de lastre, y esa es una decisión tuya, no de la app.
+
+El incremento se cambia en **Progreso → Cuerpo → Altura y edad**: 2,5 kg va bien en barra,
+pero quizá quieras 2 en mancuernas o 5 en prensa.
+
 - **Progreso** — entrenamientos, racha de semanas seguidas, volumen total y ejercicios
   distintos; objetivos con barra de avance; récords personales; evolución del peso de
   cualquier ejercicio; peso corporal con IMC; y logros por niveles.
