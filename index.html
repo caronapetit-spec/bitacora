@@ -361,6 +361,25 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
 .setform .field{padding:9px 11px;text-align:center;font-family:"IBM Plex Mono",monospace}
 
 .set.warm{background:transparent;border:1px dashed var(--line-2);color:var(--text-3)}
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(78px + env(safe-area-inset-bottom));
+  z-index:60;max-width:min(90%,400px);
+  background:var(--accent);color:#fff;
+  padding:12px 17px;border-radius:13px;
+  font-size:13px;font-weight:500;line-height:1.4;text-align:center;
+  box-shadow:0 8px 28px rgba(10,12,18,.35);
+  animation:up .22s cubic-bezier(.22,1,.36,1);
+}
+:root[data-theme="dark"] .toast{color:#0B0D12}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .toast{color:#0B0D12}}
+.ex-up{
+  font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;
+  color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
+  padding:2px 7px;border-radius:99px;letter-spacing:.02em;
+}
+
 /* ─── tabla de series de la sesión ─── */
 .strows{display:flex;flex-direction:column;gap:5px}
 .sthead,.strow{display:grid;grid-template-columns:16px 1fr 1fr 28px 30px 24px;gap:4px;align-items:center}
@@ -524,6 +543,7 @@ button.set:hover{border-color:var(--accent)}
   <main class="view" id="view"></main>
 
   <nav class="tabbar" id="tabbar" aria-label="Secciones"></nav>
+  <div class="toast" id="toast" role="status" hidden></div>
 </div>
 
 <div class="sheet-wrap" id="sheetWrap" hidden>
@@ -734,7 +754,8 @@ function seed(){
       ],
       profile:{heightCm:178,age:34},
       weights:wlog,
-      restDefault:90
+      restDefault:90,
+      stepKg:2.5
     }
   };
 }
@@ -754,6 +775,7 @@ function load(){
     s.gym.profile   = s.gym.profile   || {};
     if(s.gym.active===undefined) s.gym.active = null;
     if(!s.gym.restDefault) s.gym.restDefault = 90;
+    if(!s.gym.stepKg) s.gym.stepKg = 2.5;
     migrateRoutines(s.gym);
     s.gymTab = s.gymTab || "sesion";
     s.push = s.push || {url:"",token:"",on:false};
@@ -856,6 +878,57 @@ function routineCount(r){
   return {work:work, warm:warm};
 }
 
+const fmtKg = v => String(Math.round(v*100)/100).replace(".", ",");
+
+/* ─── sobrecarga progresiva ───
+   Progresion doble: mientras no llegues al tope del intervalo, repites peso; en
+   cuanto lo clavas, subes. Aqui, al registrar una serie de trabajo con las reps
+   del tope, sube el peso de las series que queden por hacer y lo deja escrito en
+   la rutina, para que el proximo entreno arranque ya con el peso nuevo.
+
+   Sube UNA vez por ejercicio y sesion: si clavas el tope en las cuatro series no
+   tiene sentido acabar +10 kg. Y se deshace si desmarcas la serie que lo provoco,
+   para que un toque accidental no te cambie la rutina para siempre. */
+function moverPesos(en, a, j, delta){
+  let n = 0;
+  en.sets.forEach((x,k)=>{
+    if(k<=j || x.warmup || !isTodo(x)) return;
+    x.kg = Math.max(0, Math.round((((Number(x.kg)||0) + delta))*100)/100);
+    n++;
+  });
+  let enRutina = false;
+  const rut = S.gym.routines.filter(x=>x.id===a.routineId || x.name===a.routine)[0];
+  if(rut){
+    const ex = (rut.exercises||[]).filter(x=>x.name===en.ex)[0];
+    if(ex && Array.isArray(ex.sets)){
+      ex.sets.forEach(x=>{
+        if(x.warmup || !Number(x.kg)) return;   /* el calentamiento se queda donde esta */
+        x.kg = Math.max(0, Math.round((((Number(x.kg)||0) + delta))*100)/100);
+      });
+      enRutina = true;
+    }
+  }
+  if(en.target) en.target.kg = Math.max(0, Math.round(((Number(en.target.kg)||0) + delta)*100)/100);
+  return {n:n, rutina:enRutina};
+}
+
+function aplicarSobrecarga(a, en, s, j){
+  if(s.warmup || en.bumped) return;
+  const r = repsRange(s.tReps);
+  if(!r.max || !s.reps || s.reps < r.max) return;
+  if(!Number(s.kg)) return;        /* peso corporal: no se sube solo */
+  const paso = Number(S.gym.stepKg) || 2.5;
+  const res = moverPesos(en, a, j, paso);
+  en.bumped = paso; en.bumpedAt = j;
+  toast(s.reps + " reps, tope del intervalo. Subes " + fmtKg(paso) + " kg" +
+        (res.rutina ? " — actualizado tambien en la rutina." : "."));
+}
+function revertirSobrecarga(a, en, j){
+  if(!en.bumped || en.bumpedAt !== j) return;
+  moverPesos(en, a, j, -en.bumped);
+  delete en.bumped; delete en.bumpedAt;
+}
+
 /* Series que la rutina deja preparadas en pantalla, en su orden. */
 function planSets(e){
   /* El peso viene ya puesto en la casilla; las reps se dejan vacias con el
@@ -950,6 +1023,17 @@ function openSheet(title, html, after){
 }
 function closeSheet(){ sheetWrap.hidden = true; sheetBody.innerHTML = ""; }
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !sheetWrap.hidden) closeSheet(); });
+
+/* Aviso breve en pantalla. Vive fuera de #view, asi que sobrevive a los
+   redibujados y no hay que volver a montarlo. */
+let toastT = null;
+function toast(msg){
+  const t = $("#toast"); if(!t) return;
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(toastT);
+  toastT = setTimeout(function(){ t.hidden = true; }, 4500);
+}
 
 /* ══════════ cronómetro de descanso ══════════ */
 let rest = null, restInt = null, audioCtx = null, keepAlive = null, alarmNodes = [];
@@ -1403,7 +1487,8 @@ function sessionHtml(a){
          " · descanso "+t.restWarm+"s cal / "+t.rest+"s trabajo")
       : (hechas(en).length+" serie"+(hechas(en).length===1?"":"s"));
     return '<div class="ex">'+
-      '<div class="ex-head"><span class="ex-name">'+esc(en.ex)+'</span>'+
+      '<div class="ex-head"><span class="ex-name">'+esc(en.ex)+
+        (en.bumped?' <span class="ex-up">+'+fmtKg(en.bumped)+' kg</span>':'')+'</span>'+
         '<span class="ex-meta">'+meta+'</span></div>'+
       '<div class="strows">'+
         '<div class="sthead"><span>#</span><span>Peso (kg)</span><span>Reps</span><span>Tipo</span><span></span><span></span></div>'+
@@ -1935,10 +2020,12 @@ function sheetProfile(){
       '<div><label class="lbl-s" for="pH">Altura (cm)</label><input class="field" id="pH" inputmode="numeric" value="'+(p.heightCm||"")+'"></div>'+
       '<div><label class="lbl-s" for="pA">Edad</label><input class="field" id="pA" inputmode="numeric" value="'+(p.age||"")+'"></div>'+
     '</div>'+
-    '<div><label class="lbl-s" for="pR">Descanso por defecto (segundos)</label>'+
-    '<input class="field mono" id="pR" inputmode="numeric" value="'+S.gym.restDefault+'" style="text-align:center"></div>'+
+    '<div class="setform" style="grid-template-columns:1fr 1fr">'+
+      '<div><label class="lbl-s" for="pR">Descanso por defecto</label><input class="field mono" id="pR" inputmode="numeric" value="'+S.gym.restDefault+'" style="text-align:center"></div>'+
+      '<div><label class="lbl-s" for="pS">Subida de peso</label><input class="field mono" id="pS" inputmode="decimal" value="'+fmtKg(S.gym.stepKg||2.5)+'" style="text-align:center"></div>'+
+    '</div>'+
     '<button class="btn wide" data-act="saveProfile">Guardar</button>'+
-    '<p class="hint">La altura solo se usa para calcular el índice de masa corporal.</p>'
+    '<p class="hint">La altura solo se usa para el índice de masa corporal. La <b>subida de peso</b> es cuánto sube un ejercicio al clavar el tope del intervalo de repeticiones: 2,5 kg en barra, pero quizá 2 en mancuernas o 5 en prensa.</p>'
   );
 }
 function sheetAvisos(){
@@ -2105,7 +2192,7 @@ document.addEventListener("click", function(e){
     case "startRoutine": {
       const r = S.gym.routines.filter(x=>x.id===id)[0]; if(!r) break;
       S.gym.active = {
-        id:uid(), name:r.name, routine:r.name, date:today(), start:Date.now(), notes:"",
+        id:uid(), name:r.name, routine:r.name, routineId:r.id, date:today(), start:Date.now(), notes:"",
         entries:r.exercises.map(e=>({ex:e.name, sets:planSets(e), target:routineTarget(e)}))
       };
       S.gymTab = "sesion"; save(); render(); break;
@@ -2150,6 +2237,7 @@ document.addEventListener("click", function(e){
       const i = +el.dataset.i, j = +el.dataset.j;
       const en = S.gym.active.entries[i], s = en.sets[j];
       if(!isTodo(s)){                       /* deshacer una serie ya marcada */
+        revertirSobrecarga(S.gym.active, en, j);
         s.todo = true; save(); stopRest(); break;
       }
       const kIn = $("#stK"+i+"_"+j), rIn = $("#stR"+i+"_"+j);
@@ -2157,6 +2245,7 @@ document.addEventListener("click", function(e){
       const reps = parseInt(rIn?rIn.value:"",10)||0;
       if(reps<=0){ if(rIn) rIn.focus(); break; }
       s.kg = kg; s.reps = reps; delete s.todo;
+      aplicarSobrecarga(S.gym.active, en, s, j);
       save();
       const secs = Number(s.tRest) || (en.target ? (s.warmup?en.target.restWarm:en.target.rest) : S.gym.restDefault);
       /* Arrancar el descanso ANTES de dibujar, o la barra no llega a pintarse. */
@@ -2258,6 +2347,7 @@ document.addEventListener("click", function(e){
       S.gym.profile.heightCm = parseFloat(($("#pH").value||"0").replace(",","."))||null;
       S.gym.profile.age = parseInt($("#pA").value,10)||null;
       S.gym.restDefault = parseInt($("#pR").value,10)||90;
+      S.gym.stepKg = parseFloat(($("#pS").value||"2.5").replace(",","."))||2.5;
       save(); closeSheet(); render(); break;
     }
 
