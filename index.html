@@ -70,6 +70,10 @@
 
 *{box-sizing:border-box}
 html,body{height:100%}
+/* Sin esto, las reglas de abajo (.sheet-wrap{display:flex}) ganan al display:none
+   por defecto del atributo hidden, y el panel modal se queda visible siempre. */
+[hidden]{display:none !important}
+img{max-width:100%}
 body{
   margin:0;
   background:var(--bg);
@@ -1027,7 +1031,7 @@ function vHabitos(){
         '<button class="check '+(on?"on":"")+'" data-act="toggleHabit" data-id="'+h.id+'" aria-label="Marcar '+esc(h.name)+'" aria-pressed="'+on+'">'+svg(I.check)+'</button>'+
         '<button class="row-main" data-act="habitDetail" data-id="'+h.id+'">'+
           '<span class="row-title">'+esc(h.name)+'</span>'+
-          '<span class="row-sub mono">'+(st? st+" día"+(st===1?"":"s")+" seguidos" : "sin racha")+'</span>'+
+          '<span class="row-sub mono">'+(st? (st===1 ? "1 día seguido" : st+" días seguidos") : "sin racha")+'</span>'+
         '</button>'+
       '</div>';
     }).join("")+'</div>';
