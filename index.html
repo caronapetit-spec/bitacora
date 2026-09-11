@@ -2159,8 +2159,9 @@ document.addEventListener("click", function(e){
       s.kg = kg; s.reps = reps; delete s.todo;
       save();
       const secs = Number(s.tRest) || (en.target ? (s.warmup?en.target.restWarm:en.target.rest) : S.gym.restDefault);
-      render();
+      /* Arrancar el descanso ANTES de dibujar, o la barra no llega a pintarse. */
       if(secs>0) startRest(secs, en.ex);
+      render();
       break;
     }
     case "stopRest": stopRest(); break;
