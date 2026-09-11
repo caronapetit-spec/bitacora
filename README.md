@@ -1,5 +1,7 @@
 # Bitácora
 
+**En línea: <https://caronapetit-spec.github.io/bitacora/>**
+
 App personal para el iPhone: **hábitos, tareas/compra, gastos, notas y gimnasio** en una
 sola pantalla. Es una **PWA** (Progressive Web App): una web que se instala en la pantalla
 de inicio y se comporta como una app nativa — icono propio, pantalla completa, sin barra

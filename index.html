@@ -2071,8 +2071,19 @@ function iconDataURI(){
   add("meta",{name:"apple-mobile-web-app-status-bar-style",content:"default"});
   add("meta",{name:"apple-mobile-web-app-title",content:"Bitácora"});
   add("meta",{name:"theme-color",content:"#15181F"});
-  const href = iconDataURI();
-  if(href){ add("link",{rel:"apple-touch-icon",href:href}); add("link",{rel:"icon",href:href}); }
+  /* Icono: si la app está hospedada con sus propios archivos usamos el PNG real,
+     que iOS respeta mejor para la pantalla de inicio. Si no existe (por ejemplo
+     abierta como artifact), lo dibujamos al vuelo en un canvas. */
+  fetch("assets/icon-180.png",{method:"HEAD"})
+    .then(r=>{
+      if(!r.ok) throw new Error("sin icono");
+      add("link",{rel:"apple-touch-icon",sizes:"180x180",href:"assets/icon-180.png"});
+      add("link",{rel:"icon",href:"assets/icon-192.png"});
+    })
+    .catch(()=>{
+      const href = iconDataURI();
+      if(href){ add("link",{rel:"apple-touch-icon",href:href}); add("link",{rel:"icon",href:href}); }
+    });
 
   /* Si la app está hospedada con sus propios archivos (manifest + service worker),
      los usamos: eso da instalación completa y funcionamiento sin internet.
