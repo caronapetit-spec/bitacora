@@ -363,14 +363,15 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
 .set.warm{background:transparent;border:1px dashed var(--line-2);color:var(--text-3)}
 .toast{
   position:fixed;left:50%;transform:translateX(-50%);
-  bottom:calc(78px + env(safe-area-inset-bottom));
+  top:calc(60px + env(safe-area-inset-top));
   z-index:60;max-width:min(90%,400px);
   background:var(--accent);color:#fff;
   padding:12px 17px;border-radius:13px;
   font-size:13px;font-weight:500;line-height:1.4;text-align:center;
   box-shadow:0 8px 28px rgba(10,12,18,.35);
-  animation:up .22s cubic-bezier(.22,1,.36,1);
+  animation:baja .24s cubic-bezier(.22,1,.36,1);
 }
+@keyframes baja{from{transform:translate(-50%,-140%);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 :root[data-theme="dark"] .toast{color:#0B0D12}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .toast{color:#0B0D12}}
 .ex-up{
@@ -920,8 +921,8 @@ function aplicarSobrecarga(a, en, s, j){
   const paso = Number(S.gym.stepKg) || 2.5;
   const res = moverPesos(en, a, j, paso);
   en.bumped = paso; en.bumpedAt = j;
-  toast(s.reps + " reps, tope del intervalo. Subes " + fmtKg(paso) + " kg" +
-        (res.rutina ? " — actualizado también en la rutina." : "."));
+  toast(s.reps + " reps: tope del intervalo. Subes " + fmtKg(paso) + " kg" +
+        (res.rutina ? ". Rutina actualizada." : "."));
 }
 function revertirSobrecarga(a, en, j){
   if(!en.bumped || en.bumpedAt !== j) return;
