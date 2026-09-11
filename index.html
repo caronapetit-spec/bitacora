@@ -432,6 +432,13 @@ button.set:hover{border-color:var(--accent)}
 
 /* ───────── sheet ───────── */
 .sheet-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+/* El panel cuelga fuera de .app, asi que no hereda el acento del modulo:
+   se lo damos aparte o siempre saldria con el color de Habitos. */
+.sheet-wrap[data-mod="habitos"]{--accent:var(--m-habitos)}
+.sheet-wrap[data-mod="tareas"]{--accent:var(--m-tareas)}
+.sheet-wrap[data-mod="gastos"]{--accent:var(--m-gastos)}
+.sheet-wrap[data-mod="notas"]{--accent:var(--m-notas)}
+.sheet-wrap[data-mod="gym"]{--accent:var(--m-gym)}
 .sheet-back{position:absolute;inset:0;background:rgba(10,12,18,.5);backdrop-filter:blur(3px);animation:fade .2s ease}
 .sheet{
   position:relative;
@@ -724,6 +731,7 @@ function load(){
 }
 let S = load();
 function save(){ try{ localStorage.setItem(LS,JSON.stringify(S)); }catch(e){} }
+save();   /* deja guardadas las conversiones de formato hechas al cargar */
 
 /* Vacía el contenido de ejemplo pero conserva los hábitos y el catálogo
    de ejercicios, que son estructura útil y no datos inventados. */
@@ -893,6 +901,7 @@ const tiersFor = (v,th)=>th.filter(t=>v>=t).length;
 /* ══════════ hoja modal ══════════ */
 const sheetWrap = $("#sheetWrap"), sheetBody = $("#sheetBody"), sheetTitle = $("#sheetTitle");
 function openSheet(title, html, after){
+  sheetWrap.dataset.mod = S.tab;
   sheetTitle.textContent = title;
   sheetBody.innerHTML = html;
   sheetWrap.hidden = false;
