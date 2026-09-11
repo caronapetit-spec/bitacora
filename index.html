@@ -666,6 +666,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
+const BUILD = "v18";
 
 function seed(){
   const H = (name,offs)=>{
@@ -1074,7 +1075,11 @@ function openSheet(title, html, after){
   sheetWrap.hidden = false;
   if(after) after(sheetBody);
 }
-function closeSheet(){ sheetWrap.hidden = true; sheetBody.innerHTML = ""; }
+function closeSheet(){
+  sheetWrap.hidden = true;
+  sheetBody.innerHTML = "";
+  if(hayNueva) location.reload();   /* habia una actualizacion esperando */
+}
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !sheetWrap.hidden) closeSheet(); });
 
 /* Aviso breve en pantalla. Vive fuera de #view, asi que sobrevive a los
@@ -2245,6 +2250,10 @@ function sheetAjustes(){
     '<div><span class="lbl-s">Aspecto</span><div class="seg">'+
       ["auto","light","dark"].map(t=>'<button data-act="setTheme" data-theme="'+t+'" aria-pressed="'+(S.theme===t)+'">'+({auto:"Automático",light:"Claro",dark:"Oscuro"}[t])+'</button>').join("")+
     '</div></div>'+
+    '<div><span class="lbl-s">Versi\u00f3n</span>'+
+      '<div class="kv"><span>Instalada</span><b class="mono">'+BUILD+'</b></div>'+
+      '<button class="btn ghost wide" data-act="buscarAct" style="margin-top:9px">Buscar actualizaciones</button>'+
+      '<p class="hint" style="margin-top:8px">La app se actualiza sola al abrirla. Este bot\u00f3n fuerza la comprobaci\u00f3n.</p></div>'+
     '<div><span class="lbl-s">Avisos</span>'+
       '<button class="btn ghost wide" data-act="avisos">Aviso de fin de descanso</button>'+
       '<p class="hint" style="margin-top:8px">Alarma sonora con el móvil bloqueado, notificaciones y push. '+(S.push.on?"Push activado.":"")+'</p></div>'+
@@ -2295,6 +2304,12 @@ document.addEventListener("click", function(e){
 
     /* avisos */
     case "avisos": sheetAvisos(); break;
+    case "buscarAct":
+      el.textContent = "Comprobando\u2026";
+      buscarActualizacion(false).then(function(r){
+        if(el) el.textContent = r ? "Buscar actualizaciones" : "Sin conexi\u00f3n";
+      });
+      break;
     case "testAlarm": {
       unlockAudio(); startKeepAlive(); scheduleAlarm(5); askNotif();
       pushScheduleRest(5);
@@ -2654,7 +2669,19 @@ function iconDataURI(){
       .then(r=>{ if(r.ok) add("link",{rel:"manifest",href:"manifest.webmanifest"}); })
       .catch(()=>{});
     if("serviceWorker" in navigator && location.protocol!=="file:"){
-      navigator.serviceWorker.register("sw.js").catch(()=>{});
+      navigator.serviceWorker.register("sw.js").then(function(reg){
+        swReg = reg;
+        buscarActualizacion();
+      }).catch(()=>{});
+
+      /* Cuando el service worker nuevo toma el control, la pagina que ves sigue
+         siendo la vieja: hay que recargarla. */
+      let recargando = false;
+      navigator.serviceWorker.addEventListener("controllerchange", function(){
+        if(recargando) return;
+        recargando = true;
+        aplicarActualizacion();
+      });
     }
   }catch(e){}
 })();
@@ -2666,6 +2693,37 @@ view.addEventListener("change", function(e){
   if(!m) return;
   leerFilas(+m[1]);
   save();
+});
+
+/* ══════════ actualizaciones ══════════
+   Una PWA instalada en iOS no tiene boton de recargar ni "deslizar para
+   actualizar": si no se hace esto a mano, se queda clavada en la version con la
+   que la instalaste. Al abrirla y cada vez que vuelve a primer plano, se
+   compara la version que corre con la publicada. */
+let swReg = null, hayNueva = false;
+
+function aplicarActualizacion(){
+  if(!sheetWrap.hidden){ hayNueva = true; return; }   /* no cortar lo que este haciendo */
+  location.reload();
+}
+function buscarActualizacion(silencioso){
+  if(swReg){ try{ swReg.update(); }catch(e){} }
+  return fetch("version.json?t="+Date.now(), {cache:"no-store"})
+    .then(r=>r.ok ? r.json() : null)
+    .then(j=>{
+      if(!j) return null;
+      if(j.build !== BUILD){
+        toast("Hay una versi\u00f3n nueva. Actualizando\u2026");
+        setTimeout(aplicarActualizacion, 1200);
+        return "nueva";
+      }
+      if(!silencioso) toast("Ya tienes la \u00faltima versi\u00f3n (" + BUILD + ").");
+      return "al dia";
+    })
+    .catch(()=>null);
+}
+document.addEventListener("visibilitychange", function(){
+  if(!document.hidden) buscarActualizacion(true);
 });
 
 /* arranque */

@@ -1,7 +1,7 @@
 /* Service worker de Bitácora.
    Guarda la app en el teléfono para que abra sin internet.
    Sube el número de CACHE cada vez que cambies index.html. */
-const CACHE = "bitacora-v17";
+const CACHE = "bitacora-v18";
 const FILES = [
   ".",
   "index.html",
@@ -32,6 +32,9 @@ self.addEventListener("activate", e => {
    recargar con internet, y sigue abriendo cuando no hay cobertura. */
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
+  /* El sello de version se pregunta siempre a la red: es justo lo que sirve
+     para detectar que hay algo nuevo, cachearlo lo haria inutil. */
+  if (e.request.url.indexOf("version.json") !== -1) return;
   e.respondWith(
     fetch(e.request)
       .then(res => {
