@@ -490,6 +490,22 @@ button.set:hover{border-color:var(--accent)}
 .rt-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .rt-head b{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rt-sub{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2);margin-bottom:4px}
+.rt-name{
+  flex:1;min-width:0;text-align:left;
+  font-size:14px;font-weight:600;
+  display:flex;align-items:center;gap:8px;
+}
+.rt-name > span{
+  font-family:"IBM Plex Mono",monospace;font-size:9px;font-weight:400;
+  color:var(--text-3);border:1px solid var(--line-2);border-radius:99px;
+  padding:2px 7px;flex:none;text-transform:uppercase;letter-spacing:.05em;
+}
+.rt-name:hover > span{color:var(--accent);border-color:var(--accent)}
+.eq-tag{
+  font-family:"IBM Plex Mono",monospace;font-size:9.5px;font-weight:500;
+  color:var(--text-3);background:var(--surface-3);
+  padding:2px 7px;border-radius:99px;white-space:nowrap;
+}
 .rt-sub .field{width:68px;padding:7px 4px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:13px}
 
 /* Una fila por serie: numero, reps, kilos, calentamiento y quitar. */
@@ -651,6 +667,24 @@ const culCat = id => CULTURA.filter(c=>c.id===id)[0] || CULTURA[0];
 
 const CATS = ["Comida","Casa","Transporte","Ocio","Salud","Compras","Otros"];
 
+/* Los cinco tipos de material, los mismos que usa FitPals para que las dos
+   apps hablen igual. */
+const MATERIALES = ["Barra", "Mancuernas", "Cable", "Máquina", "Peso corporal"];
+
+const MATERIAL_POR_TIPO = [
+  ["Barra", ["Buenos días (good morning)", "Clean (cargada de potencia)", "Curl de bíceps con barra", "Curl de muñeca", "Curl de muñeca inverso", "Curl en banco Scott", "Encogimientos de hombros", "Hip thrust", "Peso muerto", "Peso muerto piernas rígidas", "Peso muerto rumano", "Peso muerto sumo", "Press banca", "Press banca declinado", "Press banca inclinado", "Press cerrado en banca", "Press francés", "Press militar", "Remo Pendlay", "Remo al mentón", "Remo con barra", "Remo en T", "Sentadilla", "Sentadilla frontal", "Zancadas con barra"]],
+  ["Mancuernas", ["Aperturas con mancuernas", "Curl concentrado", "Curl de bíceps con mancuernas", "Curl martillo", "Elevaciones frontales", "Elevaciones laterales", "Elevación de talones con mancuernas", "Encogimientos con mancuernas", "Extensión de tríceps sobre la cabeza", "Patada de tríceps", "Peso muerto con mancuernas", "Press Arnold", "Press banca con mancuernas", "Press declinado con mancuernas", "Press inclinado con mancuernas", "Press militar con mancuernas", "Pullover con mancuerna", "Pájaro (deltoide posterior)", "Remo con mancuerna", "Sentadilla búlgara", "Sentadilla goblet", "Step up con mancuernas", "Zancada caminando", "Zancadas"]],
+  ["Cable", ["Aperturas en polea (cruce de poleas)", "Cruce de poleas alto a bajo", "Crunch en polea (de rodillas)", "Curl en polea", "Elevaciones laterales en polea", "Extensión de tríceps en polea", "Face pull", "Jalón al pecho", "Jalón tras nuca", "Patada de glúteo en cable", "Pull-over en polea", "Remo en polea (sentado)"]],
+  ["Máquina", ["Abductores en máquina", "Aductores en máquina", "Crunch en máquina", "Curl de bíceps en máquina", "Curl femoral sentado", "Curl femoral tumbado", "Dominadas asistidas", "Elevación de talones de pie", "Elevación de talones sentado", "Empuje de trineo (sled push)", "Extensión de cuádriceps", "Extensión de tríceps en máquina", "Hack squat", "Hip thrust en máquina", "Jalón al pecho en máquina", "Patada de glúteo en máquina", "Pec deck (contractora)", "Prensa de piernas", "Press de hombros en máquina", "Press en máquina", "Pájaro en máquina", "Remo en máquina", "Sentadilla en máquina Smith"]],
+  ["Peso corporal", ["Crunch abdominal", "Curl femoral nórdico", "Dominadas", "Elevación de cadera a una pierna", "Elevación de piernas colgado", "Elevación de piernas en banco", "Flexiones de brazos", "Fondos en banco", "Fondos en paralelas", "Giro ruso", "Hiperextensiones", "Plancha abdominal", "Puente de glúteos", "Remo invertido", "Rueda abdominal", "Sentadilla con salto"]],
+];
+
+/* Nombre de ejercicio -> material, para no tener que elegirlo a mano. */
+const MATERIAL = {};
+MATERIAL_POR_TIPO.forEach(function(par){
+  par[1].forEach(function(n){ MATERIAL[n] = par[0]; });
+});
+
 const EJERCICIOS = [
   "Press banca","Press banca inclinado","Press con mancuernas","Aperturas con mancuernas",
   "Cruce de poleas","Fondos en paralelas","Press militar","Press Arnold",
@@ -667,7 +701,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v22";
+const BUILD = "v23";
 
 function seed(){
   const H = (name,offs)=>{
@@ -818,6 +852,11 @@ function load(){
     if(!s || !s.habits) return seed();
     s.gym = s.gym || {};
     s.gym.exercises = s.gym.exercises || EJERCICIOS.slice();
+    /* Se añaden al catálogo los ejercicios conocidos que falten. Solo suma:
+       nunca quita los que hayas escrito tú. */
+    Object.keys(MATERIAL).forEach(function(n){
+      if(s.gym.exercises.indexOf(n) < 0) s.gym.exercises.push(n);
+    });
     s.gym.sessions  = s.gym.sessions  || [];
     s.gym.routines  = s.gym.routines  || [];
     s.gym.goals     = s.gym.goals     || [];
@@ -934,6 +973,9 @@ function migrateRoutines(gym){
       }
       /* El calentamiento no necesita el mismo descanso que una serie pesada. */
       if(e.restWarmup===undefined) e.restWarmup = 60;
+      /* El material se deduce del nombre cuando se conoce; si no, se deja sin
+         poner en vez de inventarlo. */
+      if(e.eq===undefined) e.eq = MATERIAL[e.name] || "";
     });
   });
 }
@@ -1683,6 +1725,7 @@ function sessionHtml(a){
       : (hechas(en).length+" serie"+(hechas(en).length===1?"":"s"));
     return '<div class="ex">'+
       '<div class="ex-head"><span class="ex-name">'+esc(en.ex)+
+        (en.eq?' <span class="eq-tag">'+esc(en.eq)+'</span>':'')+
         (en.bumped?' <span class="ex-up">+'+fmtKg(en.bumped)+' kg</span>':'')+'</span>'+
         '<span class="ex-meta">'+meta+'</span></div>'+
       '<div class="strows">'+
@@ -2150,11 +2193,12 @@ function sheetStart(){
 
 /* El selector de ejercicios sirve para dos cosas: añadir a la sesión en curso
    o añadir a la rutina que estás editando. exPickTo dice a cuál de las dos. */
-let exPickTo = "session";
-function sheetAddEx(to){
+let exPickTo = "session", exPickIdx = null;
+function sheetAddEx(to, idx){
   exPickTo = to || "session";
+  exPickIdx = (idx===undefined) ? null : idx;
   const prs = records();
-  openSheet("Añadir ejercicio",
+  openSheet(exPickIdx===null ? "Añadir ejercicio" : "Cambiar ejercicio",
     '<input class="field" id="exSearch" placeholder="Buscar o escribir uno nuevo…" autocomplete="off">'+
     '<div class="picker" id="exList"></div>'+
     '<button class="btn ghost wide" data-act="newEx">Usar lo que he escrito</button>',
@@ -2164,7 +2208,9 @@ function sheetAddEx(to){
         const q = inp.value.trim().toLowerCase();
         const items = S.gym.exercises.filter(e=>!q||e.toLowerCase().indexOf(q)>=0).slice(0,60);
         list.innerHTML = items.length
-          ? items.map(e=>'<button data-act="pickEx" data-ex="'+esc(e)+'">'+esc(e)+(prs[e]?' <span class="mono" style="color:var(--text-3);font-size:11px">· '+prs[e].kg+' kg</span>':'')+'</button>').join("")
+          ? items.map(e=>'<button data-act="pickEx" data-ex="'+esc(e)+'">'+esc(e)+
+              (MATERIAL[e]?' <span class="eq-tag">'+esc(MATERIAL[e])+'</span>':'')+
+              (prs[e]?' <span class="mono" style="color:var(--text-3);font-size:11px">· '+prs[e].kg+' kg</span>':'')+'</button>').join("")
           : '<button style="color:var(--text-3)" disabled>Ninguno coincide — usa el botón de abajo</button>';
       };
       draw(); inp.addEventListener("input",draw); inp.focus();
@@ -2174,12 +2220,22 @@ function addExercise(name){
   if(S.gym.exercises.indexOf(name)<0) S.gym.exercises.push(name);
   if(exPickTo==="routine"){
     readRoutineDOM();
-    rtDraft.exercises.push({
-      name:name,
-      restSeconds:S.gym.restDefault,
-      restWarmup:60,
-      sets:[{reps:"8-10",kg:0},{reps:"8-10",kg:0},{reps:"8-10",kg:0}]
-    });
+    if(exPickIdx !== null){
+      /* Cambiar el ejercicio de una fila conserva sus series: normalmente lo
+         que cambias es el movimiento, no el esquema de repeticiones. */
+      const e = rtDraft.exercises[exPickIdx];
+      e.name = name;
+      e.eq = MATERIAL[name] || e.eq || "";
+      exPickIdx = null;
+    }else{
+      rtDraft.exercises.push({
+        name:name,
+        eq:MATERIAL[name] || "",
+        restSeconds:S.gym.restDefault,
+        restWarmup:60,
+        sets:[{reps:"8-10",kg:0},{reps:"8-10",kg:0},{reps:"8-10",kg:0}]
+      });
+    }
     save(); renderRoutineSheet();
     return;
   }
@@ -2232,6 +2288,7 @@ function openRoutine(id){
   rtDraft = r
     ? {id:r.id, name:r.name, exercises:r.exercises.map(e=>({
         name:e.name,
+        eq:e.eq===undefined ? (MATERIAL[e.name]||"") : e.eq,
         restSeconds:e.restSeconds,
         restWarmup:e.restWarmup===undefined?60:e.restWarmup,
         sets:routineSets(e).map(s=>({reps:s.reps, kg:s.kg, warmup:!!s.warmup}))
@@ -2243,9 +2300,10 @@ function readRoutineDOM(){
   if(!rtDraft) return;
   const n = $("#rtName"); if(n) rtDraft.name = n.value;
   rtDraft.exercises.forEach((e,i)=>{
-    const d = $("#rtD"+i), w = $("#rtW"+i);
+    const d = $("#rtD"+i), w = $("#rtW"+i), q = $("#rtE"+i);
     if(d) e.restSeconds = Math.max(0, parseInt(d.value,10)||0);
     if(w) e.restWarmup  = Math.max(0, parseInt(w.value,10)||0);
+    if(q) e.eq = q.value;
     (e.sets||[]).forEach((s,j)=>{
       const r = $("#rsR"+i+"_"+j), k = $("#rsK"+i+"_"+j);
       if(r) s.reps = repsRange(r.value).label || s.reps || "10";
@@ -2270,8 +2328,17 @@ function renderRoutineSheet(){
           '</div>';
         }).join("");
         return '<div class="rt-row">'+
-          '<div class="rt-head"><b>'+esc(e.name)+'</b>'+
+          '<div class="rt-head">'+
+            '<button class="rt-name" data-act="rtEditEx" data-i="'+i+'">'+esc(e.name)+
+              '<span>cambiar</span></button>'+
             '<button class="x" data-act="rtDelEx" data-i="'+i+'" aria-label="Quitar ejercicio">'+svg(I.x)+'</button></div>'+
+          '<div class="rt-sub"><span>Material</span>'+
+            '<select class="field" id="rtE'+i+'" style="width:auto;flex:1">'+
+              '<option value=""'+(!e.eq?" selected":"")+'>Sin especificar</option>'+
+              MATERIALES.map(function(m){
+                return '<option value="'+esc(m)+'"'+(e.eq===m?" selected":"")+'>'+esc(m)+'</option>';
+              }).join("")+
+            '</select></div>'+
           '<div class="rt-sub"><span>Descanso</span>'+
             '<input class="field" id="rtW'+i+'" inputmode="numeric" value="'+(e.restWarmup===undefined?60:e.restWarmup)+'" aria-label="Descanso tras una serie de calentamiento">'+
             '<span>s cal</span>'+
@@ -2669,7 +2736,7 @@ document.addEventListener("click", function(e){
       const r = S.gym.routines.filter(x=>x.id===id)[0]; if(!r) break;
       S.gym.active = {
         id:uid(), name:r.name, routine:r.name, routineId:r.id, date:today(), start:Date.now(), notes:"",
-        entries:r.exercises.map(e=>({ex:e.name, sets:planSets(e), target:routineTarget(e)}))
+        entries:r.exercises.map(e=>({ex:e.name, eq:e.eq||"", sets:planSets(e), target:routineTarget(e)}))
       };
       S.gymTab = "sesion"; save(); render(); break;
     }
@@ -2755,6 +2822,7 @@ document.addEventListener("click", function(e){
     case "newRoutine": openRoutine(null); break;
     case "editRoutine": openRoutine(id); break;
     case "rtAddEx": readRoutineDOM(); sheetAddEx("routine"); break;
+    case "rtEditEx": readRoutineDOM(); sheetAddEx("routine", +el.dataset.i); break;
     case "rtDelEx":
       readRoutineDOM();
       rtDraft.exercises.splice(+el.dataset.i,1);

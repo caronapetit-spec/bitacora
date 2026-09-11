@@ -187,6 +187,11 @@ Tiene tres secciones dentro de su pestaña:
   sus propias reps (un número o un intervalo, `6-8`), sus kilos y si es de calentamiento.
   Eso permite escribir progresiones reales dentro del ejercicio — `10×35 cal`, `8×50 cal`,
   `6-8×70`, `6-8×70`, `6-8×72,5`, `6×75` — en vez de un único "4 series de 8".
+  Cada ejercicio lleva además su **material**: barra, mancuernas, cable, máquina o peso
+  corporal. Se deduce solo del nombre para los 100 ejercicios del catálogo — la misma
+  tabla que usa FitPals, para que las dos apps coincidan — y se puede cambiar a mano.
+  Tocando el nombre de un ejercicio se **cambia por otro conservando sus series**, que es
+  lo habitual: cambias el movimiento, no el esquema de repeticiones.
   El descanso se fija por ejercicio y **por tipo**: uno tras las series de calentamiento
   y otro, normalmente más largo, tras las de trabajo. Al empezar un entreno con la rutina, las series
   aparecen ya puestas en pantalla como huecos que se tocan para registrar.
