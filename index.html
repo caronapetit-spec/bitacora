@@ -367,7 +367,9 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
 .set.todo.warm{border-style:dotted}
 button.set{cursor:pointer;transition:border-color .15s,background .15s}
 button.set:hover{border-color:var(--accent)}
-.ex-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+/* El nombre y sus datos no caben en la misma linea en un movil estrecho:
+   el nombre arriba, los objetivos debajo. */
+.ex-head{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
 .ex-meta{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--text-3);letter-spacing:.03em}
 
 .rest{
