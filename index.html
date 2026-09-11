@@ -666,7 +666,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v20";
+const BUILD = "v21";
 
 function seed(){
   const H = (name,offs)=>{
@@ -2263,9 +2263,15 @@ function sheetAjustes(){
       '<li>Baja y elige <b>Añadir a pantalla de inicio</b>.</li>'+
       '<li>Confirma. Quedará como una app más, a pantalla completa.</li>'+
     '</ol></p></div>'+
-    '<div><span class="lbl-s">Copia de seguridad</span>'+
-      '<p class="hint">Tus datos viven solo en este teléfono. Copia este texto y guárdalo donde quieras; pégalo aquí para restaurarlo.</p>'+
-      '<textarea class="field mono" id="bkData" style="min-height:100px;font-size:11px" spellcheck="false">'+esc(data)+'</textarea>'+
+    '<div><span class="lbl-s">Pasar los datos a otro dispositivo</span>'+
+      '<p class="hint">Tus datos viven <b>solo en este dispositivo</b>. Lo que escribes en el ordenador no aparece en el móvil, ni al revés: no hay servidor que los sincronice. Para moverlos, descarga la copia aquí y restáurala en el otro.</p>'+
+      '<div style="display:flex;gap:8px;margin-top:4px">'+
+        '<button class="btn sm" data-act="dlData" style="flex:1">Descargar copia</button>'+
+        '<button class="btn ghost sm" data-act="upData" style="flex:1">Restaurar de archivo</button>'+
+      '</div>'+
+      '<input type="file" id="bkFile" accept="application/json,.json" hidden>'+
+      '<p class="hint" style="margin-top:12px">O con copiar y pegar, si prefieres mandarte el texto por correo:</p>'+
+      '<textarea class="field mono" id="bkData" style="min-height:80px;font-size:11px" spellcheck="false">'+esc(data)+'</textarea>'+
       '<div style="display:flex;gap:8px;margin-top:9px">'+
         '<button class="btn ghost sm" data-act="copyData" style="flex:1">Copiar</button>'+
         '<button class="btn ghost sm" data-act="restoreData" style="flex:1">Restaurar</button>'+
@@ -2601,6 +2607,44 @@ document.addEventListener("click", function(e){
       const done = ()=>{ $("#bkMsg").textContent = "Copiado. Guárdalo en tus notas o en un correo."; };
       if(navigator.clipboard) navigator.clipboard.writeText(ta.value).then(done,()=>{ try{document.execCommand("copy");done();}catch(err){ $("#bkMsg").textContent="Selecciona el texto y cópialo a mano."; } });
       else { try{document.execCommand("copy");done();}catch(err){} }
+      break;
+    }
+    case "dlData": {
+      /* Aquí sí se puede descargar: la app vive en su propio dominio, no dentro
+         del visor de artifacts, que bloquea las descargas. */
+      try{
+        const blob = new Blob([JSON.stringify(S)], {type:"application/json"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "bitacora-" + today() + ".json";
+        document.body.appendChild(a); a.click();
+        setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+        $("#bkMsg").textContent = "Guardado como bitacora-" + today() + ".json";
+      }catch(err){
+        $("#bkMsg").textContent = "No he podido descargarlo. Usa copiar y pegar.";
+      }
+      break;
+    }
+    case "upData": {
+      const f = $("#bkFile");
+      f.onchange = function(){
+        const file = f.files && f.files[0];
+        if(!file) return;
+        const lector = new FileReader();
+        lector.onload = function(){
+          try{
+            const n = JSON.parse(lector.result);
+            if(!n || !n.habits) throw new Error("bad");
+            S = n; save(); closeSheet(); render();
+            toast("Datos restaurados desde " + file.name);
+          }catch(err){
+            $("#bkMsg").textContent = "Ese archivo no es una copia de Bitácora.";
+          }
+        };
+        lector.onerror = function(){ $("#bkMsg").textContent = "No he podido leer el archivo."; };
+        lector.readAsText(file);
+      };
+      f.click();
       break;
     }
     case "restoreData": {
