@@ -2,8 +2,8 @@
 
 **En línea: <https://caronapetit-spec.github.io/bitacora/>**
 
-App personal para el iPhone: una portada con **lo de hoy**, y detrás **hábitos, listas,
-gastos, notas, gimnasio y cultura**. Es una **PWA** (Progressive Web App): una web que se instala en la pantalla
+App personal para el iPhone: una portada con **lo de hoy**, y detrás **hábitos, listas e
+inventario, gastos, notas, gimnasio, cultura y un pomodoro**. Es una **PWA** (Progressive Web App): una web que se instala en la pantalla
 de inicio y se comporta como una app nativa — icono propio, pantalla completa, sin barra
 de navegador, y funciona sin internet.
 
@@ -98,6 +98,70 @@ espera a que lo cierres para no cortarte a media serie.
 
 En **Ajustes → Versión** se ve la que tienes instalada y hay un botón para forzar la
 comprobación.
+
+## Inventario y lista de la compra
+
+La compra **no se escribe a mano**: sale del inventario. Cada producto tiene un solo
+estado — está en casa o falta — y con eso basta:
+
+```
+Inventario:  marcas "se ha acabado"  →  el producto aparece en Compra
+Compra:      marcas que lo compraste →  vuelve al inventario como "en casa"
+```
+
+Un booleano por producto, y la lista de la compra es una **vista**, no otra lista que
+mantener sincronizada a mano. La compra también asoma en la portada cuando falta algo.
+
+La lista de la compra antigua se convierte al abrir la app: lo que estaba apuntado era lo
+que faltaba, así que entra como *falta*.
+
+## Gastos: comparación y evolución por categoría
+
+Cada categoría se compara con **el mismo mes anterior** (`Comida 210 €  +18%`), en rojo si
+sube y en verde si baja. Un número suelto no dice nada; comparado, sí.
+
+Y el gráfico de seis meses tiene un selector: se puede ver el total o **una categoría
+sola**, que es donde se ven las fugas que el total esconde.
+
+## Gimnasio: historial por ejercicio, 1RM y descarga
+
+**Historial por ejercicio.** En Progreso, tocando un récord se abre todo lo que has hecho
+de ese ejercicio: cada sesión con sus series, de lo más reciente a lo más viejo.
+
+**1RM estimado** por la fórmula de Epley — `peso × (1 + reps/30)`. Es una estimación, no
+un máximo levantado, pero permite comparar una serie de 5 con una de 12, que a ojo no se
+puede.
+
+**Descarga cada 5 semanas** (configurable). Cuando llevas ese tiempo subiendo, la pestaña
+avisa; al aceptar, los pesos de las rutinas bajan **al 60 %** durante una semana y vuelven
+solos al acabar. El calentamiento no se toca y la sobrecarga progresiva se desactiva
+mientras dura: la descarga es el freno que evita estancarse o lesionarse.
+
+## Pomodoro
+
+Pestaña **Foco**: bloques de trabajo y descansos, con descanso largo cada N bloques. Todo
+configurable (25/5/15 y cada 4 por defecto), con el recuento de bloques y minutos del día.
+
+Guarda el **instante en que acaba** el bloque, no lo que queda, así que la cuenta sigue
+bien después de una recarga o de un rato con la pantalla apagada. El aviso va programado
+en el grafo de audio — el mismo truco que el descanso del gimnasio — así que **suena con
+el móvil bloqueado** y el modo No molestar no lo silencia. Comparte ese motor con el
+descanso del gym: si arrancas uno, el otro se calla.
+
+### Bloquear el móvil: lo que no puede hacer una web
+
+Una web **no puede** bloquear el teléfono ni limitar apps. Eso es el **Modo Concentración**
+de iOS y no hay API para activarlo desde una página.
+
+Lo que sí funciona es lanzar un **Atajo** tuyo con el esquema `shortcuts://run-shortcut`:
+
+1. En *Ajustes → Concentración*, un modo (por ejemplo *Trabajo*) que permita solo las
+   llamadas que quieras.
+2. En *Atajos*, uno con la acción *Definir modo Concentración → Trabajo → Activar*.
+3. El nombre de ese atajo, en Foco → Activar concentración.
+
+Al lanzarlo, iOS sale de Bitácora un instante. La alarma sigue programada en el motor de
+audio, así que suena igual.
 
 ## La portada: "Hoy"
 

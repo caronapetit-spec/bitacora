@@ -23,6 +23,7 @@
   --m-notas:#AF5486;
   --m-gym:#C9503B;
   --m-cultura:#2A8C9E;
+  --m-foco:#B0553F;
   --bad:#C2403C;
   --shadow:0 1px 2px rgba(20,24,35,.05), 0 10px 30px rgba(20,24,35,.07);
   --r:15px;
@@ -46,6 +47,7 @@
     --m-notas:#DB84B2;
     --m-gym:#EE8168;
     --m-cultura:#57C4D6;
+    --m-foco:#E39177;
     --bad:#EF7A74;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
     color-scheme:dark;
@@ -67,6 +69,7 @@
   --m-notas:#DB84B2;
   --m-gym:#EE8168;
   --m-cultura:#57C4D6;
+  --m-foco:#E39177;
   --bad:#EF7A74;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
   color-scheme:dark;
@@ -113,6 +116,7 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .app[data-mod="notas"]{--accent:var(--m-notas)}
 .app[data-mod="gym"]{--accent:var(--m-gym)}
 .app[data-mod="cultura"]{--accent:var(--m-cultura)}
+.app[data-mod="foco"]{--accent:var(--m-foco)}
 @media (min-width:520px) and (min-height:700px){
   .app{height:min(880px,94dvh);border-radius:26px;box-shadow:var(--shadow);border:1px solid var(--line)}
 }
@@ -160,7 +164,7 @@ button{background:none;border:0;padding:0;cursor:pointer}
 
 .tabbar{
   display:grid;
-  grid-template-columns:repeat(7,1fr);
+  grid-template-columns:repeat(8,1fr);
   border-top:1px solid var(--line);
   background:var(--surface);
   padding-bottom:env(safe-area-inset-bottom);
@@ -169,12 +173,12 @@ button{background:none;border:0;padding:0;cursor:pointer}
   display:flex;flex-direction:column;align-items:center;gap:3px;
   padding:9px 0 7px;
   color:var(--text-3);
-  font-size:8.5px;
-  letter-spacing:-.01em;
+  font-size:8px;
+  letter-spacing:-.02em;
   letter-spacing:.02em;
   transition:color .15s;
 }
-.tabbar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tabbar svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .tabbar button[aria-current="true"]{color:var(--accent);font-weight:600}
 
 /* ───────── type ───────── */
@@ -330,6 +334,13 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
 .cat-row .amt{font-family:"IBM Plex Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums;color:var(--text-2)}
 .cat-row.pasado .track i{background:var(--bad)}
 .cat-row.pasado .amt{color:var(--bad);font-weight:600}
+.cat-row{grid-template-columns:66px 1fr auto auto}
+.cat-row .vs{
+  font-family:"IBM Plex Mono",monospace;font-size:10px;
+  color:var(--text-3);min-width:38px;text-align:right;
+}
+.cat-row .vs.sube{color:var(--bad)}
+.cat-row .vs.baja{color:var(--good)}
 
 .presu .presu-top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
 .presu .big{
@@ -402,6 +413,22 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
   border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
   padding:2px 7px;border-radius:99px;letter-spacing:.02em;
 }
+
+/* ─── pomodoro ─── */
+.foco{
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);
+  padding:22px 18px 18px;display:flex;flex-direction:column;gap:15px;align-items:center;
+}
+.foco.vivo{border-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.foco-reloj{
+  font-family:"IBM Plex Mono",monospace;font-size:62px;font-weight:500;
+  font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.02em;
+  color:var(--text-3);
+}
+.foco.vivo .foco-reloj{color:var(--accent)}
+.foco .bar{width:100%}
+.foco-btns{display:flex;gap:8px;width:100%}
+.foco.descanso.vivo{background:color-mix(in srgb,var(--m-habitos) 8%,var(--surface-2))}
 
 /* ─── pantalla Hoy ─── */
 .hoy-bloque{
@@ -570,6 +597,7 @@ button.set:hover{border-color:var(--accent)}
 .sheet-wrap[data-mod="notas"]{--accent:var(--m-notas)}
 .sheet-wrap[data-mod="gym"]{--accent:var(--m-gym)}
 .sheet-wrap[data-mod="cultura"]{--accent:var(--m-cultura)}
+.sheet-wrap[data-mod="foco"]{--accent:var(--m-foco)}
 .sheet-back{position:absolute;inset:0;background:rgba(10,12,18,.5);backdrop-filter:blur(3px);animation:fade .2s ease}
 .sheet{
   position:relative;
@@ -682,6 +710,7 @@ const I = {
   plus:'<path d="M12 5v14M5 12h14"/>',
   timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/>',
   cultura:'<path d="M12 7.5v12M12 7.5C10.6 6 8.7 5.5 4.5 5.5v12c4.2 0 6.1.5 7.5 2 1.4-1.5 3.3-2 7.5-2v-12c-4.2 0-6.1.5-7.5 2"/>',
+  foco:'<circle cx="12" cy="13" r="8.2"/><path d="M12 8.6V13l3 2M9 2.5h6"/>',
   check:'<path d="m4 12 5 5L20 6"/>',
   x:'<path d="M18 6 6 18M6 6l12 12"/>',
   pin:'<path d="M12 2 9 9H2l5.5 4L5 20l7-4.5L19 20l-2.5-7L22 9h-7z"/>'
@@ -695,7 +724,8 @@ const TABS = [
   {id:"gastos",  label:"Gastos",  top:"Gastos"},
   {id:"notas",   label:"Notas",   top:"Notas"},
   {id:"gym",     label:"Gym",     top:"Gimnasio"},
-  {id:"cultura", label:"Cultura", top:"Cultura"}
+  {id:"cultura", label:"Cultura", top:"Cultura"},
+  {id:"foco",    label:"Foco",    top:"Pomodoro"}
 ];
 
 /* Las cuatro categorias de la lista de cultura. Cada una llama de otra forma a
@@ -744,7 +774,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v27";
+const BUILD = "v28";
 
 function seed(){
   const H = (name,offs)=>{
@@ -846,13 +876,20 @@ function seed(){
         return h;
       })()
     ],
+    inv:[
+      {id:uid(), name:"Pan de centeno",  falta:true},
+      {id:uid(), name:"Aceite de oliva", falta:true},
+      {id:uid(), name:"Café molido",     falta:false},
+      {id:uid(), name:"Papel de cocina", falta:false},
+      {id:uid(), name:"Leche",           falta:false},
+      {id:uid(), name:"Huevos",          falta:false},
+      {id:uid(), name:"Detergente",      falta:false}
+    ],
     tasks:[
       {id:uid(),text:"Terminar el Character Blueprint del RPG",done:false,list:"tareas",ts:Date.now()},
       {id:uid(),text:"Llamar al proveedor de jamón",done:false,list:"tareas",ts:Date.now()-1e6},
       {id:uid(),text:"Revisar caja de la semana",done:true,list:"tareas",ts:Date.now()-2e6},
-      {id:uid(),text:"Pan de centeno",done:false,list:"compras",ts:Date.now()},
-      {id:uid(),text:"Aceite de oliva",done:false,list:"compras",ts:Date.now()-1e5},
-      {id:uid(),text:"Papel de cocina",done:true,list:"compras",ts:Date.now()-2e5}
+      {id:uid(),text:"Pedir el jamón de la semana",done:false,list:"tareas",ts:Date.now()-3e5}
     ],
     expenses:exp,
     notes:[
@@ -861,6 +898,11 @@ function seed(){
     ],
     gymTab:"sesion",
     culTab:"libros",
+    foco:{
+      cfg:{trabajo:25, corto:5, largo:15, ciclos:4},
+      fase:"trabajo", fin:0, corriendo:false, ciclo:0,
+      dia:"", pomos:0, minutos:0, atajo:""
+    },
     avisos:[
       {id:uid(), hora:"19:00", texto:"Tres horas de gamedev", dias:[1,2,3,4,5], on:true, visto:""},
       {id:uid(), hora:"22:30", texto:"Marca los hábitos del día", dias:[1,2,3,4,5,6,7], on:true, visto:""}
@@ -898,7 +940,10 @@ function seed(){
       profile:{heightCm:178,age:34},
       weights:wlog,
       restDefault:90,
-      stepKg:2.5
+      stepKg:2.5,
+      deloadCada:5,
+      deloadDesde:"",
+      deloadUltima:""
     }
   };
 }
@@ -924,10 +969,25 @@ function load(){
     if(s.gym.active===undefined) s.gym.active = null;
     if(!s.gym.restDefault) s.gym.restDefault = 90;
     if(!s.gym.stepKg) s.gym.stepKg = 2.5;
+    if(!s.gym.deloadCada) s.gym.deloadCada = 5;
+    if(s.gym.deloadDesde === undefined) s.gym.deloadDesde = "";
+    if(s.gym.deloadUltima === undefined) s.gym.deloadUltima = "";
     migrateRoutines(s.gym);
     s.gymTab = s.gymTab || "sesion";
     s.culTab = s.culTab || "libros";
+    s.foco = s.foco || {cfg:{trabajo:25,corto:5,largo:15,ciclos:4}, fase:"trabajo", fin:0, corriendo:false, ciclo:0, dia:"", pomos:0, minutos:0, atajo:""};
+    s.foco.cfg = s.foco.cfg || {trabajo:25,corto:5,largo:15,ciclos:4};
+    /* El recuento del dia se reinicia solo al cambiar de dia. */
+    if(s.foco.dia !== today()){ s.foco.dia = today(); s.foco.pomos = 0; s.foco.minutos = 0; }
     s.avisos = s.avisos || [];
+    /* La lista de la compra antigua se convierte en inventario: lo que estaba
+       apuntado era lo que faltaba, asi que entra como "falta". */
+    if(!Array.isArray(s.inv)){
+      s.inv = (s.tasks||[]).filter(function(t){ return t.list === "compras"; })
+        .map(function(t){ return {id:t.id, name:t.text, falta:!t.done}; });
+      s.tasks = (s.tasks||[]).filter(function(t){ return t.list !== "compras"; });
+    }
+    if(s.list === "compras") s.list = "compra";
     s.budget = s.budget || {total:0, cats:{}};
     s.budget.cats = s.budget.cats || {};
     s.fixed = s.fixed || [];
@@ -965,13 +1025,14 @@ function save(){
   persist();
   syncPendiente();
 }
+cerrarDescarga();
 aplicarFijos();
 persist();   /* deja guardadas las conversiones de formato y los fijos del mes */
 
 /* Vacía el contenido de ejemplo pero conserva los hábitos y el catálogo
    de ejercicios, que son estructura útil y no datos inventados. */
 function wipeContent(){
-  S.tasks = []; S.expenses = []; S.notes = []; S.cultura = [];
+  S.tasks = []; S.expenses = []; S.notes = []; S.cultura = []; S.inv = [];
   S.habits.forEach(h=>h.days = {});
   S.gym.sessions = []; S.gym.active = null;
   S.gym.routines = []; S.gym.goals = []; S.gym.weights = [];
@@ -1177,6 +1238,38 @@ function routineCount(r){
 
 const fmtKg = v => String(Math.round(v*100)/100).replace(".", ",");
 
+/* ─── descarga (deload) ───
+   La sobrecarga sube sin freno hasta que te estancas o te lesionas. Cada N
+   semanas toca una semana al 60 % del peso: los pesos de las rutinas bajan
+   solos durante esa semana y vuelven solos al acabar. */
+const DESCARGA_FACTOR = 0.6;
+
+function descargaActiva(){
+  const d = S.gym.deloadDesde;
+  if(!d) return false;
+  return Math.round((parseKey(today()) - parseKey(d)) / 86400000) < 7;
+}
+/* Semanas entrenando desde la ultima descarga (o desde el primer entreno). */
+function semanasDesdeDescarga(){
+  const ref = S.gym.deloadUltima
+    || (S.gym.sessions.length
+        ? S.gym.sessions.reduce(function(a,b){ return a.start < b.start ? a : b; }).date
+        : "");
+  if(!ref) return 0;
+  return Math.floor(Math.round((parseKey(today()) - parseKey(ref)) / 86400000) / 7);
+}
+const tocaDescarga = () => !descargaActiva() && semanasDesdeDescarga() >= (Number(S.gym.deloadCada)||5);
+/* Cierra la descarga cuando su semana ha pasado. */
+function cerrarDescarga(){
+  if(S.gym.deloadDesde && !descargaActiva()){
+    S.gym.deloadUltima = S.gym.deloadDesde;
+    S.gym.deloadDesde = "";
+    return true;
+  }
+  return false;
+}
+const kgDescarga = kg => Math.round(kg * DESCARGA_FACTOR / 2.5) * 2.5;
+
 /* ─── sobrecarga progresiva ───
    Progresion doble: mientras no llegues al tope del intervalo, repites peso; en
    cuanto lo clavas, subes. Aqui, al registrar una serie de trabajo con las reps
@@ -1212,6 +1305,7 @@ function moverPesos(en, a, j, delta){
 
 function aplicarSobrecarga(a, en, s, j){
   if(s.warmup) return;
+  if(descargaActiva()) return;      /* en descarga no se sube nada */
   const r = repsRange(s.tReps);
   if(!r.max || !s.reps || s.reps < r.max) return;
   if(!Number(s.kg)) return;        /* peso corporal: no se sube solo */
@@ -1236,10 +1330,11 @@ function revertirSobrecarga(a, en, j){
 function planSets(e){
   /* El peso viene ya puesto en la casilla; las reps se dejan vacias con el
      objetivo como pista, que es lo que de verdad varia serie a serie. */
+  const baja = descargaActiva();
   return routineSets(e).map(s=>({
     plan:true, todo:true,
     warmup:!!s.warmup,
-    kg:Number(s.kg)||0,
+    kg:(baja && !s.warmup) ? kgDescarga(Number(s.kg)||0) : (Number(s.kg)||0),
     tReps:repsRange(s.reps).label,
     tRest:restOf(e, !!s.warmup)
   }));
@@ -1264,6 +1359,38 @@ function records(){
     if(!r[en.ex] || st.kg>r[en.ex].kg) r[en.ex] = {kg:st.kg, reps:st.reps};
   })));
   return r;
+}
+/* 1RM estimado por la formula de Epley: peso x (1 + reps/30). Sirve para
+   comparar series de rangos distintos, que es lo que cuesta a ojo. */
+function unRM(kg, reps){
+  if(!kg || !reps) return 0;
+  return Math.round(kg * (1 + reps/30) * 10) / 10;
+}
+function mejor1RM(ex){
+  let mejor = 0;
+  allSessions().forEach(function(s){
+    (s.entries||[]).forEach(function(en){
+      if(en.ex !== ex) return;
+      en.sets.forEach(function(st){
+        if(isWarm(st) || isTodo(st)) return;
+        const v = unRM(st.kg, st.reps);
+        if(v > mejor) mejor = v;
+      });
+    });
+  });
+  return mejor;
+}
+/* Todas las veces que hiciste un ejercicio, de lo mas reciente a lo mas viejo. */
+function historialEjercicio(ex){
+  const out = [];
+  S.gym.sessions.slice().sort(function(a,b){ return b.start - a.start; }).forEach(function(s){
+    (s.entries||[]).forEach(function(en){
+      if(en.ex !== ex) return;
+      const series = en.sets.filter(function(x){ return !isTodo(x); });
+      if(series.length) out.push({fecha:s.date, sesion:s.name, sets:series});
+    });
+  });
+  return out;
 }
 function volumeOf(s){
   let t = 0;
@@ -1731,6 +1858,22 @@ function repasarAvisos(){
   toast(p.length === 1 ? p[0].texto : p.map(function(a){ return a.texto; }).join(" · "));
 }
 
+function sheetConcentracion(){
+  openSheet("Concentración",
+    '<p class="hint">Una web <b>no puede</b> bloquear el móvil ni limitar apps: eso es el <b>Modo Concentración</b> de iOS y no hay forma de activarlo desde una página. Lo que sí se puede es lanzar un <b>Atajo</b> tuyo que lo active.</p>'+
+    '<div><span class="lbl-s">Montarlo, una vez</span><p class="hint"><ol>'+
+      '<li>En <b>Ajustes → Concentración</b>, crea un modo (por ejemplo <i>Trabajo</i>) y permite solo las <b>llamadas</b> que quieras recibir.</li>'+
+      '<li>En la app <b>Atajos</b>, crea uno con la acción <i>Definir modo Concentración</i> → Trabajo → Activar.</li>'+
+      '<li>Ponle un nombre corto y escríbelo aquí abajo.</li>'+
+    '</ol></p></div>'+
+    '<div><label class="lbl-s" for="fcA">Nombre del atajo</label>'+
+    '<input class="field" id="fcA" value="'+esc(S.foco.atajo||"")+'" placeholder="Ej: Concentracion" autocomplete="off"></div>'+
+    '<button class="btn wide" data-act="focoAtajo">Guardar</button>'+
+    (S.foco.atajo?'<button class="btn ghost wide" data-act="focoLanzar">Probarlo ahora</button>':'')+
+    '<p class="hint">Al lanzarlo, iOS sale de Bitácora y abre Atajos un instante. La alarma del pomodoro sigue programada en el motor de audio, así que <b>suena igual</b> — y la concentración no la silencia, porque para iOS es audio, no una notificación.</p>'
+  );
+}
+
 function sheetAvisosLista(){
   const perm = (window.Notification ? Notification.permission : "no disponible");
   const lista = S.avisos.length
@@ -1765,6 +1908,76 @@ function sheetAvisosLista(){
   );
 }
 
+/* ══════════ pomodoro ══════════
+   Se guarda el instante en que acaba el bloque, no lo que queda: asi la cuenta
+   sigue bien tras una recarga o tras un rato con la pantalla apagada. El aviso
+   va programado en el grafo de audio, igual que el descanso del gimnasio, para
+   que suene con el movil bloqueado. */
+const FASES = {
+  trabajo:{nombre:"Trabajo",         corto:"trabajo"},
+  corto:  {nombre:"Descanso corto",  corto:"descanso"},
+  largo:  {nombre:"Descanso largo",  corto:"descanso largo"}
+};
+const focoMin = f => Number(S.foco.cfg[f === "trabajo" ? "trabajo" : (f === "largo" ? "largo" : "corto")]) || 1;
+const focoRestante = () => Math.max(0, S.foco.fin - Date.now());
+function focoTexto(ms){
+  const t = Math.ceil(ms/1000);
+  return Math.floor(t/60) + ":" + pad(t%60);
+}
+/* Que fase viene despues de la actual. */
+function focoSiguiente(){
+  const f = S.foco;
+  if(f.fase !== "trabajo") return "trabajo";
+  const ciclos = Number(f.cfg.ciclos) || 4;
+  return ((f.ciclo + 1) % ciclos === 0) ? "largo" : "corto";
+}
+function focoArrancar(fase){
+  const f = S.foco;
+  f.fase = fase;
+  f.fin = Date.now() + focoMin(fase)*60000;
+  f.corriendo = true;
+  unlockAudio(); startKeepAlive();
+  scheduleAlarm(Math.round((f.fin - Date.now())/1000));
+  askNotif();
+  save(); render();
+}
+function focoParar(){
+  const f = S.foco;
+  f.corriendo = false; f.fin = 0;
+  clearAlarm(); stopKeepAlive();
+  save(); render();
+}
+/* Cierra el bloque que ha terminado y pasa al siguiente, sin arrancarlo. */
+function focoRevisar(){
+  const f = S.foco;
+  if(!f.corriendo || f.fin === 0 || focoRestante() > 0) return false;
+  if(f.fase === "trabajo"){
+    f.pomos++; f.minutos += focoMin("trabajo"); f.ciclo++;
+  }
+  const sig = focoSiguiente();
+  f.corriendo = false; f.fin = 0;
+  f.fase = sig;
+  stopKeepAlive();
+  save();
+  buzz();
+  notify("Bitácora", sig === "trabajo" ? "Descanso terminado. A trabajar." : "Bloque terminado. Descansa.");
+  return true;
+}
+let focoInt = null;
+function focoTic(){
+  clearInterval(focoInt);
+  if(!S.foco.corriendo) return;
+  focoInt = setInterval(function(){
+    if(!S.foco.corriendo){ clearInterval(focoInt); return; }
+    const el = $("#focoReloj");
+    if(!el){ clearInterval(focoInt); return; }
+    if(focoRestante() <= 0){ clearInterval(focoInt); focoRevisar(); render(); return; }
+    el.textContent = focoTexto(focoRestante());
+    const b = $("#focoBarra");
+    if(b) b.style.width = (100 - focoRestante()/(focoMin(S.foco.fase)*600)) + "%";
+  }, 250);
+}
+
 /* ══════════ vistas ══════════ */
 const view = $("#view"), app = $("#app"), topTitle = $("#topTitle");
 
@@ -1781,12 +1994,12 @@ function vHoy(){
   const bloques = [];
 
   /* ─ habitos que faltan ─ */
-  const faltan = S.habits.filter(function(h){ return !cumplido(h, today()); });
+  const habFaltan = S.habits.filter(function(h){ return !cumplido(h, today()); });
   bloques.push('<div class="hoy-bloque">'+
     '<div class="hoy-cab"><h2>Hábitos</h2>'+
       '<button data-act="irA" data-t="habitos">'+doneToday()+' de '+S.habits.length+' →</button></div>'+
-    (faltan.length
-      ? faltan.map(function(h){
+    (habFaltan.length
+      ? habFaltan.map(function(h){
           const cant = h.tipo === "cantidad";
           return '<div class="hoy-linea">'+
             '<button class="check" data-act="'+(cant?"cantHabito":"toggleHabito")+'" data-id="'+h.id+'" aria-label="Marcar">'+svg(I.check)+'</button>'+
@@ -1798,7 +2011,7 @@ function vHoy(){
   '</div>');
 
   /* ─ tareas ─ */
-  const pend = S.tasks.filter(function(t){ return !t.done; });
+  const pend = S.tasks.filter(function(t){ return !t.done && t.list === "tareas"; });
   bloques.push('<div class="hoy-bloque">'+
     '<div class="hoy-cab"><h2>Pendientes</h2>'+
       '<button data-act="irA" data-t="tareas">'+pend.length+' →</button></div>'+
@@ -1807,11 +2020,25 @@ function vHoy(){
           return '<div class="hoy-linea">'+
             '<button class="check" data-act="toggleTask" data-id="'+t.id+'" aria-label="Marcar">'+svg(I.check)+'</button>'+
             '<span class="t">'+esc(t.text)+'</span>'+
-            '<span class="v">'+(t.list==="compras"?"compra":"")+'</span>'+
           '</div>';
         }).join("") + (pend.length>5?'<span class="hoy-vacio">y '+(pend.length-5)+' más</span>':'')
       : '<span class="hoy-vacio">Nada pendiente.</span>')+
   '</div>');
+
+  /* ─ la compra, si falta algo ─ */
+  if(faltan().length){
+    bloques.push('<div class="hoy-bloque">'+
+      '<div class="hoy-cab"><h2>Compra</h2>'+
+        '<button data-act="irCompra">'+faltan().length+' →</button></div>'+
+      faltan().slice(0,5).map(function(x){
+        return '<div class="hoy-linea">'+
+          '<button class="check" data-act="comprado" data-id="'+x.id+'" aria-label="Marcar comprado">'+svg(I.check)+'</button>'+
+          '<span class="t">'+esc(x.name)+'</span>'+
+        '</div>';
+      }).join("") +
+      (faltan().length>5?'<span class="hoy-vacio">y '+(faltan().length-5)+' más</span>':'')+
+    '</div>');
+  }
 
   /* ─ gimnasio ─ */
   const act = S.gym.active;
@@ -1876,6 +2103,19 @@ function vHoy(){
     '</div>');
   }
 
+  /* ─ pomodoro, si lo has usado hoy o esta corriendo ─ */
+  if(S.foco.corriendo || S.foco.pomos){
+    bloques.push('<div class="hoy-bloque">'+
+      '<div class="hoy-cab"><h2>Foco</h2><button data-act="irA" data-t="foco">ver →</button></div>'+
+      (S.foco.corriendo
+        ? '<div class="hoy-linea"><span class="t">'+FASES[S.foco.fase].nombre+'</span>'+
+          '<span class="v">'+focoTexto(focoRestante())+'</span></div>'
+        : '')+
+      '<div class="hoy-linea"><span class="t">Bloques hoy</span>'+
+        '<span class="v">'+S.foco.pomos+' · '+Math.floor(S.foco.minutos/60)+'h '+pad(S.foco.minutos%60)+'</span></div>'+
+    '</div>');
+  }
+
   /* ─ recordatorios de hoy que quedan ─ */
   const porVenir = S.avisos.filter(function(a){
     return avisoToca(a) && minutosDe(a.hora) > ahoraMinutos();
@@ -1895,6 +2135,51 @@ function vHoy(){
       '<h1 class="title">Hoy</h1>'+
     '</div>'+
     bloques.join("");
+}
+
+function vFoco(){
+  const f = S.foco;
+  const total = focoMin(f.fase)*60000;
+  const queda = f.corriendo ? focoRestante() : total;
+  const pct = Math.max(0, Math.min(100, 100 - queda/total*100));
+  const ciclos = Number(f.cfg.ciclos) || 4;
+
+  return demoBanner()+
+    '<div class="hero">'+
+      '<span class="eyebrow">'+FASES[f.fase].nombre+(f.fase==="trabajo"?" · bloque "+((f.ciclo % ciclos)+1)+" de "+ciclos:"")+'</span>'+
+      '<h1 class="title">Pomodoro</h1>'+
+    '</div>'+
+
+    '<div class="foco '+(f.corriendo?"vivo":"")+' '+(f.fase==="trabajo"?"trabajo":"descanso")+'">'+
+      '<span class="foco-reloj" id="focoReloj">'+focoTexto(queda)+'</span>'+
+      '<span class="bar"><i id="focoBarra" style="width:'+pct+'%"></i></span>'+
+      '<div class="foco-btns">'+
+        (f.corriendo
+          ? '<button class="btn ghost" data-act="focoParar" style="flex:1">Parar</button>'
+          : '<button class="btn" data-act="focoIr" style="flex:1">Empezar '+FASES[f.fase].corto+'</button>')+
+        (!f.corriendo && (f.pomos || f.ciclo)
+          ? '<button class="btn ghost" data-act="focoSaltar" style="flex:1">Saltar a '+FASES[focoSiguiente()].corto+'</button>'
+          : '')+
+      '</div>'+
+    '</div>'+
+
+    '<div class="tiles">'+
+      '<div class="tile"><span class="tv">'+f.pomos+'</span><span class="tl">bloques hoy</span></div>'+
+      '<div class="tile"><span class="tv">'+Math.floor(f.minutos/60)+'h '+pad(f.minutos%60)+'</span><span class="tl">de trabajo hoy</span></div>'+
+    '</div>'+
+
+    '<button class="btn ghost wide" data-act="focoConc">Activar concentración</button>'+
+
+    '<section><h2 class="sec">Ajustes del ciclo</h2><div class="panel">'+
+      '<div class="rt-grid"><div><label for="fcT">Trabajo</label><input class="field" id="fcT" inputmode="numeric" value="'+f.cfg.trabajo+'"></div>'+
+      '<div><label for="fcC">Corto</label><input class="field" id="fcC" inputmode="numeric" value="'+f.cfg.corto+'"></div>'+
+      '<div><label for="fcL">Largo</label><input class="field" id="fcL" inputmode="numeric" value="'+f.cfg.largo+'"></div></div>'+
+      '<div class="rt-sub" style="margin-top:9px"><span style="flex:1">Descanso largo cada</span>'+
+        '<input class="field mono" id="fcN" inputmode="numeric" value="'+f.cfg.ciclos+'" style="width:62px;text-align:center"><span>bloques</span></div>'+
+      '<button class="btn ghost sm wide" data-act="focoCfg" style="margin-top:11px">Guardar el ciclo</button>'+
+    '</div></section>'+
+
+    '<p class="hint">El aviso se programa en el motor de audio, así que suena <b>con la pantalla apagada</b> y el modo No molestar no lo silencia. Comparte ese motor con el descanso del gimnasio: si arrancas uno, el otro se calla.</p>';
 }
 
 function vHabitos(){
@@ -1969,38 +2254,96 @@ function heatOne(h){
 }
 
 /* ─── listas ─── */
+const faltan = () => S.inv.filter(function(x){ return x.falta; });
+
 function vTareas(){
-  const items = S.tasks.filter(t=>t.list===S.list).sort((a,b)=>(a.done-b.done)||(b.ts-a.ts));
-  const pend = items.filter(t=>!t.done).length;
-  const hechas = items.length-pend;
+  const cual = S.list;
 
-  const rows = items.length
-    ? '<div class="stack">'+items.map(t=>
-        '<div class="row">'+
-          '<button class="check '+(t.done?"on":"")+'" data-act="toggleTask" data-id="'+t.id+'" aria-pressed="'+t.done+'" aria-label="Marcar">'+svg(I.check)+'</button>'+
-          '<span class="row-title '+(t.done?"done":"")+'">'+esc(t.text)+'</span>'+
-          '<button class="x" data-act="delTask" data-id="'+t.id+'" aria-label="Borrar">'+svg(I.x)+'</button>'+
-        '</div>').join("")+'</div>'
-    : '<div class="empty">'+(S.list==="tareas"?"Sin tareas pendientes.":"La lista de la compra está vacía.")+'<br>Escribe arriba para añadir.</div>';
+  const seg = '<div class="seg" role="group">'+
+    '<button data-act="setList" data-list="tareas" aria-pressed="'+(cual==="tareas")+'">Tareas</button>'+
+    '<button data-act="setList" data-list="compra" aria-pressed="'+(cual==="compra")+'">Compra'+(faltan().length?" ("+faltan().length+")":"")+'</button>'+
+    '<button data-act="setList" data-list="inv" aria-pressed="'+(cual==="inv")+'">Inventario</button>'+
+  '</div>';
 
+  /* ─── tareas ─── */
+  if(cual === "tareas"){
+    const items = S.tasks.filter(t=>t.list==="tareas").sort((a,b)=>(a.done-b.done)||(b.ts-a.ts));
+    const pend = items.filter(t=>!t.done).length;
+    const hechas = items.length-pend;
+    const rows = items.length
+      ? '<div class="stack">'+items.map(t=>
+          '<div class="row">'+
+            '<button class="check '+(t.done?"on":"")+'" data-act="toggleTask" data-id="'+t.id+'" aria-pressed="'+t.done+'" aria-label="Marcar">'+svg(I.check)+'</button>'+
+            '<span class="row-title '+(t.done?"done":"")+'">'+esc(t.text)+'</span>'+
+            '<button class="x" data-act="delTask" data-id="'+t.id+'" aria-label="Borrar">'+svg(I.x)+'</button>'+
+          '</div>').join("")+'</div>'
+      : '<div class="empty">Sin tareas pendientes.<br>Escribe arriba para añadir.</div>';
+
+    return demoBanner()+
+      '<div class="hero">'+
+        '<span class="eyebrow">'+pend+' pendiente'+(pend===1?"":"s")+'</span>'+
+        '<h1 class="title">Tareas</h1>'+
+      '</div>'+ seg +
+      '<form id="taskForm" style="display:flex;gap:8px">'+
+        '<input class="field" id="taskInput" placeholder="Nueva tarea…" autocomplete="off" enterkeyhint="done">'+
+        '<button class="btn" type="submit" aria-label="Añadir" style="padding:12px 15px">'+svg(I.plus)+'</button>'+
+      '</form>'+
+      rows+
+      (hechas? '<button class="btn ghost sm" data-act="clearDone" style="align-self:flex-start">Borrar '+hechas+' completada'+(hechas===1?"":"s")+'</button>' : "");
+  }
+
+  /* ─── la compra: los productos que faltan ─── */
+  if(cual === "compra"){
+    const lista = faltan().sort(function(a,b){ return a.name.localeCompare(b.name,"es"); });
+    const rows = lista.length
+      ? '<div class="stack">'+lista.map(function(x){
+          return '<div class="row">'+
+            '<button class="check" data-act="comprado" data-id="'+x.id+'" aria-label="Marcar comprado">'+svg(I.check)+'</button>'+
+            '<span class="row-title">'+esc(x.name)+'</span>'+
+          '</div>';
+        }).join("")+'</div>'
+      : '<div class="empty">No falta nada.<br>En <b>Inventario</b>, marca lo que se te haya acabado.</div>';
+
+    return demoBanner()+
+      '<div class="hero">'+
+        '<span class="eyebrow">'+lista.length+' producto'+(lista.length===1?"":"s")+' que falta'+(lista.length===1?"":"n")+'</span>'+
+        '<h1 class="title">Compra</h1>'+
+      '</div>'+ seg +
+      '<p class="hint">Esta lista no se escribe a mano: sale de lo que marcas como acabado en el inventario. Al marcar un producto aquí, vuelve al inventario como que ya lo tienes.</p>'+
+      rows+
+      (lista.length ? '<button class="btn ghost sm" data-act="compraToda" style="align-self:flex-start">Marcar toda la compra como hecha</button>' : "");
+  }
+
+  /* ─── inventario ─── */
+  const inv = S.inv.slice().sort(function(a,b){
+    return (b.falta - a.falta) || a.name.localeCompare(b.name,"es");
+  });
+  const rows = inv.length
+    ? '<div class="stack">'+inv.map(function(x){
+        return '<div class="row">'+
+          '<div class="row-main"><span class="row-title'+(x.falta?" done":"")+'">'+esc(x.name)+'</span>'+
+          '<span class="row-sub mono">'+(x.falta?"falta · en la lista de la compra":"en casa")+'</span></div>'+
+          '<button class="btn ghost sm" data-act="'+(x.falta?"reponer":"acabado")+'" data-id="'+x.id+'">'+(x.falta?"ya lo tengo":"se ha acabado")+'</button>'+
+          '<button class="x" data-act="delInv" data-id="'+x.id+'" aria-label="Quitar del inventario">'+svg(I.x)+'</button>'+
+        '</div>';
+      }).join("")+'</div>'
+    : '<div class="empty">Inventario vacío.<br>Añade arriba lo que sueles tener en casa.</div>';
+
+  const enCasa = S.inv.length - faltan().length;
   return demoBanner()+
     '<div class="hero">'+
-      '<span class="eyebrow">'+pend+' pendiente'+(pend===1?"":"s")+'</span>'+
-      '<h1 class="title">'+(S.list==="tareas"?"Tareas":"Compra")+'</h1>'+
-    '</div>'+
-    '<div class="seg" role="group">'+
-      '<button data-act="setList" data-list="tareas" aria-pressed="'+(S.list==="tareas")+'">Tareas</button>'+
-      '<button data-act="setList" data-list="compras" aria-pressed="'+(S.list==="compras")+'">Compra</button>'+
-    '</div>'+
+      '<span class="eyebrow">'+enCasa+' en casa · '+faltan().length+' por comprar</span>'+
+      '<h1 class="title">Inventario</h1>'+
+    '</div>'+ seg +
     '<form id="taskForm" style="display:flex;gap:8px">'+
-      '<input class="field" id="taskInput" placeholder="'+(S.list==="tareas"?"Nueva tarea…":"Añadir a la compra…")+'" autocomplete="off" enterkeyhint="done">'+
+      '<input class="field" id="taskInput" placeholder="Añadir producto…" autocomplete="off" enterkeyhint="done">'+
       '<button class="btn" type="submit" aria-label="Añadir" style="padding:12px 15px">'+svg(I.plus)+'</button>'+
     '</form>'+
-    rows+
-    (hechas? '<button class="btn ghost sm" data-act="clearDone" style="align-self:flex-start">Borrar '+hechas+' completada'+(hechas===1?"":"s")+'</button>' : "");
+    rows;
 }
 
 /* ─── gastos ─── */
+let gastoCat = "";
 function vGastos(){
   const mes = monthExpenses(0);
   const total = sum(mes);
@@ -2011,6 +2354,21 @@ function vGastos(){
   const cats = Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]);
   const maxCat = cats.length? byCat[cats[0]] : 1;
   const lim = S.budget.cats || {};
+  /* Un numero suelto no dice nada; comparado con el mes pasado, si. */
+  const mesAnt = monthExpenses(1);
+  const antCat = {};
+  mesAnt.forEach(function(e){ antCat[e.cat] = (antCat[e.cat]||0) + e.amount; });
+  const nombreMesAnt = (function(){
+    const x = new Date(); x.setDate(1); x.setMonth(x.getMonth()-1);
+    return MESES[x.getMonth()];
+  })();
+  function variacion(c){
+    const ant = antCat[c] || 0;
+    if(!ant) return "";
+    const pc = Math.round((byCat[c]-ant)/ant*100);
+    if(pc === 0) return "igual";
+    return (pc > 0 ? "+" : "") + pc + "%";
+  }
   const catHtml = cats.length
     ? cats.map(function(c){
         const tope = Number(lim[c]) || 0;
@@ -2019,7 +2377,14 @@ function vGastos(){
           '<span class="track"><i style="width:'+Math.max(3, tope>0
               ? Math.min(100, byCat[c]/tope*100)
               : byCat[c]/maxCat*100)+'%"></i></span>'+
-          '<span class="amt">'+money0.format(byCat[c])+(tope>0 ? " / "+money0.format(tope) : "")+' €</span></div>';
+          '<span class="amt">'+money0.format(byCat[c])+(tope>0 ? " / "+money0.format(tope) : "")+' €</span>'+
+          (function(){
+            const v = variacion(c);
+            if(!v) return '';
+            const sube = v.indexOf("+") === 0;
+            return '<span class="vs '+(sube?"sube":(v==="igual"?"":"baja"))+'">'+v+'</span>';
+          })()+
+        '</div>';
       }).join("")
     : '<p class="hint">Sin gastos este mes.</p>';
 
@@ -2052,10 +2417,16 @@ function vGastos(){
     '<button class="btn ghost sm" data-act="fijos" style="flex:1">Gastos fijos'+(S.fixed.length?" ("+S.fixed.length+")":"")+'</button>'+
   '</div>';
 
+  /* El total esconde las fugas: por eso se puede mirar una categoria sola. */
+  if(gastoCat && CATS.indexOf(gastoCat) < 0) gastoCat = "";
   const months = [];
   for(let i=5;i>=0;i--){
     const md = new Date(); md.setDate(1); md.setMonth(md.getMonth()-i);
-    months.push({k:MESES_K[md.getMonth()], v:sum(monthExpenses(i)), now:i===0});
+    const delMes = monthExpenses(i);
+    const v = gastoCat
+      ? sum(delMes.filter(function(e){ return e.cat === gastoCat; }))
+      : sum(delMes);
+    months.push({k:MESES_K[md.getMonth()], v:v, now:i===0});
   }
   const maxM = Math.max.apply(null,months.map(m=>m.v).concat([1]));
   const monthsHtml = '<div class="months">'+months.map(m=>
@@ -2082,8 +2453,13 @@ function vGastos(){
       '<h1 class="title money">'+money.format(total)+'</h1>'+
     '</div>'+
     presu+
-    '<section><h2 class="sec">Por categoría</h2><div class="panel">'+catHtml+'</div></section>'+
-    '<section><h2 class="sec">Últimos 6 meses</h2><div class="panel">'+monthsHtml+'</div></section>'+
+    '<section><h2 class="sec">Por categoría'+(mesAnt.length?' · frente a '+nombreMesAnt:'')+'</h2><div class="panel">'+catHtml+'</div></section>'+
+    '<section><h2 class="sec">Últimos 6 meses</h2><div class="panel">'+
+      '<select class="field" id="gastoCatSel" style="margin-bottom:13px">'+
+        '<option value=""'+(!gastoCat?" selected":"")+'>Todas las categorías</option>'+
+        CATS.map(function(c){ return '<option value="'+esc(c)+'"'+(gastoCat===c?" selected":"")+'>'+esc(c)+'</option>'; }).join("")+
+      '</select>'+
+      monthsHtml+'</div></section>'+
     '<section><h2 class="sec">Movimientos</h2>'+listHtml+'</section>'+
     botones;
 }
@@ -2343,10 +2719,13 @@ function gymProgreso(){
     : "";
 
   const prHtml = prKeys.length
-    ? '<div class="stack">'+prKeys.slice(0,10).map(k=>
-        '<div class="row"><div class="row-main"><span class="row-title">'+esc(k)+'</span>'+
-        '<span class="row-sub mono">'+prs[k].reps+' reps</span></div>'+
-        '<span class="row-val">'+prs[k].kg+' kg</span></div>').join("")+'</div>'
+    ? '<div class="stack">'+prKeys.slice(0,12).map(function(k){
+        const rm = mejor1RM(k);
+        return '<button class="row" data-act="exHist" data-ex="'+esc(k)+'"><div class="row-main">'+
+        '<span class="row-title">'+esc(k)+'</span>'+
+        '<span class="row-sub mono">'+prs[k].reps+' reps'+(rm?' · 1RM ~'+fmtKg(rm)+' kg':'')+'</span></div>'+
+        '<span class="row-val">'+prs[k].kg+' kg</span></button>';
+      }).join("")+'</div>'
     : '<div class="empty">Los récords aparecen cuando registras series con peso.</div>';
 
   const w = S.gym.weights.slice().sort((a,b)=>a.date.localeCompare(b.date));
@@ -2547,7 +2926,15 @@ function vGym(){
     : S.gymTab==="progreso" ? gymProgreso()
     : gymSesion();
 
-  return demoBanner()+
+  const descarga = descargaActiva()
+    ? '<div class="banner"><span><b>Semana de descarga.</b> Los pesos de las rutinas bajan al '+Math.round(DESCARGA_FACTOR*100)+' %. Vuelven solos al acabar la semana.</span>'+
+      '<button data-act="descargaFin">Terminar ya</button></div>'
+    : tocaDescarga()
+      ? '<div class="banner"><span><b>Toca descargar.</b> Llevas '+semanasDesdeDescarga()+' semanas subiendo. Una semana al '+Math.round(DESCARGA_FACTOR*100)+' % y vuelves mas fuerte.</span>'+
+        '<button data-act="descargaIni">Empezar</button></div>'
+      : '';
+
+  return demoBanner()+ descarga +
     '<div class="hero">'+
       '<span class="eyebrow">'+eyebrow+'</span>'+
       '<h1 class="title">Gimnasio</h1>'+
@@ -2577,7 +2964,8 @@ function render(){
     '<button data-act="tab" data-tab="'+t.id+'" aria-current="'+(t.id===S.tab)+'">'+svg(I[t.id])+'<span>'+t.label+'</span></button>'
   ).join("");
 
-  view.innerHTML = S.tab==="hoy" ? vHoy()
+  view.innerHTML = S.tab==="foco" ? vFoco()
+    : S.tab==="hoy" ? vHoy()
     : S.tab==="habitos" ? vHabitos()
     : S.tab==="tareas" ? vTareas()
     : S.tab==="gastos" ? vGastos()
@@ -2588,14 +2976,19 @@ function render(){
 
   const pb = $("#primaryBtn");
   pb.hidden = false;
-  pb.setAttribute("aria-label", {hoy:"Recordatorios",habitos:"Nuevo hábito",tareas:"Añadir",gastos:"Nuevo gasto",notas:"Nueva nota",gym:"Añadir ejercicio",cultura:"Añadir a la lista"}[S.tab]);
+  pb.setAttribute("aria-label", {foco:"Concentración",hoy:"Recordatorios",habitos:"Nuevo hábito",tareas:"Añadir",gastos:"Nuevo gasto",notas:"Nueva nota",gym:"Añadir ejercicio",cultura:"Añadir a la lista"}[S.tab]);
 
   const f = $("#taskForm");
   if(f) f.addEventListener("submit", e=>{
     e.preventDefault();
     const inp = $("#taskInput"), txt = inp.value.trim();
     if(!txt) return;
-    S.tasks.unshift({id:uid(),text:txt,done:false,list:S.list,ts:Date.now()});
+    if(S.list === "inv"){
+      if(!S.inv.some(function(x){ return x.name.toLowerCase() === txt.toLowerCase(); }))
+        S.inv.unshift({id:uid(), name:txt, falta:false});
+    }else{
+      S.tasks.unshift({id:uid(),text:txt,done:false,list:"tareas",ts:Date.now()});
+    }
     save(); render();
     const n = $("#taskInput"); if(n) n.focus();
   });
@@ -2605,6 +2998,9 @@ function render(){
     notaQuery = e.target.value;
     $("#notesList").innerHTML = notesHtml();
   });
+
+  const gc = $("#gastoCatSel");
+  if(gc) gc.addEventListener("change", function(e){ gastoCat = e.target.value; render(); });
 
   const ps = $("#progSel");
   if(ps) ps.addEventListener("change", e=>{
@@ -2880,6 +3276,31 @@ function sheetFinish(){
   );
 }
 
+function sheetHistEjercicio(ex){
+  const h = historialEjercicio(ex);
+  const prs = records();
+  const rec = prs[ex];
+  const rm = mejor1RM(ex);
+
+  openSheet(ex,
+    '<div class="panel">'+
+      (rec?'<div class="kv"><span>Récord</span><b class="mono">'+rec.kg+' kg × '+rec.reps+'</b></div>':'')+
+      (rm?'<div class="kv"><span>1RM estimado</span><b class="mono">~'+fmtKg(rm)+' kg</b></div>':'')+
+      '<div class="kv"><span>Veces entrenado</span><b class="mono">'+h.length+'</b></div>'+
+      (MATERIAL[ex]?'<div class="kv"><span>Material</span><b>'+esc(MATERIAL[ex])+'</b></div>':'')+
+    '</div>'+
+    (rm?'<p class="hint">El 1RM sale de la fórmula de Epley: <b>peso × (1 + reps/30)</b>. Es una estimación, no un máximo que hayas levantado, pero permite comparar una serie de 5 con una de 12.</p>':'')+
+    (h.length
+      ? '<div><span class="lbl-s">Historial</span>'+h.map(function(v){
+          return '<div class="rt-row"><div class="rt-head"><b>'+relDate(v.fecha)+'</b>'+
+            '<span class="ex-meta">'+esc(v.sesion)+'</span></div>'+
+            '<div class="sets">'+v.sets.map(function(x){ return setChip(x, false); }).join("")+'</div>'+
+          '</div>';
+        }).join("")+'</div>'
+      : '<div class="empty">Sin series registradas de este ejercicio.</div>')
+  );
+}
+
 function sheetSessDetail(id){
   const s = S.gym.sessions.filter(x=>x.id===id)[0]; if(!s) return;
   openSheet(s.name,
@@ -3036,6 +3457,8 @@ function sheetProfile(){
       '<div><label class="lbl-s" for="pR">Descanso por defecto</label><input class="field mono" id="pR" inputmode="numeric" value="'+S.gym.restDefault+'" style="text-align:center"></div>'+
       '<div><label class="lbl-s" for="pS">Subida de peso</label><input class="field mono" id="pS" inputmode="decimal" value="'+fmtKg(S.gym.stepKg||2.5)+'" style="text-align:center"></div>'+
     '</div>'+
+    '<div><label class="lbl-s" for="pDl">Descargar cada (semanas)</label>'+
+    '<input class="field mono" id="pDl" inputmode="numeric" value="'+(S.gym.deloadCada||5)+'" style="text-align:center"></div>'+
     '<button class="btn wide" data-act="saveProfile">Guardar</button>'+
     '<p class="hint">La altura solo se usa para el índice de masa corporal. La <b>subida de peso</b> es cuánto sube un ejercicio al clavar el tope del intervalo de repeticiones: 2,5 kg en barra, pero quizá 2 en mancuernas o 5 en prensa.</p>'
   );
@@ -3163,7 +3586,8 @@ document.addEventListener("click", function(e){
       S.tab = el.dataset.tab; save(); render(); break;
 
     case "primary":
-      if(S.tab==="hoy") sheetAvisosLista();
+      if(S.tab==="foco") sheetConcentracion();
+      else if(S.tab==="hoy") sheetAvisosLista();
       else if(S.tab==="habitos") sheetNuevoHabito();
       else if(S.tab==="tareas"){ const i=$("#taskInput"); if(i) i.focus(); }
       else if(S.tab==="gastos") sheetGasto();
@@ -3177,6 +3601,36 @@ document.addEventListener("click", function(e){
 
     case "settings": sheetAjustes(); break;
     case "irA": S.tab = el.dataset.t; save(); render(); break;
+    case "irCompra": S.tab = "tareas"; S.list = "compra"; save(); render(); break;
+
+    /* ─── pomodoro ─── */
+    case "focoIr": focoArrancar(S.foco.fase); focoTic(); break;
+    case "focoParar": focoParar(); break;
+    case "focoSaltar": {
+      const sig = focoSiguiente();
+      if(S.foco.fase === "trabajo"){ S.foco.ciclo++; }
+      S.foco.fase = sig; S.foco.corriendo = false; S.foco.fin = 0;
+      clearAlarm(); stopKeepAlive();
+      save(); render(); break;
+    }
+    case "focoCfg": {
+      const c = S.foco.cfg;
+      c.trabajo = Math.max(1, parseInt($("#fcT").value,10)||25);
+      c.corto   = Math.max(1, parseInt($("#fcC").value,10)||5);
+      c.largo   = Math.max(1, parseInt($("#fcL").value,10)||15);
+      c.ciclos  = Math.max(1, parseInt($("#fcN").value,10)||4);
+      save(); render(); toast("Ciclo guardado.");
+      break;
+    }
+    case "focoConc": sheetConcentracion(); break;
+    case "focoAtajo":
+      S.foco.atajo = $("#fcA").value.trim();
+      save(); closeSheet(); render();
+      toast(S.foco.atajo ? "Atajo guardado." : "Atajo borrado.");
+      break;
+    case "focoLanzar":
+      if(S.foco.atajo) location.href = "shortcuts://run-shortcut?name=" + encodeURIComponent(S.foco.atajo);
+      break;
 
     /* ─── recordatorios ─── */
     case "avisos": sheetAvisosLista(); break;
@@ -3325,7 +3779,31 @@ document.addEventListener("click", function(e){
       save(); render(); break;
     }
     case "delTask": S.tasks = S.tasks.filter(x=>x.id!==id); save(); render(); break;
-    case "clearDone": S.tasks = S.tasks.filter(t=>!(t.done && t.list===S.list)); save(); render(); break;
+    case "clearDone": S.tasks = S.tasks.filter(t=>!(t.done && t.list==="tareas")); save(); render(); break;
+
+    /* ─── inventario y compra ─── */
+    case "acabado": {
+      const x = S.inv.filter(v=>v.id===id)[0]; if(!x) break;
+      x.falta = true; save(); render();
+      toast(x.name + ": a la lista de la compra.");
+      break;
+    }
+    case "reponer": {
+      const x = S.inv.filter(v=>v.id===id)[0]; if(!x) break;
+      x.falta = false; save(); render(); break;
+    }
+    case "comprado": {
+      const x = S.inv.filter(v=>v.id===id)[0]; if(!x) break;
+      x.falta = false; save(); render();
+      toast(x.name + ": de vuelta en casa.");
+      break;
+    }
+    case "compraToda":
+      S.inv.forEach(function(x){ x.falta = false; });
+      save(); render(); toast("Compra hecha.");
+      break;
+    case "delInv":
+      S.inv = S.inv.filter(v=>v.id!==id); save(); render(); break;
 
     /* gastos */
     case "pickCat":
@@ -3444,6 +3922,15 @@ document.addEventListener("click", function(e){
 
     /* gym · navegación */
     case "gymTab": S.gymTab = el.dataset.gt; save(); render(); break;
+    case "descargaIni":
+      S.gym.deloadDesde = today(); save(); render();
+      toast("Semana de descarga: los pesos bajan al "+Math.round(DESCARGA_FACTOR*100)+" %.");
+      break;
+    case "descargaFin":
+      S.gym.deloadUltima = S.gym.deloadDesde || today();
+      S.gym.deloadDesde = ""; save(); render();
+      toast("Descarga terminada. Pesos normales.");
+      break;
 
     /* gym · sesión */
     case "startSess": sheetStart(); break;
@@ -3536,6 +4023,7 @@ document.addEventListener("click", function(e){
       else { el.dataset.sure = "1"; el.textContent = "Toca otra vez para descartar"; }
       break;
     case "sessDetail": sheetSessDetail(id); break;
+    case "exHist": sheetHistEjercicio(el.dataset.ex); break;
     case "delSess":
       S.gym.sessions = S.gym.sessions.filter(x=>x.id!==id);
       save(); closeSheet(); render(); break;
@@ -3616,6 +4104,7 @@ document.addEventListener("click", function(e){
       S.gym.profile.age = parseInt($("#pA").value,10)||null;
       S.gym.restDefault = parseInt($("#pR").value,10)||90;
       S.gym.stepKg = parseFloat(($("#pS").value||"2.5").replace(",","."))||2.5;
+      S.gym.deloadCada = Math.max(1, parseInt($("#pDl").value,10)||5);
       save(); closeSheet(); render(); break;
     }
 
@@ -3794,6 +4283,8 @@ document.addEventListener("visibilitychange", function(){
     syncAhora(true);            /* al volver, recoge lo del otro dispositivo */
     repasarAvisos();
     programarAvisos();
+    if(focoRevisar()) render();
+    focoTic();
   }else{
     clearTimeout(syncT);
     syncSubir(true);            /* al irte, deja subido lo de aqu\u00ed */
@@ -3801,7 +4292,9 @@ document.addEventListener("visibilitychange", function(){
 });
 
 /* arranque */
+focoRevisar();
 render();
+focoTic();
 repasarAvisos();
 programarAvisos();
 syncAhora(true);
