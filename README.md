@@ -2,7 +2,7 @@
 
 **En línea: <https://caronapetit-spec.github.io/bitacora/>**
 
-App personal para el iPhone: **hábitos, listas, gastos, notas, gimnasio, cultura y un chat con Claude** en una
+App personal para el iPhone: **hábitos, listas, gastos, notas, gimnasio y cultura** en una
 sola pantalla. Es una **PWA** (Progressive Web App): una web que se instala en la pantalla
 de inicio y se comporta como una app nativa — icono propio, pantalla completa, sin barra
 de navegador, y funciona sin internet.
@@ -125,8 +125,10 @@ y eliges cuál conservar, con la opción de descargarte antes una copia de la qu
 descartar. Para un uso normal — el móvil en el gimnasio, el ordenador en casa — esa
 pantalla no debería salir casi nunca.
 
-**El token no se sube nunca**: la configuración del servidor se queda en cada dispositivo,
-fuera del bloque de datos que viaja.
+**El token no se sube nunca.** `estadoSinSecretos()` deja el token y la dirección del
+servidor fuera tanto del bloque que se sincroniza como de la copia de seguridad — que es un
+archivo que puedes acabar mandándote por correo. Al restaurar, `conservarLocal()` mantiene
+los del dispositivo.
 
 ### Qué hace falta en el servidor
 
@@ -154,44 +156,6 @@ Por eso Ajustes (el engranaje arriba a la izquierda) tiene **Copia de seguridad*
 ese bloque de texto de vez en cuando y guárdalo en un correo o en tus notas. Pegarlo ahí
 mismo y pulsar *Restaurar* devuelve todo. Es también la forma de pasar los datos de un
 dispositivo a otro.
-
-## La pestaña IA
-
-Un chat con **Claude** dentro de la app, con acceso opcional a tus datos: puede responder
-sobre tus entrenos, tus gastos o tus hábitos porque los tiene delante.
-
-- **Modelo:** `claude-opus-5`, con pensamiento adaptativo (que en Opus 5 va activo por
-  defecto) y **esfuerzo medio** — es una conversación de móvil, no trabajo de ingeniería,
-  y el esfuerzo alto ahí solo alarga la espera y la factura. Se pide también el rescate
-  automático (`fallbacks`) por si un clasificador de seguridad declina una petición.
-- **Respuesta en streaming**, palabra a palabra, con un render mínimo de Markdown
-  (párrafos, negrita, listas, código). Debajo de cada respuesta se ven los tokens que
-  ha costado.
-- **Contexto:** con el interruptor encendido, cada pregunta manda un resumen de hábitos
-  con sus rachas, pendientes, gastos del mes por categoría, récords, rutinas, objetivos,
-  peso corporal, cultura y notas. Apagado, es un Claude normal que no sabe nada de ti.
-
-### La clave de la API, y por qué está donde está
-
-La app se sirve desde un repositorio público, así que una clave metida en el código la
-podría leer cualquiera y gastar tu saldo. Por eso la clave **la escribes tú en el
-dispositivo** y se guarda solo ahí, y la llamada va directa del navegador a
-`api.anthropic.com` con la cabecera `anthropic-dangerous-direct-browser-access`.
-
-Consecuencias que conviene tener claras:
-
-- La clave vive en el almacenamiento local de ese navegador. Con el teléfono desbloqueado
-  y las herramientas de desarrollador se puede leer. Para un dispositivo personal es un
-  riesgo contenido; no lo es en un equipo compartido.
-- **`estadoSinSecretos()` la excluye** — junto con el token y la dirección del servidor —
-  tanto de la copia de seguridad como de lo que se sincroniza. La copia es un archivo que
-  puedes acabar mandándote por correo, y ahi no debe ir ningún secreto. Al restaurar,
-  `conservarLocal()` mantiene las claves de este dispositivo.
-- Cada pregunta se cobra a tu cuenta de Anthropic. La app estima el coste con los precios
-  publicados, pero la cifra buena está en tu consola.
-
-La alternativa sin estos riesgos es un proxy en tu propio servidor, con la clave en una
-variable de entorno; requiere el backend desplegado.
 
 ## La lista de cultura
 
