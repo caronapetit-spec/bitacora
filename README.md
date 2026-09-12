@@ -141,10 +141,18 @@ ver más adelante, y pasarlo a en curso con un toque.
 Las **series** marcan por dónde vas con temporada y episodio (`T2 E5`), igual que los
 libros marcan la página.
 
-## Gimnasio: cuánto llevas sin cada rutina
+## Gimnasio: qué toca hoy
 
-Cada rutina dice cuándo la hiciste por última vez, y la más atrasada lleva la marca
-**te toca**. Aparece también en la portada, con un botón para empezarla directamente.
+Cada rutina puede llevar asignados **días de la semana**. Las de ejemplo vienen con un
+reparto de cinco días: Empuje lunes y jueves, Tirón martes y viernes, Pierna miércoles.
+
+En la portada, el cuadro de gimnasio enseña **la rutina que toca hoy** según ese
+calendario, con un botón para empezarla. Si ya la hiciste, lo dice y no te la vuelve a
+ofrecer. Y si hoy no hay ninguna asignada, lo dice también: *día de descanso*.
+
+Sin días asignados, se mantiene el comportamiento anterior: se propone la rutina que
+lleves **más tiempo sin hacer**. Cada rutina indica además cuándo la hiciste por última
+vez, y la que toca lleva la marca **hoy** (o **te toca**, cuando se decide por atraso).
 
 ## Recordatorios
 

@@ -744,7 +744,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v26";
+const BUILD = "v27";
 
 function seed(){
   const H = (name,offs)=>{
@@ -800,26 +800,26 @@ function seed(){
     {ex:"Prensa de piernas",sets:[{reps:12,kg:120},{reps:12,kg:130}]}
   ]);
 
-  const R = (name,exs)=>({id:uid(),name:name,exercises:exs});
+  const R = (name,dias,exs)=>({id:uid(),name:name,dias:dias,exercises:exs});
   const E = (name,rest,sets)=>({name:name,restSeconds:rest,sets:sets});
   const X  = (reps,kg)=>({reps:String(reps), kg:kg});          /* serie efectiva */
   const C  = (reps,kg)=>({reps:String(reps), kg:kg, warmup:true}); /* calentamiento */
   const xN = (n,reps,kg)=>{ const a=[]; for(let i=0;i<n;i++) a.push(X(reps,kg)); return a; };
 
   const routines = [
-    R("Empuje",[
+    R("Empuje",[1,4],[
       E("Press banca",150,[C(10,35), C(8,50), X("6-8",70), X("6-8",70), X("6-8",72.5), X(6,75)]),
       E("Press militar",120,[C(10,20), X("8-10",35), X("8-10",35), X(8,37.5)]),
       E("Aperturas con mancuernas",90, xN(3,"10-12",12)),
       E("Extensión de tríceps en polea",60, xN(3,"12-15",25))
     ]),
-    R("Tirón",[
+    R("Tirón",[2,5],[
       E("Dominadas",150,[C(5,0)].concat(xN(4,"6-10",0))),
       E("Remo con barra",120,[C(10,30), X("8-10",55), X("8-10",55), X("8-10",57.5), X(8,60)]),
       E("Jalón al pecho",90, xN(3,"10-12",45)),
       E("Curl de bíceps con barra",60, xN(3,"10-12",27.5))
     ]),
-    R("Pierna",[
+    R("Pierna",[3],[
       E("Sentadilla",180,[C(10,40), C(6,60), X("5-8",90), X("5-8",90), X("5-8",92.5), X(5,95)]),
       E("Peso muerto rumano",150,[C(8,40), X("8-10",70), X("8-10",70), X(8,72.5)]),
       E("Curl femoral tumbado",90, xN(3,"10-12",40)),
@@ -1127,6 +1127,8 @@ function migrateRoutines(gym){
         e.sets = routineSets(e);
         delete e.targetSets; delete e.targetReps; delete e.targetWeight; delete e.warmupSets;
       }
+      /* Sin dias asignados la rutina se comporta como hasta ahora. */
+      if(!Array.isArray(r.dias)) r.dias = [];
       /* El calentamiento no necesita el mismo descanso que una serie pesada. */
       if(e.restWarmup===undefined) e.restWarmup = 60;
       /* El material se deduce del nombre cuando se conoce; si no, se deja sin
@@ -1138,6 +1140,22 @@ function migrateRoutines(gym){
 const restOf = (e,warm)=> warm
   ? (Number(e.restWarmup)||60)
   : (Number(e.restSeconds)||90);
+/* Rutinas asignadas al dia de la semana que se le pase (1=lunes ... 7=domingo).
+   Una rutina sin dias asignados no sale nunca por aqui: se busca por atraso. */
+function rutinasDelDia(dia){
+  return S.gym.routines.filter(function(r){
+    return Array.isArray(r.dias) && r.dias.indexOf(dia) >= 0;
+  });
+}
+const rutinasDeHoy = () => rutinasDelDia(diaSemanaHoy());
+/* Si ya la hiciste hoy, no tiene sentido decirte que te toca. */
+function rutinaHechaHoy(nombre){
+  return S.gym.sessions.some(function(x){ return x.routine === nombre && x.date === today(); });
+}
+const textoDiasSemana = r => (Array.isArray(r.dias) && r.dias.length)
+  ? r.dias.slice().sort().map(function(d){ return DIAS_CORTOS[d-1]; }).join("")
+  : "";
+
 /* Dias desde la ultima vez que se hizo esa rutina. null si nunca. */
 function diasDesdeRutina(nombre){
   const hechas = S.gym.sessions.filter(function(x){ return x.routine === nombre; });
@@ -1801,7 +1819,16 @@ function vHoy(){
   if(act){
     gym = '<div class="hoy-linea"><span class="t">Sesión en curso: <b>'+esc(act.name)+'</b></span>'+
           '<span class="v">'+fmtDur(Date.now()-act.start)+'</span></div>';
+  }else if(rutinasDeHoy().length){
+    /* Lo que manda es el calendario: si hoy es lunes, sale la rutina del lunes. */
+    gym = rutinasDeHoy().map(function(r){
+      const hecha = rutinaHechaHoy(r.name);
+      return '<div class="hoy-linea"><span class="t">'+(hecha?'':'Hoy toca ')+'<b>'+esc(r.name)+'</b></span>'+
+        '<span class="v">'+(hecha?'ya hecho hoy':textoDias(diasDesdeRutina(r.name)))+'</span></div>'+
+        (hecha?'':'<button class="btn sm" data-act="startRoutine" data-id="'+r.id+'">Empezar '+esc(r.name)+'</button>');
+    }).join("");
   }else if(S.gym.routines.length){
+    /* Sin dias asignados, se propone la que llevas mas tiempo sin hacer. */
     const conDias = S.gym.routines.map(function(r){ return {r:r, d:diasDesdeRutina(r.name)}; });
     const peor = conDias.reduce(function(a,b){
       const av = a.d===null?9999:a.d, bv = b.d===null?9999:b.d;
@@ -1812,6 +1839,10 @@ function vHoy(){
           '<button class="btn sm" data-act="startRoutine" data-id="'+peor.r.id+'">Empezar '+esc(peor.r.name)+'</button>';
   }else{
     gym = '<span class="hoy-vacio">Sin rutinas todavía.</span>';
+  }
+  const conCalendario = S.gym.routines.some(function(r){ return (r.dias||[]).length; });
+  if(!act && conCalendario && !rutinasDeHoy().length){
+    gym = '<span class="hoy-vacio">Hoy no toca entrenar. Día de descanso.</span>';
   }
   bloques.push('<div class="hoy-bloque">'+
     '<div class="hoy-cab"><h2>Gimnasio</h2><button data-act="irA" data-t="gym">ver →</button></div>'+
@@ -2202,13 +2233,20 @@ function gymSesion(){
             const av = a.d === null ? 9999 : a.d, bv = b.d === null ? 9999 : b.d;
             return bv > av ? b : a;
           }, conDias[0]);
+          /* Si alguna rutina tiene hoy asignado, esa es la que toca; si no,
+             se propone la mas atrasada. */
+          const hoyToca = rutinasDeHoy();
           return conDias.map(function(x){
             const c = routineCount(x.r);
-            const toca = peor && x.r.id === peor.r.id && (x.d === null || x.d >= 2);
+            const esDeHoy = hoyToca.some(function(r){ return r.id === x.r.id; });
+            const toca = hoyToca.length
+              ? esDeHoy
+              : (peor && x.r.id === peor.r.id && (x.d === null || x.d >= 2));
+            const dd = textoDiasSemana(x.r);
             return '<button class="row" data-act="startRoutine" data-id="'+x.r.id+'"><div class="row-main">'+
               '<span class="row-title">'+esc(x.r.name)+
-                (toca?' <span class="ex-up">te toca</span>':'')+'</span>'+
-              '<span class="row-sub mono">'+textoDias(x.d)+' · '+x.r.exercises.length+' ej · '+c.work+' series'+(c.warm?" + "+c.warm+" cal":"")+'</span>'+
+                (toca?' <span class="ex-up">'+(esDeHoy?"hoy":"te toca")+'</span>':'')+'</span>'+
+              '<span class="row-sub mono">'+(dd?dd+' · ':'')+textoDias(x.d)+' · '+c.work+' series'+(c.warm?" + "+c.warm+" cal":"")+'</span>'+
             '</div><span class="row-val">→</span></button>';
           }).join("");
         })()+'</div></section>'
@@ -2229,7 +2267,7 @@ function gymRutinas(){
       const usada = S.gym.sessions.filter(s=>s.routine===r.name).length;
       return '<button class="row" data-act="editRoutine" data-id="'+r.id+'"><div class="row-main">'+
         '<span class="row-title">'+esc(r.name)+'</span>'+
-        '<span class="row-sub mono">'+textoDias(diasDesdeRutina(r.name))+' · '+r.exercises.length+' ej · '+c.work+' series'+(c.warm?" + "+c.warm+" cal":"")+(usada?" · "+usada+"×":"")+'</span>'+
+        '<span class="row-sub mono">'+(textoDiasSemana(r)?textoDiasSemana(r)+' · ':'')+textoDias(diasDesdeRutina(r.name))+' · '+c.work+' series'+(c.warm?" + "+c.warm+" cal":"")+(usada?" · "+usada+"×":"")+'</span>'+
       '</div><span class="row-val">→</span></button>';
     }).join("")+'</div>'+
     '<button class="btn wide" data-act="newRoutine">Nueva rutina</button>';
@@ -2862,19 +2900,27 @@ let rtDraft = null;
 function openRoutine(id){
   const r = id ? S.gym.routines.filter(x=>x.id===id)[0] : null;
   rtDraft = r
-    ? {id:r.id, name:r.name, exercises:r.exercises.map(e=>({
+    ? {id:r.id, name:r.name, dias:(r.dias||[]).slice(), exercises:r.exercises.map(e=>({
         name:e.name,
         eq:e.eq===undefined ? (MATERIAL[e.name]||"") : e.eq,
         restSeconds:e.restSeconds,
         restWarmup:e.restWarmup===undefined?60:e.restWarmup,
         sets:routineSets(e).map(s=>({reps:s.reps, kg:s.kg, warmup:!!s.warmup}))
       }))}
-    : {id:null, name:"", exercises:[]};
+    : {id:null, name:"", dias:[], exercises:[]};
   renderRoutineSheet();
 }
 function readRoutineDOM(){
   if(!rtDraft) return;
   const n = $("#rtName"); if(n) rtDraft.name = n.value;
+  const cd = $("#rtDias");
+  if(cd){
+    const dias = [];
+    Array.prototype.forEach.call(cd.children, function(c){
+      if(c.getAttribute("aria-pressed") === "true") dias.push(+c.dataset.d);
+    });
+    rtDraft.dias = dias;
+  }
   rtDraft.exercises.forEach((e,i)=>{
     const d = $("#rtD"+i), w = $("#rtW"+i), q = $("#rtE"+i);
     if(d) e.restSeconds = Math.max(0, parseInt(d.value,10)||0);
@@ -2930,6 +2976,14 @@ function renderRoutineSheet(){
   openSheet(d.id?"Editar rutina":"Nueva rutina",
     '<div><label class="lbl-s" for="rtName">Nombre</label>'+
     '<input class="field" id="rtName" value="'+esc(d.name)+'" placeholder="Ej: Empuje"></div>'+
+    '<div><span class="lbl-s">Qué días toca</span>'+
+      '<div class="chips" id="rtDias">'+DIAS_CORTOS.map(function(nom,i){
+        const dia = i+1;
+        const on = Array.isArray(d.dias) && d.dias.indexOf(dia) >= 0;
+        return '<button class="chip" data-act="rtDia" data-d="'+dia+'" aria-pressed="'+on+'">'+nom+'</button>';
+      }).join("")+'</div>'+
+      '<p class="hint" style="margin-top:7px">Los días que marques hacen que esta rutina aparezca en <b>Hoy</b> cuando toque. Sin ningún día marcado, se te propone la que lleves más tiempo sin hacer.</p>'+
+    '</div>'+
     '<div>'+rows+'</div>'+
     '<button class="btn ghost wide" data-act="rtAddEx">+ Añadir ejercicio</button>'+
     '<button class="btn wide" data-act="rtSave">Guardar rutina</button>'+
@@ -3489,6 +3543,8 @@ document.addEventListener("click", function(e){
     /* gym · rutinas */
     case "newRoutine": openRoutine(null); break;
     case "editRoutine": openRoutine(id); break;
+    case "rtDia":
+      el.setAttribute("aria-pressed", el.getAttribute("aria-pressed")!=="true"); break;
     case "rtAddEx": readRoutineDOM(); sheetAddEx("routine"); break;
     case "rtEditEx": readRoutineDOM(); sheetAddEx("routine", +el.dataset.i); break;
     case "rtDelEx":
@@ -3522,9 +3578,9 @@ document.addEventListener("click", function(e){
       if(!rtDraft.exercises.length){ sheetAddEx("routine"); break; }
       if(rtDraft.id){
         const r = S.gym.routines.filter(x=>x.id===rtDraft.id)[0];
-        if(r){ r.name = nm; r.exercises = rtDraft.exercises; }
+        if(r){ r.name = nm; r.dias = rtDraft.dias || []; r.exercises = rtDraft.exercises; }
       }else{
-        S.gym.routines.push({id:uid(),name:nm,exercises:rtDraft.exercises});
+        S.gym.routines.push({id:uid(),name:nm,dias:rtDraft.dias||[],exercises:rtDraft.exercises});
       }
       rtDraft = null; save(); closeSheet(); render(); break;
     }
