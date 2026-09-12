@@ -106,6 +106,7 @@ button{background:none;border:0;padding:0;cursor:pointer}
   overflow:hidden;
   position:relative;
 }
+.app[data-mod="hoy"]{--accent:var(--m-habitos)}
 .app[data-mod="habitos"]{--accent:var(--m-habitos)}
 .app[data-mod="tareas"]{--accent:var(--m-tareas)}
 .app[data-mod="gastos"]{--accent:var(--m-gastos)}
@@ -159,7 +160,7 @@ button{background:none;border:0;padding:0;cursor:pointer}
 
 .tabbar{
   display:grid;
-  grid-template-columns:repeat(6,1fr);
+  grid-template-columns:repeat(7,1fr);
   border-top:1px solid var(--line);
   background:var(--surface);
   padding-bottom:env(safe-area-inset-bottom);
@@ -168,11 +169,12 @@ button{background:none;border:0;padding:0;cursor:pointer}
   display:flex;flex-direction:column;align-items:center;gap:3px;
   padding:9px 0 7px;
   color:var(--text-3);
-  font-size:9.5px;
+  font-size:8.5px;
+  letter-spacing:-.01em;
   letter-spacing:.02em;
   transition:color .15s;
 }
-.tabbar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tabbar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .tabbar button[aria-current="true"]{color:var(--accent);font-weight:600}
 
 /* ───────── type ───────── */
@@ -326,6 +328,20 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
 .cat-row .track{height:9px;background:var(--surface-3);border-radius:99px;overflow:hidden}
 .cat-row .track i{display:block;height:100%;background:var(--accent);border-radius:99px}
 .cat-row .amt{font-family:"IBM Plex Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums;color:var(--text-2)}
+.cat-row.pasado .track i{background:var(--bad)}
+.cat-row.pasado .amt{color:var(--bad);font-weight:600}
+
+.presu .presu-top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.presu .big{
+  font-family:"Fraunces",Georgia,serif;font-size:27px;font-weight:600;
+  font-variant-numeric:tabular-nums;color:var(--accent);
+}
+.presu .lbl{font-size:12.5px;color:var(--text-2)}
+.presu .bar{margin-top:11px}
+.presu.justo .big{color:var(--m-gastos)}
+.presu.pasado{border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+.presu.pasado .big{color:var(--bad)}
+.presu.pasado .bar i{background:var(--bad)}
 
 .months{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:end;height:128px}
 .months .m{display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
@@ -385,6 +401,29 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
   color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);
   border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
   padding:2px 7px;border-radius:99px;letter-spacing:.02em;
+}
+
+/* ─── pantalla Hoy ─── */
+.hoy-bloque{
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);
+  padding:14px 15px;display:flex;flex-direction:column;gap:9px;
+}
+.hoy-cab{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hoy-cab h2{
+  margin:0;font-size:12px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--text-3);
+}
+.hoy-cab button{
+  font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--accent);
+  letter-spacing:.04em;white-space:nowrap;
+}
+.hoy-linea{display:flex;align-items:center;gap:10px;font-size:14px}
+.hoy-linea .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hoy-linea .v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--text-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hoy-vacio{font-size:13px;color:var(--text-3)}
+.hoy-grande{
+  font-family:"Fraunces",Georgia,serif;font-size:22px;font-weight:600;
+  font-variant-numeric:tabular-nums;
 }
 
 /* ─── cultura ─── */
@@ -524,6 +563,7 @@ button.set:hover{border-color:var(--accent)}
 .sheet-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
 /* El panel cuelga fuera de .app, asi que no hereda el acento del modulo:
    se lo damos aparte o siempre saldria con el color de Habitos. */
+.sheet-wrap[data-mod="hoy"]{--accent:var(--m-habitos)}
 .sheet-wrap[data-mod="habitos"]{--accent:var(--m-habitos)}
 .sheet-wrap[data-mod="tareas"]{--accent:var(--m-tareas)}
 .sheet-wrap[data-mod="gastos"]{--accent:var(--m-gastos)}
@@ -633,6 +673,7 @@ const relDate = k=>{
 
 /* ══════════ iconos ══════════ */
 const I = {
+  hoy:'<path d="M4 13.5 12 6l8 7.5"/><path d="M6.5 11.8V20h11v-8.2"/>',
   habitos:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M8.5 15.5l2.2 2.2 4.3-4.3"/>',
   tareas:'<path d="M10 6.5h10M10 12h10M10 17.5h10"/><path d="m3.5 6.3 1 1 2-2.2M3.5 11.8l1 1 2-2.2M3.5 17.3l1 1 2-2.2"/>',
   gastos:'<path d="M3 8a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2"/><rect x="3" y="8" width="18" height="11" rx="2.5"/><path d="M16.5 13.5h1.5"/>',
@@ -648,6 +689,7 @@ const I = {
 const svg = (p,cls)=>'<svg viewBox="0 0 24 24"'+(cls?' class="'+cls+'"':'')+'>'+p+'</svg>';
 
 const TABS = [
+  {id:"hoy",     label:"Hoy",     top:"Hoy"},
   {id:"habitos", label:"Hábitos", top:"Hábitos"},
   {id:"tareas",  label:"Listas",  top:"Listas"},
   {id:"gastos",  label:"Gastos",  top:"Gastos"},
@@ -702,7 +744,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v25";
+const BUILD = "v26";
 
 function seed(){
   const H = (name,offs)=>{
@@ -795,9 +837,14 @@ function seed(){
     v:1, demo:true, tab:"habitos", list:"tareas", theme:"auto",
     habits:[
       H("3 h de gamedev",[1,2,3,4,7,8]),
-      H("Gimnasio",[2,4,6,9]),
+      Object.assign(H("Gimnasio",[1,2,4,6,9]), {semanal:5}),
       H("Leer 20 min",[1,2,5,6,7]),
-      H("2 L de agua",[1,3,4,6,8])
+      /* Los habitos de cantidad guardan el numero del dia, no un simple si. */
+      (function(){
+        const h = Object.assign(H("2 L de agua",[1,3,4,6,8]), {tipo:"cantidad", unidad:"L", objetivo:2});
+        Object.keys(h.days).forEach(function(k,i){ h.days[k] = i%3 ? 2 : 1.5; });
+        return h;
+      })()
     ],
     tasks:[
       {id:uid(),text:"Terminar el Character Blueprint del RPG",done:false,list:"tareas",ts:Date.now()},
@@ -814,13 +861,24 @@ function seed(){
     ],
     gymTab:"sesion",
     culTab:"libros",
+    avisos:[
+      {id:uid(), hora:"19:00", texto:"Tres horas de gamedev", dias:[1,2,3,4,5], on:true, visto:""},
+      {id:uid(), hora:"22:30", texto:"Marca los hábitos del día", dias:[1,2,3,4,5,6,7], on:true, visto:""}
+    ],
+    budget:{total:600, cats:{Comida:250, Casa:150, Ocio:80}},
+    fixed:[
+      {id:uid(), amount:19.99, cat:"Ocio",  note:"Suscripciones", dia:3},
+      {id:uid(), amount:45,    cat:"Salud", note:"Cuota gimnasio", dia:1}
+    ],
     cultura:[
       {id:uid(),cat:"libros",title:"Dune",by:"Frank Herbert",started:daysAgo(24),done:null,score:null,page:212,pages:680},
       {id:uid(),cat:"libros",title:"El nombre del viento",by:"Patrick Rothfuss",started:daysAgo(96),done:daysAgo(41),score:9,page:662,pages:662},
       {id:uid(),cat:"juegos",title:"Hollow Knight",by:"Team Cherry",started:daysAgo(11),done:null,score:null},
       {id:uid(),cat:"juegos",title:"Elden Ring",by:"FromSoftware",started:daysAgo(210),done:daysAgo(88),score:10},
       {id:uid(),cat:"pelis",title:"Dune: parte dos",by:"Denis Villeneuve",started:daysAgo(33),done:daysAgo(33),score:8},
-      {id:uid(),cat:"series",title:"Severance",by:"Dan Erickson",started:daysAgo(6),done:null,score:null},
+      {id:uid(),cat:"series",title:"Severance",by:"Dan Erickson",started:daysAgo(6),done:null,score:null,temporada:2,episodio:5},
+      {id:uid(),cat:"libros",title:"Proyecto Hail Mary",by:"Andy Weir",started:null,done:null,score:null,page:0,pages:496},
+      {id:uid(),cat:"pelis",title:"Perfect Days",by:"Wim Wenders",started:null,done:null,score:null},
       {id:uid(),cat:"series",title:"Andor",by:"Tony Gilroy",started:daysAgo(140),done:daysAgo(119),score:9}
     ],
     srv:{url:"",token:""},
@@ -869,6 +927,10 @@ function load(){
     migrateRoutines(s.gym);
     s.gymTab = s.gymTab || "sesion";
     s.culTab = s.culTab || "libros";
+    s.avisos = s.avisos || [];
+    s.budget = s.budget || {total:0, cats:{}};
+    s.budget.cats = s.budget.cats || {};
+    s.fixed = s.fixed || [];
     s.cultura = s.cultura || [];
     /* La pestaña de IA se retiro: si quedaba una clave guardada, se borra.
        Un secreto almacenado para algo que ya no existe no pinta nada. */
@@ -882,6 +944,13 @@ function load(){
     s.sync = s.sync || {on:false, rev:0, at:null};
     s.changedAt = s.changedAt || new Date().toISOString();
     s.notes = s.notes || []; s.tasks = s.tasks || []; s.expenses = s.expenses || [];
+    /* Los habitos de antes eran todos si/no diarios: se quedan igual. */
+    (s.habits||[]).forEach(function(h){
+      if(h.tipo === undefined)     h.tipo = "si";
+      if(h.unidad === undefined)   h.unidad = "";
+      if(h.objetivo === undefined) h.objetivo = 0;
+      if(h.semanal === undefined)  h.semanal = 0;
+    });
     return s;
   }catch(e){ return seed(); }
 }
@@ -896,7 +965,8 @@ function save(){
   persist();
   syncPendiente();
 }
-persist();   /* deja guardadas las conversiones de formato hechas al cargar */
+aplicarFijos();
+persist();   /* deja guardadas las conversiones de formato y los fijos del mes */
 
 /* Vacía el contenido de ejemplo pero conserva los hábitos y el catálogo
    de ejercicios, que son estructura útil y no datos inventados. */
@@ -915,15 +985,97 @@ function applyTheme(){
   else r.setAttribute("data-theme",S.theme);
 }
 
+/* Los gastos fijos se apuntan solos el dia del mes que les toca. Se marcan con
+   el id del fijo que los genero, para no duplicarlos si abres la app cinco
+   veces el mismo dia. */
+function aplicarFijos(){
+  const hoy = new Date();
+  const ym = hoy.getFullYear() + "-" + pad(hoy.getMonth()+1);
+  let nuevos = 0;
+  (S.fixed||[]).forEach(function(f){
+    const dia = Math.min(Math.max(1, Number(f.dia)||1), 28);
+    if(dia > hoy.getDate()) return;                 /* todavia no le toca */
+    const ya = S.expenses.some(function(e){
+      return e.fijo === f.id && e.date.slice(0,7) === ym;
+    });
+    if(ya) return;
+    S.expenses.push({
+      id:uid(), amount:Number(f.amount)||0, cat:f.cat || "Otros",
+      note:f.note || "Gasto fijo", date:ym + "-" + pad(dia), fijo:f.id
+    });
+    nuevos++;
+  });
+  return nuevos;
+}
+
 /* ══════════ cálculos ══════════ */
-function streak(h){
-  const d = new Date();
-  if(!h.days[key(d)]) d.setDate(d.getDate()-1);
+/* Un dia cuenta como cumplido segun el tipo de habito: los de cantidad piden
+   llegar al objetivo; los de si/no, con marcarlos basta. */
+function cumplido(h, k){
+  const v = h.days[k];
+  if(!v) return false;
+  if(h.tipo === "cantidad" && h.objetivo > 0) return Number(v) >= Number(h.objetivo);
+  return true;
+}
+const valorDia = (h,k) => Number(h.days[k]) || 0;
+
+/* Lunes de la semana a la que pertenece una fecha. */
+function lunesDe(d){
+  const x = new Date(d);
+  x.setDate(x.getDate() - ((x.getDay()+6)%7));
+  x.setHours(0,0,0,0);
+  return x;
+}
+/* Dias cumplidos en la semana que empieza en ese lunes. */
+function diasSemana(h, lunes){
   let n = 0;
-  while(h.days[key(d)]){ n++; d.setDate(d.getDate()-1); }
+  for(let i=0;i<7;i++){
+    const d = new Date(lunes); d.setDate(lunes.getDate()+i);
+    if(cumplido(h, key(d))) n++;
+  }
   return n;
 }
-function doneToday(){ return S.habits.filter(h=>h.days[today()]).length; }
+/* Semana en curso: cuantos llevas y cuantos te piden. */
+function semanaActual(h){
+  return {hechos: diasSemana(h, lunesDe(new Date())), meta: Number(h.semanal) || 0};
+}
+
+/* Racha. Con meta semanal se cuenta en SEMANAS, y la semana en curso no la
+   rompe hasta que acaba: si vas 3 de 5 y es miercoles, todavia no has fallado.
+   Sin meta semanal, dias seguidos como siempre. */
+function streak(h){
+  if(Number(h.semanal) > 0){
+    const meta = Number(h.semanal);
+    let n = 0;
+    let lunes = lunesDe(new Date());
+    /* La semana en curso solo suma si ya has llegado a la meta. */
+    if(diasSemana(h, lunes) >= meta) n++;
+    lunes.setDate(lunes.getDate()-7);
+    while(diasSemana(h, lunes) >= meta){
+      n++;
+      lunes = new Date(lunes); lunes.setDate(lunes.getDate()-7);
+    }
+    return n;
+  }
+  const d = new Date();
+  if(!cumplido(h, key(d))) d.setDate(d.getDate()-1);
+  let n = 0;
+  while(cumplido(h, key(d))){ n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+/* Texto de la racha, que cambia de unidad segun el tipo. */
+function rachaTexto(h){
+  const st = streak(h);
+  if(Number(h.semanal) > 0){
+    const sm = semanaActual(h);
+    const base = sm.hechos + " de " + sm.meta + " esta semana";
+    if(!st) return base;
+    return base + " \u00b7 " + st + (st===1 ? " semana seguida" : " semanas seguidas");
+  }
+  if(!st) return "sin racha";
+  return st===1 ? "1 d\u00eda seguido" : st + " d\u00edas seguidos";
+}
+function doneToday(){ return S.habits.filter(h=>cumplido(h, today())).length; }
 function monthExpenses(off){
   const d = new Date(); d.setDate(1); d.setMonth(d.getMonth()-(off||0));
   const y=d.getFullYear(), m=d.getMonth();
@@ -986,6 +1138,19 @@ function migrateRoutines(gym){
 const restOf = (e,warm)=> warm
   ? (Number(e.restWarmup)||60)
   : (Number(e.restSeconds)||90);
+/* Dias desde la ultima vez que se hizo esa rutina. null si nunca. */
+function diasDesdeRutina(nombre){
+  const hechas = S.gym.sessions.filter(function(x){ return x.routine === nombre; });
+  if(!hechas.length) return null;
+  const ult = hechas.reduce(function(a,b){ return a.start > b.start ? a : b; });
+  return Math.round((parseKey(today()) - parseKey(ult.date)) / 86400000);
+}
+function textoDias(n){
+  if(n === null) return "sin hacer nunca";
+  if(n <= 0) return "hoy";
+  if(n === 1) return "ayer";
+  return "hace " + n + " dias";
+}
 function routineCount(r){
   let work = 0, warm = 0;
   (r.exercises||[]).forEach(e=>routineSets(e).forEach(s=>{ if(s.warmup) warm++; else work++; }));
@@ -1492,6 +1657,96 @@ function stopRest(){
   render();
 }
 
+/* ══════════ recordatorios ══════════
+   Lo honesto primero: con la app cerrada del todo, iOS no deja que una web
+   avise. Asi que esto hace dos cosas que si funcionan:
+     · mientras la app vive, programa el aviso a su hora;
+     · al abrirla, te cuenta los que se te han pasado hoy.
+   Para que suene con la app cerrada haria falta push desde un servidor, igual
+   que el aviso de fin de descanso. */
+const DIAS_CORTOS = ["L","M","X","J","V","S","D"];
+const diaSemanaHoy = () => ((new Date().getDay()+6)%7)+1;   /* 1=lunes ... 7=domingo */
+
+function avisoToca(a){
+  return a.on && (a.dias||[]).indexOf(diaSemanaHoy()) >= 0;
+}
+function minutosDe(hhmm){
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm||""));
+  if(!m) return -1;
+  return (+m[1])*60 + (+m[2]);
+}
+function ahoraMinutos(){
+  const d = new Date();
+  return d.getHours()*60 + d.getMinutes();
+}
+/* Los que ya tocaban hoy y no se han mostrado. */
+function avisosPasados(){
+  const ahora = ahoraMinutos();
+  return S.avisos.filter(function(a){
+    return avisoToca(a) && a.visto !== today() && minutosDe(a.hora) >= 0 && minutosDe(a.hora) <= ahora;
+  });
+}
+let avisoTs = [];
+function programarAvisos(){
+  avisoTs.forEach(clearTimeout);
+  avisoTs = [];
+  const ahora = ahoraMinutos();
+  S.avisos.forEach(function(a){
+    if(!avisoToca(a) || a.visto === today()) return;
+    const m = minutosDe(a.hora);
+    if(m < 0 || m <= ahora) return;
+    const ms = (m - ahora) * 60000;
+    if(ms > 6*3600*1000) return;              /* mas de 6 h: no merece la pena */
+    avisoTs.push(setTimeout(function(){
+      a.visto = today(); persist();
+      buzz(); notify("Bitácora", a.texto);
+      toast(a.texto);
+    }, ms));
+  });
+}
+/* Al abrir la app, lo que se te haya pasado. */
+function repasarAvisos(){
+  const p = avisosPasados();
+  if(!p.length) return;
+  p.forEach(function(a){ a.visto = today(); });
+  persist();
+  toast(p.length === 1 ? p[0].texto : p.map(function(a){ return a.texto; }).join(" · "));
+}
+
+function sheetAvisosLista(){
+  const perm = (window.Notification ? Notification.permission : "no disponible");
+  const lista = S.avisos.length
+    ? '<div class="stack">'+S.avisos.slice().sort(function(a,b){ return minutosDe(a.hora)-minutosDe(b.hora); }).map(function(a){
+        return '<div class="row">'+
+          '<button class="check '+(a.on?"on":"")+'" data-act="avisoOn" data-id="'+a.id+'" aria-pressed="'+a.on+'" aria-label="Activar">'+svg(I.check)+'</button>'+
+          '<div class="row-main"><span class="row-title">'+esc(a.texto)+'</span>'+
+          '<span class="row-sub mono">'+esc(a.hora)+' · '+(a.dias||[]).map(function(d){ return DIAS_CORTOS[d-1]; }).join("")+'</span></div>'+
+          '<button class="x" data-act="delAviso" data-id="'+a.id+'" aria-label="Quitar">'+svg(I.x)+'</button>'+
+        '</div>';
+      }).join("")+'</div>'
+    : '<div class="empty">Sin recordatorios.</div>';
+
+  openSheet("Recordatorios",
+    lista+
+    '<div><span class="lbl-s">Añadir uno</span>'+
+      '<div class="setform" style="grid-template-columns:1fr 2fr">'+
+        '<div><label class="lbl-s" for="avH">Hora</label><input class="field mono" id="avH" placeholder="19:00" style="text-align:center"></div>'+
+        '<div><label class="lbl-s" for="avT">Qué te recuerdo</label><input class="field" id="avT" placeholder="Ej: apuntar el peso"></div>'+
+      '</div>'+
+      '<span class="lbl-s" style="margin-top:10px">Días</span>'+
+      '<div class="chips" id="avD">'+DIAS_CORTOS.map(function(d,i){
+        return '<button class="chip" data-act="avisoDia" data-d="'+(i+1)+'" aria-pressed="'+(i<5)+'">'+d+'</button>';
+      }).join("")+'</div>'+
+      '<button class="btn wide" data-act="saveAviso" style="margin-top:11px">Añadir</button>'+
+    '</div>'+
+    (perm !== "granted"
+      ? '<button class="btn ghost wide" data-act="pedirNotif">Permitir notificaciones</button>'
+      : '')+
+    '<div><span class="lbl-s">Hasta dónde llega esto</span>'+
+    '<p class="hint">Con la app <b>abierta o en segundo plano</b> el aviso salta a su hora. Con la app <b>cerrada del todo</b>, iOS no permite que una web te avise: al volver a abrirla te cuenta lo que se te haya pasado hoy. Para que suene con la app cerrada hace falta push desde un servidor, lo mismo que el aviso de fin de descanso.</p></div>'
+  );
+}
+
 /* ══════════ vistas ══════════ */
 const view = $("#view"), app = $("#app"), topTitle = $("#topTitle");
 
@@ -1502,6 +1757,115 @@ function demoBanner(){
 }
 
 /* ─── hábitos ─── */
+/* La portada: que tengo hoy, sin entrar en siete pestanas. */
+function vHoy(){
+  const hoy = new Date();
+  const bloques = [];
+
+  /* ─ habitos que faltan ─ */
+  const faltan = S.habits.filter(function(h){ return !cumplido(h, today()); });
+  bloques.push('<div class="hoy-bloque">'+
+    '<div class="hoy-cab"><h2>Hábitos</h2>'+
+      '<button data-act="irA" data-t="habitos">'+doneToday()+' de '+S.habits.length+' →</button></div>'+
+    (faltan.length
+      ? faltan.map(function(h){
+          const cant = h.tipo === "cantidad";
+          return '<div class="hoy-linea">'+
+            '<button class="check" data-act="'+(cant?"cantHabito":"toggleHabito")+'" data-id="'+h.id+'" aria-label="Marcar">'+svg(I.check)+'</button>'+
+            '<span class="t">'+esc(h.name)+'</span>'+
+            '<span class="v">'+rachaTexto(h)+'</span>'+
+          '</div>';
+        }).join("")
+      : '<span class="hoy-vacio">Todo hecho. Buen día.</span>')+
+  '</div>');
+
+  /* ─ tareas ─ */
+  const pend = S.tasks.filter(function(t){ return !t.done; });
+  bloques.push('<div class="hoy-bloque">'+
+    '<div class="hoy-cab"><h2>Pendientes</h2>'+
+      '<button data-act="irA" data-t="tareas">'+pend.length+' →</button></div>'+
+    (pend.length
+      ? pend.slice(0,5).map(function(t){
+          return '<div class="hoy-linea">'+
+            '<button class="check" data-act="toggleTask" data-id="'+t.id+'" aria-label="Marcar">'+svg(I.check)+'</button>'+
+            '<span class="t">'+esc(t.text)+'</span>'+
+            '<span class="v">'+(t.list==="compras"?"compra":"")+'</span>'+
+          '</div>';
+        }).join("") + (pend.length>5?'<span class="hoy-vacio">y '+(pend.length-5)+' más</span>':'')
+      : '<span class="hoy-vacio">Nada pendiente.</span>')+
+  '</div>');
+
+  /* ─ gimnasio ─ */
+  const act = S.gym.active;
+  let gym;
+  if(act){
+    gym = '<div class="hoy-linea"><span class="t">Sesión en curso: <b>'+esc(act.name)+'</b></span>'+
+          '<span class="v">'+fmtDur(Date.now()-act.start)+'</span></div>';
+  }else if(S.gym.routines.length){
+    const conDias = S.gym.routines.map(function(r){ return {r:r, d:diasDesdeRutina(r.name)}; });
+    const peor = conDias.reduce(function(a,b){
+      const av = a.d===null?9999:a.d, bv = b.d===null?9999:b.d;
+      return bv > av ? b : a;
+    }, conDias[0]);
+    gym = '<div class="hoy-linea"><span class="t">Te toca <b>'+esc(peor.r.name)+'</b></span>'+
+          '<span class="v">'+textoDias(peor.d)+'</span></div>'+
+          '<button class="btn sm" data-act="startRoutine" data-id="'+peor.r.id+'">Empezar '+esc(peor.r.name)+'</button>';
+  }else{
+    gym = '<span class="hoy-vacio">Sin rutinas todavía.</span>';
+  }
+  bloques.push('<div class="hoy-bloque">'+
+    '<div class="hoy-cab"><h2>Gimnasio</h2><button data-act="irA" data-t="gym">ver →</button></div>'+
+    gym+'</div>');
+
+  /* ─ dinero ─ */
+  const hoyGasto = S.expenses.filter(function(e){ return e.date === today(); });
+  const mes = monthExpenses(0), totalMes = sum(mes);
+  const tope = Number(S.budget.total)||0;
+  bloques.push('<div class="hoy-bloque">'+
+    '<div class="hoy-cab"><h2>Dinero</h2><button data-act="irA" data-t="gastos">ver →</button></div>'+
+    '<div class="hoy-linea"><span class="t">Hoy</span><span class="hoy-grande">'+money.format(sum(hoyGasto))+'</span></div>'+
+    (tope > 0
+      ? '<div class="hoy-linea"><span class="t">'+(totalMes<=tope?"Queda del mes":"Te has pasado")+'</span>'+
+        '<span class="v">'+money.format(Math.abs(tope-totalMes))+' de '+money0.format(tope)+' €</span></div>'+
+        '<span class="bar"><i style="width:'+Math.min(100,Math.round(totalMes/tope*100))+'%"></i></span>'
+      : '<div class="hoy-linea"><span class="t">Este mes</span><span class="v">'+money.format(totalMes)+'</span></div>')+
+  '</div>');
+
+  /* ─ cultura en curso ─ */
+  const curso = S.cultura.filter(culCurso);
+  if(curso.length){
+    bloques.push('<div class="hoy-bloque">'+
+      '<div class="hoy-cab"><h2>Empezado</h2><button data-act="irA" data-t="cultura">ver →</button></div>'+
+      curso.slice(0,4).map(function(it){
+        const epi = culEpi(it);
+        const det = it.pages>0 ? (culPct(it)+"%") : (epi || culCat(it.cat).label.toLowerCase());
+        return '<button class="hoy-linea" data-act="culOpen" data-id="'+it.id+'" style="width:100%;text-align:left">'+
+          '<span class="t">'+esc(it.title)+'</span><span class="v">'+esc(det)+'</span></button>';
+      }).join("")+
+    '</div>');
+  }
+
+  /* ─ recordatorios de hoy que quedan ─ */
+  const porVenir = S.avisos.filter(function(a){
+    return avisoToca(a) && minutosDe(a.hora) > ahoraMinutos();
+  }).sort(function(a,b){ return minutosDe(a.hora)-minutosDe(b.hora); });
+  bloques.push('<div class="hoy-bloque">'+
+    '<div class="hoy-cab"><h2>Recordatorios</h2><button data-act="avisos">gestionar →</button></div>'+
+    (porVenir.length
+      ? porVenir.map(function(a){
+          return '<div class="hoy-linea"><span class="t">'+esc(a.texto)+'</span><span class="v">'+esc(a.hora)+'</span></div>';
+        }).join("")
+      : '<span class="hoy-vacio">Nada más por hoy.</span>')+
+  '</div>');
+
+  return demoBanner()+
+    '<div class="hero">'+
+      '<span class="eyebrow">'+esc(fullDate(hoy))+'</span>'+
+      '<h1 class="title">Hoy</h1>'+
+    '</div>'+
+    bloques.join("");
+}
+
 function vHabitos(){
   const total = S.habits.length, hecho = doneToday();
   const pct = total? Math.round(hecho/total*100) : 0;
@@ -1510,22 +1874,13 @@ function vHabitos(){
   if(!total){
     rows = '<div class="empty">Todavía no hay hábitos.<br>Toca <b>+</b> arriba para crear el primero.</div>';
   }else{
-    rows = '<div class="stack">'+S.habits.map(h=>{
-      const on = !!h.days[today()], st = streak(h);
-      return '<div class="row">'+
-        '<button class="check '+(on?"on":"")+'" data-act="toggleHabit" data-id="'+h.id+'" aria-label="Marcar '+esc(h.name)+'" aria-pressed="'+on+'">'+svg(I.check)+'</button>'+
-        '<button class="row-main" data-act="habitDetail" data-id="'+h.id+'">'+
-          '<span class="row-title">'+esc(h.name)+'</span>'+
-          '<span class="row-sub mono">'+(st? (st===1 ? "1 día seguido" : st+" días seguidos") : "sin racha")+'</span>'+
-        '</button>'+
-      '</div>';
-    }).join("")+'</div>';
+    rows = '<div class="stack">'+S.habits.map(h=>filaHabito(h)).join("")+'</div>';
   }
 
   return demoBanner()+
     '<div class="hero">'+
       '<span class="eyebrow">'+esc(fullDate(new Date()))+'</span>'+
-      '<h1 class="title">Hoy</h1>'+
+      '<h1 class="title">Hábitos</h1>'+
       '<div class="hero-foot"><span class="big">'+hecho+'<span class="slash">/'+total+'</span></span>'+
       '<span class="lbl">'+(total&&hecho===total?"todo cumplido":"hábitos hechos")+'</span></div>'+
       '<div class="bar"><i style="width:'+pct+'%"></i></div>'+
@@ -1534,6 +1889,24 @@ function vHabitos(){
     '<section><h2 class="sec">Últimas 5 semanas</h2><div class="panel">'+heatAll()+'</div></section>';
 }
 
+function filaHabito(h){
+  const on = cumplido(h, today());
+  const cant = h.tipo === "cantidad";
+  const v = valorDia(h, today());
+  const pct = (cant && h.objetivo > 0) ? Math.min(100, Math.round(v/h.objetivo*100)) : 0;
+  return '<div class="row">'+
+    '<button class="check '+(on?"on":"")+'" data-act="'+(cant?"cantHabito":"toggleHabit")+'" data-id="'+h.id+'" '+
+      'aria-label="Marcar '+esc(h.name)+'" aria-pressed="'+on+'">'+svg(I.check)+'</button>'+
+    '<button class="row-main" data-act="habitDetail" data-id="'+h.id+'">'+
+      '<span class="row-title">'+esc(h.name)+'</span>'+
+      '<span class="row-sub mono">'+rachaTexto(h)+'</span>'+
+      (cant && h.objetivo > 0
+        ? '<span class="cul-prog"><span class="bar"><i style="width:'+pct+'%"></i></span>'+
+          '<span class="pc">'+fmtKg(v)+(h.unidad?" "+esc(h.unidad):"")+' de '+fmtKg(h.objetivo)+'</span></span>'
+        : '')+
+    '</button>'+
+  '</div>';
+}
 function heatGrid(cells){
   const dows = ["L","M","X","J","V","S","D"];
   return '<div class="heat">'+dows.map(d=>'<span class="dow">'+d+'</span>').join("")+cells+'</div>';
@@ -1546,7 +1919,7 @@ function heatAll(){
   for(let i=0;i<35;i++){
     const d = new Date(start); d.setDate(start.getDate()+i);
     const k = key(d);
-    const n = S.habits.filter(h=>h.days[k]).length;
+    const n = S.habits.filter(h=>cumplido(h,k)).length;
     const lvl = n===0?0:Math.min(4,Math.ceil(n/total*4));
     cells += '<i data-l="'+lvl+'"'+(k===today()?' data-today="1"':'')+' title="'+k+": "+n+'/'+S.habits.length+'"></i>';
   }
@@ -1559,7 +1932,7 @@ function heatOne(h){
   for(let i=0;i<35;i++){
     const d = new Date(start); d.setDate(start.getDate()+i);
     const k = key(d);
-    cells += '<i data-l="'+(h.days[k]?4:0)+'"'+(k===today()?' data-today="1"':'')+' title="'+k+'"></i>';
+    cells += '<i data-l="'+(cumplido(h,k)?4:0)+'"'+(k===today()?' data-today="1"':'')+' title="'+k+'"></i>';
   }
   return heatGrid(cells);
 }
@@ -1606,11 +1979,47 @@ function vGastos(){
   mes.forEach(e=>{ byCat[e.cat] = (byCat[e.cat]||0)+e.amount; });
   const cats = Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]);
   const maxCat = cats.length? byCat[cats[0]] : 1;
+  const lim = S.budget.cats || {};
   const catHtml = cats.length
-    ? cats.map(c=>'<div class="cat-row"><span class="lbl">'+esc(c)+'</span>'+
-        '<span class="track"><i style="width:'+Math.max(3,byCat[c]/maxCat*100)+'%"></i></span>'+
-        '<span class="amt">'+money0.format(byCat[c])+' €</span></div>').join("")
+    ? cats.map(function(c){
+        const tope = Number(lim[c]) || 0;
+        const pasado = tope > 0 && byCat[c] > tope;
+        return '<div class="cat-row'+(pasado?" pasado":"")+'"><span class="lbl">'+esc(c)+'</span>'+
+          '<span class="track"><i style="width:'+Math.max(3, tope>0
+              ? Math.min(100, byCat[c]/tope*100)
+              : byCat[c]/maxCat*100)+'%"></i></span>'+
+          '<span class="amt">'+money0.format(byCat[c])+(tope>0 ? " / "+money0.format(tope) : "")+' €</span></div>';
+      }).join("")
     : '<p class="hint">Sin gastos este mes.</p>';
+
+  /* Presupuesto: lo que queda, y a que ritmo vas para lo que resta de mes. */
+  const tope = Number(S.budget.total) || 0;
+  let presu = "";
+  if(tope > 0){
+    const pct = Math.min(100, Math.round(total/tope*100));
+    const resta = tope - total;
+    const diasMes = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+    const quedan = diasMes - d.getDate() + 1;
+    const estado = total > tope ? "pasado" : (pct >= 80 ? "justo" : "");
+    presu = '<section><h2 class="sec">Presupuesto del mes</h2>'+
+      '<div class="panel presu '+estado+'">'+
+        '<div class="presu-top">'+
+          '<span class="big">'+money.format(Math.abs(resta))+'</span>'+
+          '<span class="lbl">'+(resta >= 0 ? "te quedan de "+money0.format(tope)+" €" : "te has pasado de "+money0.format(tope)+" €")+'</span>'+
+        '</div>'+
+        '<span class="bar"><i style="width:'+pct+'%"></i></span>'+
+        '<p class="hint" style="margin-top:9px">'+
+          (resta >= 0
+            ? "Quedan "+quedan+" dia"+(quedan===1?"":"s")+" de mes: "+money.format(resta/quedan)+" al dia para no pasarte."
+            : "Llevas "+pct+"% del presupuesto con "+quedan+" dia"+(quedan===1?"":"s")+" por delante.")+
+        '</p>'+
+      '</div></section>';
+  }
+
+  const botones = '<div style="display:flex;gap:8px">'+
+    '<button class="btn ghost sm" data-act="presupuesto" style="flex:1">Presupuesto</button>'+
+    '<button class="btn ghost sm" data-act="fijos" style="flex:1">Gastos fijos'+(S.fixed.length?" ("+S.fixed.length+")":"")+'</button>'+
+  '</div>';
 
   const months = [];
   for(let i=5;i>=0;i--){
@@ -1630,7 +2039,7 @@ function vGastos(){
     ? '<div class="stack">'+recientes.map(e=>
         '<div class="row">'+
           '<div class="row-main"><span class="row-title">'+esc(e.note||e.cat)+'</span>'+
-          '<span class="row-sub mono">'+esc(e.cat)+' · '+relDate(e.date)+'</span></div>'+
+          '<span class="row-sub mono">'+esc(e.cat)+' · '+relDate(e.date)+(e.fijo?' · fijo':'')+'</span></div>'+
           '<span class="row-val">'+money.format(e.amount)+'</span>'+
           '<button class="x" data-act="delExp" data-id="'+e.id+'" aria-label="Borrar">'+svg(I.x)+'</button>'+
         '</div>').join("")+'</div>'
@@ -1641,9 +2050,11 @@ function vGastos(){
       '<span class="eyebrow">'+MESES[d.getMonth()]+' '+d.getFullYear()+' · '+mes.length+' gasto'+(mes.length===1?"":"s")+'</span>'+
       '<h1 class="title money">'+money.format(total)+'</h1>'+
     '</div>'+
+    presu+
     '<section><h2 class="sec">Por categoría</h2><div class="panel">'+catHtml+'</div></section>'+
     '<section><h2 class="sec">Últimos 6 meses</h2><div class="panel">'+monthsHtml+'</div></section>'+
-    '<section><h2 class="sec">Movimientos</h2>'+listHtml+'</section>';
+    '<section><h2 class="sec">Movimientos</h2>'+listHtml+'</section>'+
+    botones;
 }
 
 /* ─── notas ─── */
@@ -1782,13 +2193,25 @@ function gymSesion(){
 
   const rt = S.gym.routines.length
     ? '<section><h2 class="sec">Empezar con una rutina</h2><div class="stack">'+
-        S.gym.routines.map(r=>{
-          const c = routineCount(r);
-          return '<button class="row" data-act="startRoutine" data-id="'+r.id+'"><div class="row-main">'+
-            '<span class="row-title">'+esc(r.name)+'</span>'+
-            '<span class="row-sub mono">'+r.exercises.length+' ejercicios · '+c.work+' series'+(c.warm?" + "+c.warm+" cal":"")+'</span>'+
-          '</div><span class="row-val">→</span></button>';
-        }).join("")+'</div></section>'
+        (function(){
+          const conDias = S.gym.routines.map(function(r){
+            return {r:r, d:diasDesdeRutina(r.name)};
+          });
+          /* La mas atrasada primero: es la que toca. */
+          const peor = conDias.reduce(function(a,b){
+            const av = a.d === null ? 9999 : a.d, bv = b.d === null ? 9999 : b.d;
+            return bv > av ? b : a;
+          }, conDias[0]);
+          return conDias.map(function(x){
+            const c = routineCount(x.r);
+            const toca = peor && x.r.id === peor.r.id && (x.d === null || x.d >= 2);
+            return '<button class="row" data-act="startRoutine" data-id="'+x.r.id+'"><div class="row-main">'+
+              '<span class="row-title">'+esc(x.r.name)+
+                (toca?' <span class="ex-up">te toca</span>':'')+'</span>'+
+              '<span class="row-sub mono">'+textoDias(x.d)+' · '+x.r.exercises.length+' ej · '+c.work+' series'+(c.warm?" + "+c.warm+" cal":"")+'</span>'+
+            '</div><span class="row-val">→</span></button>';
+          }).join("");
+        })()+'</div></section>'
     : "";
 
   return '<button class="btn wide" data-act="startSess">Empezar entrenamiento libre</button>'+
@@ -1806,7 +2229,7 @@ function gymRutinas(){
       const usada = S.gym.sessions.filter(s=>s.routine===r.name).length;
       return '<button class="row" data-act="editRoutine" data-id="'+r.id+'"><div class="row-main">'+
         '<span class="row-title">'+esc(r.name)+'</span>'+
-        '<span class="row-sub mono">'+r.exercises.length+' ejercicios · '+c.work+' series'+(c.warm?" + "+c.warm+" cal":"")+(usada?" · usada "+usada+"×":"")+'</span>'+
+        '<span class="row-sub mono">'+textoDias(diasDesdeRutina(r.name))+' · '+r.exercises.length+' ej · '+c.work+' series'+(c.warm?" + "+c.warm+" cal":"")+(usada?" · "+usada+"×":"")+'</span>'+
       '</div><span class="row-val">→</span></button>';
     }).join("")+'</div>'+
     '<button class="btn wide" data-act="newRoutine">Nueva rutina</button>';
@@ -1924,6 +2347,17 @@ function gymProgreso(){
 
 /* ══════════ cultura ══════════ */
 const culPct = it => (it.pages>0) ? Math.max(0, Math.min(100, Math.round((it.page||0)/it.pages*100))) : 0;
+/* Tres estados, y los marcan los campos que faltan: sin fecha de inicio esta
+   pendiente; con fecha de fin, terminado. */
+const culPend = it => !it.started && !it.done;
+const culCurso = it => !!it.started && !it.done;
+/* Las series marcan por donde van con temporada y episodio. */
+function culEpi(it){
+  if(it.cat !== "series") return "";
+  const t = Number(it.temporada)||0, e = Number(it.episodio)||0;
+  if(!t && !e) return "";
+  return (t ? "T"+t : "") + (t && e ? " " : "") + (e ? "E"+e : "");
+}
 function culDias(it){
   if(!it.done) return "";
   const d = Math.round((parseKey(it.done)-parseKey(it.started))/86400000);
@@ -1932,14 +2366,17 @@ function culDias(it){
 }
 function culFila(it){
   const pct = culPct(it);
+  const epi = culEpi(it);
   const sub = it.done
     ? ("terminado "+relDate(it.done)+(culDias(it)?" · "+culDias(it):""))
-    : ("empezado "+relDate(it.started)+(it.by?" · "+it.by:""));
+    : culPend(it)
+      ? ("pendiente"+(it.by?" · "+it.by:""))
+      : ("empezado "+relDate(it.started)+(epi?" · "+epi:"")+(it.by?" · "+it.by:""));
   return '<button class="row" data-act="culOpen" data-id="'+it.id+'">'+
     '<div class="row-main">'+
       '<span class="row-title">'+esc(it.title)+'</span>'+
       '<span class="row-sub mono">'+esc(sub)+'</span>'+
-      (!it.done && it.pages>0
+      (culCurso(it) && it.pages>0
         ? '<span class="cul-prog"><span class="bar"><i style="width:'+pct+'%"></i></span>'+
           '<span class="pc">'+pct+'%</span>'+
           '<span class="row-sub mono" style="grid-column:1/-1">página '+(it.page||0)+' de '+it.pages+'</span></span>'
@@ -1951,7 +2388,8 @@ function culFila(it){
 function vCultura(){
   const c = culCat(S.culTab);
   const items = S.cultura.filter(x=>x.cat===S.culTab);
-  const curso = items.filter(x=>!x.done).sort((a,b)=>b.started.localeCompare(a.started));
+  const pendientes = items.filter(culPend).sort((a,b)=>(a.title||"").localeCompare(b.title||""));
+  const curso = items.filter(culCurso).sort((a,b)=>b.started.localeCompare(a.started));
   const fin = items.filter(x=>x.done).sort((a,b)=>b.done.localeCompare(a.done));
 
   const notas = fin.filter(x=>x.score);
@@ -1983,6 +2421,10 @@ function vCultura(){
       (curso.length ? '<div class="stack">'+curso.map(culFila).join("")+'</div>'
         : '<div class="empty">Nada empezado.<br>Toca <b>+</b> para añadir un '+c.uno+'.</div>')+
     '</section>'+
+    (pendientes.length
+      ? '<section><h2 class="sec">Pendientes · '+pendientes.length+'</h2>'+
+          '<div class="stack">'+pendientes.map(culFila).join("")+'</div></section>'
+      : '')+
     '<section><h2 class="sec">Terminados'+(notas.length?' · nota media '+media.toFixed(1).replace(".",","):'')+'</h2>'+
       (fin.length ? finHtml : '<div class="empty">Todavía no has terminado ningún '+c.uno+'.</div>')+
     '</section>';
@@ -1999,7 +2441,9 @@ function sheetCulNuevo(){
       ? '<div><label class="lbl-s" for="cuP">Páginas totales (opcional)</label>'+
         '<input class="field mono" id="cuP" inputmode="numeric" placeholder="0" style="text-align:center"></div>'
       : '')+
-    '<button class="btn wide" data-act="culSave">Añadir</button>',
+    '<button class="btn wide" data-act="culSave" data-ya="1">Ya lo he empezado</button>'+
+    '<button class="btn ghost wide" data-act="culSave">Guardar como pendiente</button>'+
+    '<p class="hint">La lista de <b>pendientes</b> es para lo que quieres leer o ver más adelante. Cuando lo empieces, pasa a en curso con un toque.</p>',
     b=>$("#cuT",b).focus());
 }
 
@@ -2009,7 +2453,18 @@ function sheetCulItem(id){
   const pct = culPct(it);
   const libro = it.cat==="libros";
 
-  const marcador = (libro && !it.done)
+  const serie = it.cat === "series";
+  const marcaSerie = (serie && culCurso(it))
+    ? '<div><span class="lbl-s">Por dónde vas</span>'+
+        '<div class="setform" style="grid-template-columns:1fr 1fr">'+
+          '<div><label class="lbl-s" for="cuT2">Temporada</label><input class="field mono" id="cuT2" inputmode="numeric" value="'+(it.temporada||"")+'" placeholder="1" style="text-align:center"></div>'+
+          '<div><label class="lbl-s" for="cuE2">Episodio</label><input class="field mono" id="cuE2" inputmode="numeric" value="'+(it.episodio||"")+'" placeholder="1" style="text-align:center"></div>'+
+        '</div>'+
+        '<button class="btn ghost sm wide" data-act="culEpiSave" data-id="'+it.id+'" style="margin-top:11px">Guardar por dónde vas</button>'+
+      '</div>'
+    : '';
+
+  const marcador = (libro && culCurso(it))
     ? '<div><span class="lbl-s">Punto de libro</span>'+
         '<div class="setform" style="grid-template-columns:1fr 1fr">'+
           '<div><label class="lbl-s" for="cuPg">Página</label><input class="field mono" id="cuPg" inputmode="numeric" value="'+(it.page||0)+'" style="text-align:center"></div>'+
@@ -2026,17 +2481,19 @@ function sheetCulItem(id){
 
   const datos = '<div class="panel">'+
     (it.by?'<div class="kv"><span>'+c.quien+'</span><b>'+esc(it.by)+'</b></div>':'')+
-    '<div class="kv"><span>Empezado</span><b class="mono">'+relDate(it.started)+'</b></div>'+
+    (it.started?'<div class="kv"><span>Empezado</span><b class="mono">'+relDate(it.started)+'</b></div>':'<div class="kv"><span>Estado</span><b>pendiente</b></div>')+
     (it.done?'<div class="kv"><span>Terminado</span><b class="mono">'+relDate(it.done)+'</b></div>':'')+
     (it.done&&culDias(it)?'<div class="kv"><span>Tardaste</span><b class="mono">'+culDias(it)+'</b></div>':'')+
     (libro&&it.pages>0?'<div class="kv"><span>Páginas</span><b class="mono">'+(it.done?String(it.pages):(it.page||0)+" de "+it.pages)+'</b></div>':'')+
   '</div>';
 
   openSheet(it.title,
-    datos + marcador + notas +
+    datos + marcador + marcaSerie + (culPend(it) ? '' : notas) +
     (it.done
       ? '<button class="btn ghost wide" data-act="culReopen" data-id="'+it.id+'">Volver a ponerlo en curso</button>'
-      : '<button class="btn wide" data-act="culFinish" data-id="'+it.id+'">Marcar como terminado</button>')+
+      : culPend(it)
+        ? '<button class="btn wide" data-act="culEmpezar" data-id="'+it.id+'">Empezarlo hoy</button>'
+        : '<button class="btn wide" data-act="culFinish" data-id="'+it.id+'">Marcar como terminado</button>')+
     '<button class="btn danger wide" data-act="culDel" data-id="'+it.id+'">Eliminar de la lista</button>'
   );
 }
@@ -2082,7 +2539,8 @@ function render(){
     '<button data-act="tab" data-tab="'+t.id+'" aria-current="'+(t.id===S.tab)+'">'+svg(I[t.id])+'<span>'+t.label+'</span></button>'
   ).join("");
 
-  view.innerHTML = S.tab==="habitos" ? vHabitos()
+  view.innerHTML = S.tab==="hoy" ? vHoy()
+    : S.tab==="habitos" ? vHabitos()
     : S.tab==="tareas" ? vTareas()
     : S.tab==="gastos" ? vGastos()
     : S.tab==="notas"  ? vNotas()
@@ -2092,7 +2550,7 @@ function render(){
 
   const pb = $("#primaryBtn");
   pb.hidden = false;
-  pb.setAttribute("aria-label", {habitos:"Nuevo hábito",tareas:"Añadir",gastos:"Nuevo gasto",notas:"Nueva nota",gym:"Añadir ejercicio",cultura:"Añadir a la lista"}[S.tab]);
+  pb.setAttribute("aria-label", {hoy:"Recordatorios",habitos:"Nuevo hábito",tareas:"Añadir",gastos:"Nuevo gasto",notas:"Nueva nota",gym:"Añadir ejercicio",cultura:"Añadir a la lista"}[S.tab]);
 
   const f = $("#taskForm");
   if(f) f.addEventListener("submit", e=>{
@@ -2127,27 +2585,85 @@ function render(){
 }
 
 /* ══════════ hojas concretas ══════════ */
+function campposHabito(h){
+  h = h || {tipo:"si", unidad:"", objetivo:0, semanal:0, name:""};
+  const cant = h.tipo === "cantidad";
+  return '<div><label class="lbl-s" for="hName">Nombre</label>'+
+    '<input class="field" id="hName" value="'+esc(h.name||"")+'" placeholder="Ej: 3 h de gamedev" enterkeyhint="done"></div>'+
+
+    '<div><span class="lbl-s">Como se apunta</span><div class="seg">'+
+      '<button data-act="hTipo" data-t="si" aria-pressed="'+(!cant)+'">Hecho o no</button>'+
+      '<button data-act="hTipo" data-t="cantidad" aria-pressed="'+cant+'">Con cantidad</button>'+
+    '</div></div>'+
+
+    (cant
+      ? '<div class="setform" style="grid-template-columns:1fr 1fr">'+
+          '<div><label class="lbl-s" for="hObj">Objetivo al dia</label><input class="field mono" id="hObj" inputmode="decimal" value="'+(h.objetivo||"")+'" placeholder="2" style="text-align:center"></div>'+
+          '<div><label class="lbl-s" for="hUni">Unidad</label><input class="field" id="hUni" value="'+esc(h.unidad||"")+'" placeholder="L, h, km" style="text-align:center"></div>'+
+        '</div>'
+      : '')+
+
+    '<div><label class="lbl-s" for="hSem">Cada cuanto</label>'+
+      '<select class="field" id="hSem">'+
+        '<option value="0"'+(!h.semanal?" selected":"")+'>Todos los dias</option>'+
+        [1,2,3,4,5,6].map(function(n){
+          return '<option value="'+n+'"'+(Number(h.semanal)===n?" selected":"")+'>'+n+' dia'+(n===1?"":"s")+' por semana</option>';
+        }).join("")+
+      '</select>'+
+      '<p class="hint" style="margin-top:7px">Con un objetivo semanal la racha se cuenta <b>en semanas</b>: se rompe cuando una semana acaba por debajo de la meta, no por descansar un dia. La semana en curso no la rompe hasta que termina.</p>'+
+    '</div>';
+}
 function sheetNuevoHabito(){
-  openSheet("Nuevo hábito",
-    '<div><label class="lbl-s" for="hName">¿Qué quieres repetir cada día?</label>'+
-    '<input class="field" id="hName" placeholder="Ej: 3 h de gamedev" enterkeyhint="done"></div>'+
-    '<button class="btn wide" data-act="saveHabit">Crear hábito</button>',
-    b=>{ const i = $("#hName",b); i.focus();
-         i.addEventListener("keydown",e=>{ if(e.key==="Enter") saveHabit(); }); });
+  hDraft = {name:"", tipo:"si", unidad:"", objetivo:0, semanal:0};
+  openSheet("Nuevo habito",
+    campposHabito(hDraft) + '<button class="btn wide" data-act="saveHabit">Crear habito</button>',
+    b=>{ const i = $("#hName",b); if(i) i.focus(); });
+}
+let hDraft = null;
+function leerHabitoDOM(){
+  if(!hDraft) return;
+  const n = $("#hName"); if(n) hDraft.name = n.value;
+  const o = $("#hObj"); if(o) hDraft.objetivo = parseFloat((o.value||"0").replace(",","."))||0;
+  const u = $("#hUni"); if(u) hDraft.unidad = u.value.trim();
+  const sm = $("#hSem"); if(sm) hDraft.semanal = parseInt(sm.value,10)||0;
 }
 function saveHabit(){
-  const i = $("#hName"); if(!i) return;
-  const v = i.value.trim(); if(!v) return;
-  S.habits.push({id:uid(),name:v,days:{}});
+  leerHabitoDOM();
+  const v = (hDraft.name||"").trim();
+  if(!v){ const i=$("#hName"); if(i) i.focus(); return; }
+  if(hDraft.id){
+    const h = S.habits.filter(x=>x.id===hDraft.id)[0];
+    if(h){ h.name=v; h.tipo=hDraft.tipo; h.unidad=hDraft.unidad; h.objetivo=hDraft.objetivo; h.semanal=hDraft.semanal; }
+  }else{
+    S.habits.push({id:uid(), name:v, days:{}, tipo:hDraft.tipo, unidad:hDraft.unidad, objetivo:hDraft.objetivo, semanal:hDraft.semanal});
+  }
+  hDraft = null;
   save(); closeSheet(); render();
+}
+function sheetEditarHabito(id){
+  const h = S.habits.filter(x=>x.id===id)[0]; if(!h) return;
+  hDraft = {id:h.id, name:h.name, tipo:h.tipo||"si", unidad:h.unidad||"", objetivo:h.objetivo||0, semanal:h.semanal||0};
+  openSheet("Editar habito",
+    campposHabito(hDraft) + '<button class="btn wide" data-act="saveHabit">Guardar</button>');
+}
+/* Para los habitos de cantidad: se apunta el numero del dia. */
+function sheetCantidad(id){
+  const h = S.habits.filter(x=>x.id===id)[0]; if(!h) return;
+  openSheet(h.name,
+    '<div><label class="lbl-s" for="hVal">Cuanto hoy'+(h.unidad?" ("+esc(h.unidad)+")":"")+'</label>'+
+    '<input class="field mono" id="hVal" inputmode="decimal" value="'+(valorDia(h,today())||"")+'" placeholder="0" style="text-align:center;font-size:26px;padding:16px"></div>'+
+    (h.objetivo>0?'<p class="hint">Objetivo del dia: <b>'+fmtKg(h.objetivo)+(h.unidad?" "+esc(h.unidad):"")+'</b>.</p>':'')+
+    '<button class="btn wide" data-act="saveCantidad" data-id="'+h.id+'">Guardar</button>',
+    b=>{ const i=$("#hVal",b); if(i){ i.focus(); i.select(); } });
 }
 function sheetHabito(id){
   const h = S.habits.filter(x=>x.id===id)[0]; if(!h) return;
   const totalDias = Object.keys(h.days).length;
   openSheet(h.name,
     '<div class="panel">'+heatOne(h)+'</div>'+
-    '<div><div class="kv"><span>Racha actual</span><b class="mono">'+streak(h)+' días</b></div>'+
+    '<div><div class="kv"><span>Racha actual</span><b class="mono">'+rachaTexto(h)+'</b></div>'+
     '<div class="kv"><span>Días cumplidos en total</span><b class="mono">'+totalDias+'</b></div></div>'+
+    '<button class="btn ghost wide" data-act="editHabito" data-id="'+h.id+'">Editar este hábito</button>'+
     '<button class="btn danger wide" data-act="delHabit" data-id="'+h.id+'">Eliminar hábito</button>'
   );
 }
@@ -2172,6 +2688,51 @@ function saveExp(){
   S.expenses.push({id:uid(),amount:Math.round(amt*100)/100,cat:cat,note:$("#eNote").value.trim(),date:$("#eDate").value||today()});
   save(); closeSheet(); render();
 }
+function sheetPresupuesto(){
+  const b = S.budget;
+  openSheet("Presupuesto",
+    '<div><label class="lbl-s" for="bpT">Tope del mes (€)</label>'+
+    '<input class="field mono" id="bpT" inputmode="decimal" value="'+(b.total||"")+'" placeholder="0 = sin tope" style="text-align:center;font-size:24px;padding:15px"></div>'+
+    '<div><span class="lbl-s">Tope por categoría (opcional)</span>'+
+      CATS.map(function(c,i){
+        return '<div class="rt-sub" style="margin-bottom:7px"><span style="flex:1">'+esc(c)+'</span>'+
+          '<input class="field mono" id="bpC'+i+'" inputmode="decimal" value="'+((b.cats[c])||"")+'" placeholder="—" style="width:82px;text-align:center"></div>';
+      }).join("")+
+    '</div>'+
+    '<button class="btn wide" data-act="savePresu">Guardar</button>'+
+    '<p class="hint">Deja un campo vacío o a 0 para no ponerle tope. El aviso salta al llegar al 80 %.</p>'
+  );
+}
+
+function sheetFijos(){
+  const lista = S.fixed.length
+    ? '<div class="stack">'+S.fixed.slice().sort(function(a,b){ return a.dia-b.dia; }).map(function(f){
+        return '<div class="row"><div class="row-main">'+
+          '<span class="row-title">'+esc(f.note||f.cat)+'</span>'+
+          '<span class="row-sub mono">'+esc(f.cat)+' · día '+f.dia+' de cada mes</span></div>'+
+          '<span class="row-val">'+money.format(f.amount)+'</span>'+
+          '<button class="x" data-act="delFijo" data-id="'+f.id+'" aria-label="Quitar">'+svg(I.x)+'</button></div>';
+      }).join("")+'</div>'
+    : '<div class="empty">Sin gastos fijos.<br>El alquiler, la luz, las suscripciones…</div>';
+
+  openSheet("Gastos fijos",
+    '<p class="hint">Se apuntan <b>solos</b> el día del mes que les toca, y aparecen marcados como <i>fijo</i> en los movimientos. Así no tienes que teclear cada mes lo mismo.</p>'+
+    lista+
+    '<div><span class="lbl-s">Añadir uno</span>'+
+      '<div class="setform" style="grid-template-columns:1fr 1fr">'+
+        '<div><label class="lbl-s" for="fA">Importe</label><input class="field mono" id="fA" inputmode="decimal" placeholder="0,00" style="text-align:center"></div>'+
+        '<div><label class="lbl-s" for="fD">Día del mes</label><input class="field mono" id="fD" inputmode="numeric" placeholder="1" style="text-align:center"></div>'+
+      '</div>'+
+      '<label class="lbl-s" for="fN" style="margin-top:9px">Concepto</label>'+
+      '<input class="field" id="fN" placeholder="Ej: alquiler">'+
+      '<label class="lbl-s" for="fC" style="margin-top:9px">Categoría</label>'+
+      '<select class="field" id="fC">'+CATS.map(function(c){ return '<option>'+esc(c)+'</option>'; }).join("")+'</select>'+
+      '<button class="btn wide" data-act="saveFijo" style="margin-top:11px">Añadir</button>'+
+    '</div>'+
+    '<p class="hint">El día se limita al 28 para que exista en todos los meses.</p>'
+  );
+}
+
 function sheetNota(id){
   const n = id ? S.notes.filter(x=>x.id===id)[0] : null;
   const txt = n ? n.text : "";
@@ -2548,7 +3109,8 @@ document.addEventListener("click", function(e){
       S.tab = el.dataset.tab; save(); render(); break;
 
     case "primary":
-      if(S.tab==="habitos") sheetNuevoHabito();
+      if(S.tab==="hoy") sheetAvisosLista();
+      else if(S.tab==="habitos") sheetNuevoHabito();
       else if(S.tab==="tareas"){ const i=$("#taskInput"); if(i) i.focus(); }
       else if(S.tab==="gastos") sheetGasto();
       else if(S.tab==="notas") sheetNota(null);
@@ -2560,6 +3122,35 @@ document.addEventListener("click", function(e){
       break;
 
     case "settings": sheetAjustes(); break;
+    case "irA": S.tab = el.dataset.t; save(); render(); break;
+
+    /* ─── recordatorios ─── */
+    case "avisos": sheetAvisosLista(); break;
+    case "avisoOn": {
+      const a = S.avisos.filter(x=>x.id===id)[0]; if(!a) break;
+      a.on = !a.on; save(); programarAvisos(); sheetAvisosLista(); break;
+    }
+    case "avisoDia":
+      el.setAttribute("aria-pressed", el.getAttribute("aria-pressed")!=="true"); break;
+    case "saveAviso": {
+      const h = $("#avH").value.trim();
+      if(minutosDe(h) < 0){ $("#avH").focus(); toast("La hora va en formato 19:00."); break; }
+      const t = $("#avT").value.trim();
+      if(!t){ $("#avT").focus(); break; }
+      const dias = [];
+      Array.prototype.forEach.call($("#avD").children, function(c){
+        if(c.getAttribute("aria-pressed")==="true") dias.push(+c.dataset.d);
+      });
+      if(!dias.length){ toast("Elige al menos un día."); break; }
+      S.avisos.push({id:uid(), hora:h, texto:t, dias:dias, on:true, visto:""});
+      save(); programarAvisos(); sheetAvisosLista(); break;
+    }
+    case "delAviso":
+      S.avisos = S.avisos.filter(x=>x.id!==id);
+      save(); programarAvisos(); sheetAvisosLista(); break;
+    case "pedirNotif":
+      askNotif();
+      setTimeout(function(){ sheetAvisosLista(); }, 600); break;
     case "closeSheet": closeSheet(); break;
 
     /* avisos */
@@ -2647,12 +3238,27 @@ document.addEventListener("click", function(e){
       save(); closeSheet(); render(); break;
 
     /* hábitos */
+    case "toggleHabito":
     case "toggleHabit": {
       const h = S.habits.filter(x=>x.id===id)[0]; if(!h) break;
       if(h.days[today()]) delete h.days[today()]; else h.days[today()] = 1;
       save(); render(); break;
     }
     case "habitDetail": sheetHabito(id); break;
+    case "editHabito": sheetEditarHabito(id); break;
+    case "hTipo":
+      leerHabitoDOM();
+      hDraft.tipo = el.dataset.t;
+      openSheet(hDraft.id?"Editar habito":"Nuevo habito",
+        campposHabito(hDraft) + '<button class="btn wide" data-act="saveHabit">'+(hDraft.id?"Guardar":"Crear habito")+'</button>');
+      break;
+    case "cantHabito": sheetCantidad(id); break;
+    case "saveCantidad": {
+      const h = S.habits.filter(x=>x.id===id)[0]; if(!h) break;
+      const v = parseFloat(($("#hVal").value||"0").replace(",","."))||0;
+      if(v>0) h.days[today()] = v; else delete h.days[today()];
+      save(); closeSheet(); render(); break;
+    }
     case "saveHabit": saveHabit(); break;
     case "delHabit":
       S.habits = S.habits.filter(x=>x.id!==id);
@@ -2673,6 +3279,35 @@ document.addEventListener("click", function(e){
       el.setAttribute("aria-pressed","true"); break;
     case "saveExp": saveExp(); break;
     case "delExp": S.expenses = S.expenses.filter(x=>x.id!==id); save(); render(); break;
+    case "presupuesto": sheetPresupuesto(); break;
+    case "savePresu": {
+      S.budget.total = parseFloat(($("#bpT").value||"0").replace(",","."))||0;
+      const cats = {};
+      CATS.forEach(function(c,i){
+        const el2 = $("#bpC"+i);
+        const v = el2 ? (parseFloat((el2.value||"0").replace(",","."))||0) : 0;
+        if(v > 0) cats[c] = v;
+      });
+      S.budget.cats = cats;
+      save(); closeSheet(); render(); break;
+    }
+    case "fijos": sheetFijos(); break;
+    case "saveFijo": {
+      const a = parseFloat(($("#fA").value||"0").replace(",","."))||0;
+      if(a <= 0){ $("#fA").focus(); break; }
+      S.fixed.push({
+        id:uid(), amount:a, cat:$("#fC").value,
+        note:$("#fN").value.trim(),
+        dia:Math.min(28, Math.max(1, parseInt($("#fD").value,10)||1))
+      });
+      aplicarFijos();
+      save(); render(); sheetFijos(); break;
+    }
+    case "delFijo":
+      /* Se quita el fijo, pero los gastos que ya genero se quedan: son gasto
+         real que ocurrio. */
+      S.fixed = S.fixed.filter(x=>x.id!==id);
+      save(); render(); sheetFijos(); break;
 
     /* notas */
     case "openNote": sheetNota(id); break;
@@ -2694,10 +3329,28 @@ document.addEventListener("click", function(e){
       S.cultura.unshift({
         id:uid(), cat:S.culTab, title:t,
         by:$("#cuB").value.trim(),
-        started:today(), done:null, score:null,
+        started: el.dataset.ya ? today() : null,
+        done:null, score:null,
         page:0, pages: pg ? (parseInt(pg.value,10)||0) : 0
       });
-      save(); closeSheet(); render(); break;
+      save(); closeSheet(); render();
+      if(!el.dataset.ya) toast("Guardado en pendientes.");
+      break;
+    }
+    case "culEmpezar": {
+      const it = S.cultura.filter(x=>x.id===id)[0]; if(!it) break;
+      it.started = today();
+      save(); closeSheet(); render();
+      toast(it.title + ": en curso.");
+      break;
+    }
+    case "culEpiSave": {
+      const it = S.cultura.filter(x=>x.id===id)[0]; if(!it) break;
+      it.temporada = Math.max(0, parseInt($("#cuT2").value,10)||0);
+      it.episodio  = Math.max(0, parseInt($("#cuE2").value,10)||0);
+      save(); closeSheet(); render();
+      toast(culEpi(it) ? ("Vas por " + culEpi(it) + ".") : "Guardado.");
+      break;
     }
     case "culScore": {
       /* La nota se elige aquí y se guarda al momento: así vale tanto para
@@ -3083,6 +3736,8 @@ document.addEventListener("visibilitychange", function(){
   if(!document.hidden){
     buscarActualizacion(true);
     syncAhora(true);            /* al volver, recoge lo del otro dispositivo */
+    repasarAvisos();
+    programarAvisos();
   }else{
     clearTimeout(syncT);
     syncSubir(true);            /* al irte, deja subido lo de aqu\u00ed */
@@ -3091,6 +3746,8 @@ document.addEventListener("visibilitychange", function(){
 
 /* arranque */
 render();
+repasarAvisos();
+programarAvisos();
 syncAhora(true);
 })();
 </script>

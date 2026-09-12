@@ -2,8 +2,8 @@
 
 **En línea: <https://caronapetit-spec.github.io/bitacora/>**
 
-App personal para el iPhone: **hábitos, listas, gastos, notas, gimnasio y cultura** en una
-sola pantalla. Es una **PWA** (Progressive Web App): una web que se instala en la pantalla
+App personal para el iPhone: una portada con **lo de hoy**, y detrás **hábitos, listas,
+gastos, notas, gimnasio y cultura**. Es una **PWA** (Progressive Web App): una web que se instala en la pantalla
 de inicio y se comporta como una app nativa — icono propio, pantalla completa, sin barra
 de navegador, y funciona sin internet.
 
@@ -98,6 +98,61 @@ espera a que lo cierres para no cortarte a media serie.
 
 En **Ajustes → Versión** se ve la que tienes instalada y hay un botón para forzar la
 comprobación.
+
+## La portada: "Hoy"
+
+Primera pestaña. Responde *¿qué tengo hoy?* sin entrar en las otras seis: los hábitos que
+faltan (marcables desde ahí), lo pendiente, qué rutina te toca y cuánto llevas sin hacerla,
+lo gastado hoy y lo que queda de presupuesto, qué estás leyendo o viendo, y los
+recordatorios que quedan por saltar.
+
+## Hábitos: cantidad y objetivo semanal
+
+Un hábito puede ser de tres formas:
+
+- **Hecho o no, a diario** — racha en días, como siempre.
+- **Hecho o no, con objetivo semanal** — la racha se cuenta **en semanas**. El gimnasio
+  está puesto a 5 días por semana: la racha se rompe cuando una semana **acaba** por
+  debajo de 5, no por descansar un martes. La semana en curso no la rompe hasta que
+  termina, así que ir 3 de 5 un miércoles no te penaliza.
+- **Con cantidad** — apuntas un número (1,5 L de agua) y se compara con el objetivo del
+  día. La fila ensena el avance y el día solo cuenta si llegas.
+
+Esto arregla algo que medía mal: antes el hábito "Gimnasio" salía **sin racha** por no ir
+a diario, castigando un plan de 5 días cumplido a la perfección.
+
+## Gastos: presupuesto y gastos fijos
+
+**Tope mensual** y, si quieres, tope por categoría. El panel dice lo que queda y a qué
+ritmo diario puedes gastar para no pasarte; la barra se pone en rojo al pasar, y las
+categorías con tope muestran `gastado / tope`.
+
+**Gastos fijos** (alquiler, luz, suscripciones, cuota del gimnasio) se apuntan **solos** el
+día del mes que les toca y aparecen marcados como *fijo*. Se marcan con el id del fijo que
+los generó, así que no se duplican por abrir la app cinco veces el mismo día. El día se
+limita al 28 para que exista en todos los meses.
+
+## Cultura: pendientes y episodios
+
+Tres estados por ficha, y los definen los campos que faltan: sin fecha de inicio está
+**pendiente**; con fecha de fin, **terminado**. Así puedes apuntar lo que quieres leer o
+ver más adelante, y pasarlo a en curso con un toque.
+
+Las **series** marcan por dónde vas con temporada y episodio (`T2 E5`), igual que los
+libros marcan la página.
+
+## Gimnasio: cuánto llevas sin cada rutina
+
+Cada rutina dice cuándo la hiciste por última vez, y la más atrasada lleva la marca
+**te toca**. Aparece también en la portada, con un botón para empezarla directamente.
+
+## Recordatorios
+
+Hora, texto y días de la semana. **Hasta dónde llegan, sin adornos:** con la app abierta o
+en segundo plano el aviso salta a su hora (suena, vibra y notifica). Con la app **cerrada
+del todo**, iOS no permite que una web avise; al volver a abrirla te cuenta lo que se te
+haya pasado hoy. Para que suene con la app cerrada hace falta push desde un servidor, lo
+mismo que el aviso de fin de descanso.
 
 ## Sincronizar entre el móvil y el ordenador
 
