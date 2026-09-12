@@ -23,6 +23,7 @@
   --m-notas:#AF5486;
   --m-gym:#C9503B;
   --m-cultura:#2A8C9E;
+  --m-ia:#8257CE;
   --bad:#C2403C;
   --shadow:0 1px 2px rgba(20,24,35,.05), 0 10px 30px rgba(20,24,35,.07);
   --r:15px;
@@ -46,6 +47,7 @@
     --m-notas:#DB84B2;
     --m-gym:#EE8168;
     --m-cultura:#57C4D6;
+    --m-ia:#B392F0;
     --bad:#EF7A74;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
     color-scheme:dark;
@@ -67,6 +69,7 @@
   --m-notas:#DB84B2;
   --m-gym:#EE8168;
   --m-cultura:#57C4D6;
+  --m-ia:#B392F0;
   --bad:#EF7A74;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
   color-scheme:dark;
@@ -112,6 +115,7 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .app[data-mod="notas"]{--accent:var(--m-notas)}
 .app[data-mod="gym"]{--accent:var(--m-gym)}
 .app[data-mod="cultura"]{--accent:var(--m-cultura)}
+.app[data-mod="ia"]{--accent:var(--m-ia)}
 @media (min-width:520px) and (min-height:700px){
   .app{height:min(880px,94dvh);border-radius:26px;box-shadow:var(--shadow);border:1px solid var(--line)}
 }
@@ -159,7 +163,7 @@ button{background:none;border:0;padding:0;cursor:pointer}
 
 .tabbar{
   display:grid;
-  grid-template-columns:repeat(6,1fr);
+  grid-template-columns:repeat(7,1fr);
   border-top:1px solid var(--line);
   background:var(--surface);
   padding-bottom:env(safe-area-inset-bottom);
@@ -168,11 +172,12 @@ button{background:none;border:0;padding:0;cursor:pointer}
   display:flex;flex-direction:column;align-items:center;gap:3px;
   padding:9px 0 7px;
   color:var(--text-3);
-  font-size:9.5px;
+  font-size:8.5px;
+  letter-spacing:-.01em;
   letter-spacing:.02em;
   transition:color .15s;
 }
-.tabbar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tabbar svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .tabbar button[aria-current="true"]{color:var(--accent);font-weight:600}
 
 /* ───────── type ───────── */
@@ -254,6 +259,7 @@ h2.sec{
 .btn.ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--line)}
 .btn.danger{background:transparent;color:var(--bad);border:1px solid var(--line)}
 .btn.sm{padding:9px 13px;font-size:13px;border-radius:10px}
+.btn svg{width:19px;height:19px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 .field{
   width:100%;
@@ -385,6 +391,54 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
   border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);
   padding:2px 7px;border-radius:99px;letter-spacing:.02em;
 }
+
+/* ─── chat con la IA ─── */
+.chat{display:flex;flex-direction:column;gap:14px}
+.msg{max-width:92%;font-size:14.5px;line-height:1.55}
+.msg.yo{
+  align-self:flex-end;
+  background:color-mix(in srgb,var(--accent) 14%,transparent);
+  border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);
+  border-radius:15px 15px 5px 15px;
+  padding:11px 14px;white-space:pre-wrap;
+}
+.msg.claude{align-self:flex-start;max-width:100%}
+.msg.claude p{margin:0 0 10px}
+.msg.claude p:last-child{margin-bottom:0}
+.msg.claude ul{margin:0 0 10px;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.msg.claude strong{font-weight:600}
+.msg.claude code{
+  font-family:"IBM Plex Mono",monospace;font-size:12.5px;
+  background:var(--surface-3);padding:1px 5px;border-radius:5px;
+}
+.msg.claude pre{
+  background:var(--surface-2);border:1px solid var(--line);border-radius:10px;
+  padding:11px 13px;overflow-x:auto;margin:0 0 10px;
+}
+.msg.claude pre code{background:none;padding:0;font-size:12px;line-height:1.5}
+.msg-pie{
+  font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--text-3);
+  margin-top:6px;letter-spacing:.03em;
+}
+.pensando{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--text-3);align-self:flex-start;
+}
+.pensando i{
+  width:7px;height:7px;border-radius:50%;background:var(--accent);
+  animation:latir 1.1s ease-in-out infinite;
+}
+.pensando i:nth-child(2){animation-delay:.15s}
+.pensando i:nth-child(3){animation-delay:.3s}
+@keyframes latir{0%,60%,100%{opacity:.25}30%{opacity:1}}
+.chat-form{display:flex;gap:8px;align-items:flex-end;position:sticky;bottom:0;padding-top:4px;background:var(--surface)}
+.chat-form textarea{min-height:44px;max-height:130px;resize:none;line-height:1.4}
+.sug{display:flex;flex-direction:column;gap:7px}
+.sug button{
+  text-align:left;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:11px;padding:11px 13px;font-size:13.5px;color:var(--text-2);
+}
+.sug button:hover{border-color:var(--accent);color:var(--text)}
 
 /* ─── cultura ─── */
 .cul-prog{display:grid;grid-template-columns:1fr auto;gap:4px 9px;align-items:center;margin-top:6px}
@@ -529,6 +583,7 @@ button.set:hover{border-color:var(--accent)}
 .sheet-wrap[data-mod="notas"]{--accent:var(--m-notas)}
 .sheet-wrap[data-mod="gym"]{--accent:var(--m-gym)}
 .sheet-wrap[data-mod="cultura"]{--accent:var(--m-cultura)}
+.sheet-wrap[data-mod="ia"]{--accent:var(--m-ia)}
 .sheet-back{position:absolute;inset:0;background:rgba(10,12,18,.5);backdrop-filter:blur(3px);animation:fade .2s ease}
 .sheet{
   position:relative;
@@ -639,7 +694,9 @@ const I = {
   gym:'<path d="M4 9.5v5M7.5 6.5v11M16.5 6.5v11M20 9.5v5M7.5 12h9"/>',
   plus:'<path d="M12 5v14M5 12h14"/>',
   timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/>',
+  enviar:'<path d="M12 19.5V5M5.5 11.5 12 5l6.5 6.5"/>',
   cultura:'<path d="M12 7.5v12M12 7.5C10.6 6 8.7 5.5 4.5 5.5v12c4.2 0 6.1.5 7.5 2 1.4-1.5 3.3-2 7.5-2v-12c-4.2 0-6.1.5-7.5 2"/>',
+  ia:'<path d="M12 3.2 13.7 8l4.8 1.7-4.8 1.7L12 16.2l-1.7-4.8L5.5 9.7 10.3 8z"/><path d="M18.5 15.3l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',
   check:'<path d="m4 12 5 5L20 6"/>',
   x:'<path d="M18 6 6 18M6 6l12 12"/>',
   pin:'<path d="M12 2 9 9H2l5.5 4L5 20l7-4.5L19 20l-2.5-7L22 9h-7z"/>'
@@ -652,7 +709,8 @@ const TABS = [
   {id:"gastos",  label:"Gastos",  top:"Gastos"},
   {id:"notas",   label:"Notas",   top:"Notas"},
   {id:"gym",     label:"Gym",     top:"Gimnasio"},
-  {id:"cultura", label:"Cultura", top:"Cultura"}
+  {id:"cultura", label:"Cultura", top:"Cultura"},
+  {id:"ia",      label:"IA",      top:"Preguntar"}
 ];
 
 /* Las cuatro categorias de la lista de cultura. Cada una llama de otra forma a
@@ -701,7 +759,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v23";
+const BUILD = "v24";
 
 function seed(){
   const H = (name,offs)=>{
@@ -813,6 +871,7 @@ function seed(){
     ],
     gymTab:"sesion",
     culTab:"libros",
+    ia:{key:"", msgs:[], contexto:true, tokens:{in:0,out:0}},
     cultura:[
       {id:uid(),cat:"libros",title:"Dune",by:"Frank Herbert",started:daysAgo(24),done:null,score:null,page:212,pages:680},
       {id:uid(),cat:"libros",title:"El nombre del viento",by:"Patrick Rothfuss",started:daysAgo(96),done:daysAgo(41),score:9,page:662,pages:662},
@@ -869,6 +928,9 @@ function load(){
     s.gymTab = s.gymTab || "sesion";
     s.culTab = s.culTab || "libros";
     s.cultura = s.cultura || [];
+    s.ia = s.ia || {key:"", msgs:[], contexto:true, tokens:{in:0,out:0}};
+    s.ia.msgs = s.ia.msgs || [];
+    s.ia.tokens = s.ia.tokens || {in:0,out:0};
     /* La configuración del servidor pasó a ser una sola, compartida por los
        avisos y la sincronización: antes vivía duplicada dentro de push. */
     s.push = s.push || {on:false};
@@ -898,6 +960,7 @@ persist();   /* deja guardadas las conversiones de formato hechas al cargar */
    de ejercicios, que son estructura útil y no datos inventados. */
 function wipeContent(){
   S.tasks = []; S.expenses = []; S.notes = []; S.cultura = [];
+  S.ia.msgs = []; S.ia.tokens = {in:0,out:0};
   S.habits.forEach(h=>h.days = {});
   S.gym.sessions = []; S.gym.active = null;
   S.gym.routines = []; S.gym.goals = []; S.gym.weights = [];
@@ -1333,10 +1396,24 @@ function srvFetch(path, opts){
 
 /* Lo que se sube son los datos, nunca la configuración del dispositivo: el
    token y la dirección del servidor se quedan en casa. */
-function estadoParaSubir(){
+function estadoSinSecretos(){
   const copia = JSON.parse(JSON.stringify(S));
   delete copia.srv; delete copia.sync; delete copia.push;
-  return JSON.stringify(copia);
+  if(copia.ia) delete copia.ia.key;
+  return copia;
+}
+function estadoParaSubir(){ return JSON.stringify(estadoSinSecretos()); }
+
+/* Al traer datos de fuera (del servidor o de un archivo), la configuracion de
+   ESTE dispositivo se conserva: si no, restaurar una copia te dejaria sin
+   claves ni servidor. */
+function conservarLocal(n){
+  n.srv  = S.srv;
+  n.push = S.push;
+  n.sync = S.sync;
+  n.ia = n.ia || {msgs:[], contexto:true, tokens:{in:0,out:0}};
+  n.ia.key = (S.ia && S.ia.key) || "";
+  return n;
 }
 
 let syncT = null, sincronizando = false;
@@ -1385,9 +1462,8 @@ async function syncBajar(silencioso){
     if(!j.data) return null;
     const n = JSON.parse(j.data);
     if(!n || !n.habits) return null;
-    /* La configuraci\u00f3n de este dispositivo no se toca. */
-    n.srv = S.srv;
-    n.push = S.push;
+    /* La configuración de este dispositivo no se toca. */
+    conservarLocal(n);
     n.sync = {on:true, rev:j.rev, at:j.changedAt};
     n.changedAt = j.changedAt;
     S = n;
@@ -2026,6 +2102,323 @@ function sheetCulItem(id){
   );
 }
 
+/* ══════════ pestaña IA ══════════
+   Habla directamente con la API de Claude desde el navegador. La clave vive
+   solo en este dispositivo y queda fuera de la copia de seguridad y de lo que
+   se sincroniza (ver estadoSinSecretos).
+
+   Modelo: claude-opus-5. Con pensamiento adaptativo, que en Opus 5 va activo
+   por defecto, y esfuerzo medio: es una conversacion de movil, no trabajo de
+   ingenieria, y el esfuerzo alto ahi solo alarga la espera y la factura.
+   Se pide tambien el rescate automatico (fallbacks) por si un clasificador de
+   seguridad declina la peticion. */
+const IA_MODELO = "claude-opus-5";
+const IA_URL = "https://api.anthropic.com/v1/messages";
+
+/* Render minimo de Markdown: parrafos, negrita, listas, codigo en linea y en
+   bloque. Se escapa TODO antes de tocar nada, porque el texto viene de fuera. */
+function md(t){
+  const bloques = esc(t).split(/```/);
+  let out = "";
+  bloques.forEach(function(b, i){
+    if(i % 2 === 1){                       /* dentro de ``` */
+      out += '<pre><code>' + b.replace(/^\w*\n/, "") + '</code></pre>';
+      return;
+    }
+    b.split(/\n{2,}/).forEach(function(par){
+      if(!par.trim()) return;
+      let x = par
+        .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+      const lineas = x.split("\n");
+      if(lineas.every(function(l){ return /^\s*[-*]\s+/.test(l) || !l.trim(); })){
+        out += '<ul>' + lineas.filter(function(l){ return l.trim(); })
+          .map(function(l){ return '<li>' + l.replace(/^\s*[-*]\s+/, "") + '</li>'; }).join("") + '</ul>';
+      }else{
+        out += '<p>' + lineas.join("<br>") + '</p>';
+      }
+    });
+  });
+  return out;
+}
+
+/* Resumen compacto de los datos de la app, para que pueda responder sobre
+   ellos. Se manda solo si el interruptor de contexto esta encendido. */
+function iaContexto(){
+  const hoy = new Date();
+  const L = [];
+  L.push("Hoy es " + fullDate(hoy) + " de " + hoy.getFullYear() + ".");
+
+  if(S.habits.length){
+    L.push("\nHABITOS (racha actual):");
+    S.habits.forEach(function(h){
+      L.push("- " + h.name + ": " + streak(h) + " dias seguidos" + (h.days[today()] ? ", hecho hoy" : ", hoy aun no"));
+    });
+  }
+  const pend = S.tasks.filter(function(t){ return !t.done; });
+  if(pend.length){
+    L.push("\nPENDIENTES:");
+    pend.forEach(function(t){ L.push("- [" + t.list + "] " + t.text); });
+  }
+  const mes = monthExpenses(0);
+  if(mes.length){
+    const porCat = {};
+    mes.forEach(function(e){ porCat[e.cat] = (porCat[e.cat]||0) + e.amount; });
+    L.push("\nGASTOS DE ESTE MES: " + money.format(sum(mes)) + " en " + mes.length + " apuntes.");
+    Object.keys(porCat).sort(function(a,b){ return porCat[b]-porCat[a]; })
+      .forEach(function(c){ L.push("- " + c + ": " + money.format(porCat[c])); });
+    L.push("Meses anteriores: " + [1,2,3].map(function(i){
+      const d = new Date(); d.setMonth(d.getMonth()-i);
+      return MESES[d.getMonth()] + " " + money.format(sum(monthExpenses(i)));
+    }).join(", ") + ".");
+  }
+  const prs = records(), claves = Object.keys(prs).filter(function(k){ return prs[k].kg > 0; });
+  if(claves.length){
+    L.push("\nGIMNASIO. Records personales:");
+    claves.sort(function(a,b){ return prs[b].kg - prs[a].kg; }).slice(0,12)
+      .forEach(function(k){ L.push("- " + k + ": " + prs[k].kg + " kg x " + prs[k].reps + " reps"); });
+  }
+  if(S.gym.sessions.length){
+    L.push("Entrenos: " + S.gym.sessions.length + " en total, " + weekStreak() + " semanas seguidas, " +
+           money0.format(Math.round(totalVolume())) + " kg-rep de volumen acumulado.");
+    L.push("Ultimos: " + S.gym.sessions.slice().sort(function(a,b){ return b.start-a.start; }).slice(0,5)
+      .map(function(x){ return x.name + " (" + relDate(x.date) + ")"; }).join(", ") + ".");
+  }
+  if(S.gym.routines.length){
+    L.push("\nRUTINAS:");
+    S.gym.routines.forEach(function(r){
+      L.push("- " + r.name + ": " + r.exercises.map(function(e){
+        const ss = routineSets(e), tr = ss.filter(function(x){ return !x.warmup; });
+        return e.name + (e.eq ? " (" + e.eq + ")" : "") + " " + tr.length + "x" +
+               (tr[0] ? repsRange(tr[0].reps).label + " @ " + tr[0].kg + "kg" : "");
+      }).join("; "));
+    });
+  }
+  if(S.gym.goals.length){
+    L.push("\nOBJETIVOS: " + S.gym.goals.map(function(g){
+      return g.exercise + " a " + g.targetWeight + " kg" + (g.note ? " (" + g.note + ")" : "");
+    }).join(", ") + ".");
+  }
+  const w = S.gym.weights.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+  if(w.length) L.push("Peso corporal actual: " + w[w.length-1].kg + " kg.");
+
+  const enCurso = S.cultura.filter(function(x){ return !x.done; });
+  const acabado = S.cultura.filter(function(x){ return x.done; });
+  if(enCurso.length){
+    L.push("\nCULTURA, en curso: " + enCurso.map(function(x){
+      return x.title + (x.pages ? " (pagina " + (x.page||0) + " de " + x.pages + ")" : "");
+    }).join(", ") + ".");
+  }
+  if(acabado.length){
+    L.push("Terminado ultimamente: " + acabado.slice()
+      .sort(function(a,b){ return b.done.localeCompare(a.done); }).slice(0,10)
+      .map(function(x){ return x.title + (x.score ? " " + x.score + "/10" : ""); }).join(", ") + ".");
+  }
+  if(S.notes.length){
+    L.push("\nNOTAS:");
+    S.notes.slice(0,6).forEach(function(n){ L.push("- " + n.text.slice(0,300).replace(/\n/g, " / ")); });
+  }
+  return L.join("\n");
+}
+
+function iaSistema(){
+  let t = "Eres el asistente dentro de Bitacora, la app personal de Jona en su iPhone. " +
+    "Respondes en espanol de Espana, con trato de tu. " +
+    "Estas en una pantalla de movil: se breve y ve al grano, sin preambulos ni resumenes de lo que te han preguntado. " +
+    "Nada de listas larguisimas; unas pocas frases suelen bastar. " +
+    "Si no sabes algo o no esta en los datos, dilo claramente en vez de inventarlo.";
+  if(S.ia.contexto){
+    t += "\n\nEstos son sus datos de la app. Usalos cuando la pregunta tenga que ver con ellos, " +
+         "y no los recites enteros: responde a lo que te pregunta.\n\n" + iaContexto();
+  }
+  return t;
+}
+
+const SUGERENCIAS = [
+  "Mirando mis entrenos, en que ejercicio estoy progresando peor?",
+  "En que se me esta yendo el dinero este mes?",
+  "Dame una rutina de empuje a partir de mis records actuales",
+  "Que habito me esta costando mas mantener?"
+];
+
+let iaEnCurso = false, iaParcial = "";
+
+function vIA(){
+  const k = S.ia.key;
+  const msgs = S.ia.msgs;
+
+  if(!k){
+    return '<div class="hero">'+
+        '<span class="eyebrow">sin configurar</span>'+
+        '<h1 class="title">Preguntar</h1>'+
+      '</div>'+
+      '<p class="hint">Aqui puedes preguntarle a <b>Claude</b> lo que quieras, y si lo autorizas puede ver tus datos de la app para responder sobre ellos: tus entrenos, tus gastos, tus habitos.</p>'+
+      '<p class="hint">Necesita una <b>clave de la API de Anthropic</b>, que se saca en <b>console.anthropic.com</b>. Cada pregunta se cobra a tu cuenta segun los tokens que consuma.</p>'+
+      '<button class="btn wide" data-act="iaConfig">Poner la clave</button>';
+  }
+
+  const cuerpo = msgs.length
+    ? msgs.map(function(m, i){
+        if(m.role === "user")
+          return '<div class="msg yo">' + esc(m.content) + '</div>';
+        return '<div class="msg claude">' + md(m.content) +
+          (m.uso ? '<div class="msg-pie">' + m.uso + '</div>' : '') + '</div>';
+      }).join("")
+    : '';
+
+  const enVuelo = iaEnCurso
+    ? (iaParcial
+        ? '<div class="msg claude" id="iaVivo">' + md(iaParcial) + '</div>'
+        : '<div class="pensando" id="iaVivo"><i></i><i></i><i></i> pensando</div>')
+    : '';
+
+  const sugerencias = (!msgs.length && !iaEnCurso)
+    ? '<div class="sug">' + SUGERENCIAS.map(function(x){
+        return '<button data-act="iaSug" data-q="' + esc(x) + '">' + esc(x) + '</button>';
+      }).join("") + '</div>'
+    : '';
+
+  return '<div class="hero">'+
+      '<span class="eyebrow">' + (S.ia.contexto ? "con acceso a tus datos" : "sin acceso a tus datos") + '</span>'+
+      '<h1 class="title">Preguntar</h1>'+
+    '</div>'+
+    sugerencias +
+    (cuerpo || enVuelo ? '<div class="chat" id="iaChat">' + cuerpo + enVuelo + '</div>' : '')+
+    '<form class="chat-form" id="iaForm">'+
+      '<textarea class="field" id="iaTexto" placeholder="Preguntale algo..." rows="1" enterkeyhint="send"></textarea>'+
+      '<button class="btn" type="submit" aria-label="Enviar" style="padding:12px 14px">' + svg(I.enviar) + '</button>'+
+    '</form>';
+}
+
+function iaBajar(){
+  const v = $("#view");
+  if(v) v.scrollTop = v.scrollHeight;
+}
+
+async function iaPreguntar(texto){
+  if(iaEnCurso || !texto.trim() || !S.ia.key) return;
+  S.ia.msgs.push({role:"user", content:texto.trim()});
+  iaEnCurso = true; iaParcial = "";
+  save(); render(); iaBajar();
+
+  const cuerpo = {
+    model: IA_MODELO,
+    max_tokens: 16000,
+    stream: true,
+    system: iaSistema(),
+    output_config: {effort: "medium"},
+    fallbacks: "default",
+    messages: S.ia.msgs.map(function(m){ return {role:m.role, content:m.content}; })
+  };
+
+  let usoIn = 0, usoOut = 0, rechazo = false, error = null;
+
+  try{
+    const r = await fetch(IA_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": S.ia.key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "server-side-fallback-2026-07-01",
+        /* Sin esta cabecera la API rechaza las llamadas hechas desde un
+           navegador. Se llama "dangerous" porque expone la clave en el
+           dispositivo; aqui es una clave tuya en tu propio telefono. */
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify(cuerpo)
+    });
+
+    if(!r.ok){
+      let detalle = "";
+      try{ const j = await r.json(); detalle = (j.error && j.error.message) || ""; }catch(e){}
+      error = r.status === 401 ? "La clave no es valida. Revisala en Ajustes."
+            : r.status === 429 ? "Has llegado al limite de peticiones. Prueba en un rato."
+            : r.status === 529 ? "La API esta sobrecargada. Prueba otra vez."
+            : "La API respondio " + r.status + (detalle ? ": " + detalle : ".");
+    }else{
+      const lector = r.body.getReader();
+      const dec = new TextDecoder();
+      let buf = "";
+      while(true){
+        const trozo = await lector.read();
+        if(trozo.done) break;
+        buf += dec.decode(trozo.value, {stream:true});
+        const lineas = buf.split("\n");
+        buf = lineas.pop();
+        for(const linea of lineas){
+          if(linea.indexOf("data:") !== 0) continue;
+          let j = null;
+          try{ j = JSON.parse(linea.slice(5).trim()); }catch(e){ continue; }
+          if(j.type === "message_start" && j.message && j.message.usage){
+            usoIn = j.message.usage.input_tokens || 0;
+          }else if(j.type === "content_block_delta" && j.delta && j.delta.type === "text_delta"){
+            iaParcial += j.delta.text;
+            const vivo = $("#iaVivo");
+            if(vivo){ vivo.className = "msg claude"; vivo.innerHTML = md(iaParcial); iaBajar(); }
+          }else if(j.type === "message_delta"){
+            if(j.usage) usoOut = j.usage.output_tokens || usoOut;
+            if(j.delta && j.delta.stop_reason === "refusal") rechazo = true;
+          }else if(j.type === "error"){
+            error = (j.error && j.error.message) || "Error en la transmision.";
+          }
+        }
+      }
+    }
+  }catch(e){
+    error = "No he podido conectar. Comprueba que tienes internet.";
+  }
+
+  iaEnCurso = false;
+  const texto2 = iaParcial;
+  iaParcial = "";
+
+  if(error){
+    S.ia.msgs.pop();                       /* la pregunta vuelve al cuadro */
+    save(); render();
+    const t = $("#iaTexto"); if(t){ t.value = texto; t.focus(); }
+    toast(error);
+    return;
+  }
+  if(rechazo && !texto2){
+    S.ia.msgs.push({role:"assistant", content:"No puedo responder a eso."});
+  }else{
+    S.ia.tokens.in += usoIn; S.ia.tokens.out += usoOut;
+    S.ia.msgs.push({
+      role:"assistant",
+      content: texto2 || "(respuesta vacia)",
+      uso: usoIn ? (money0.format(usoIn) + " tokens de entrada, " + money0.format(usoOut) + " de salida") : ""
+    });
+  }
+  save(); render(); iaBajar();
+}
+
+function sheetIA(){
+  const t = S.ia.tokens;
+  /* Precio publicado de Opus 5: 5 $ por millon de tokens de entrada, 25 $ de salida. */
+  const coste = (t.in/1e6)*5 + (t.out/1e6)*25;
+  openSheet("Preguntar a Claude",
+    '<div><label class="lbl-s" for="iaKey">Clave de la API de Anthropic</label>'+
+    '<textarea class="field mono" id="iaKey" placeholder="sk-ant-..." spellcheck="false" style="min-height:64px;font-size:11px">'+esc(S.ia.key)+'</textarea>'+
+    '<p class="hint" style="margin-top:8px">Se saca en <b>console.anthropic.com</b>. Se guarda <b>solo en este dispositivo</b>: no se sube al servidor ni entra en la copia de seguridad.</p></div>'+
+
+    '<div><span class="lbl-s">Acceso a tus datos</span>'+
+      '<button class="chip" data-act="iaCtx" aria-pressed="'+(S.ia.contexto?"true":"false")+'" style="align-self:flex-start">Puede ver mis datos de la app</button>'+
+      '<p class="hint" style="margin-top:8px">Encendido, cada pregunta manda un resumen de tus habitos, pendientes, gastos del mes, records, rutinas, cultura y notas. Es lo que le permite responder sobre <i>tus</i> cosas. Apagado, es un Claude normal que no sabe nada de ti.</p></div>'+
+
+    '<div class="panel">'+
+      '<div class="kv"><span>Modelo</span><b class="mono">'+IA_MODELO+'</b></div>'+
+      '<div class="kv"><span>Tokens usados</span><b class="mono">'+money0.format(t.in)+' / '+money0.format(t.out)+'</b></div>'+
+      '<div class="kv"><span>Coste aproximado</span><b class="mono">'+coste.toFixed(2).replace(".",",")+' $</b></div>'+
+      '<div class="kv"><span>Mensajes guardados</span><b class="mono">'+S.ia.msgs.length+'</b></div>'+
+    '</div>'+
+
+    '<button class="btn wide" data-act="iaGuardar">Guardar</button>'+
+    (S.ia.msgs.length?'<button class="btn ghost wide" data-act="iaLimpiar">Empezar conversacion nueva</button>':'')+
+    '<p class="hint">El coste es una estimacion con los precios publicados de Opus 5 (5 $ y 25 $ por millon de tokens). La cifra de verdad esta en tu consola de Anthropic.</p>',
+    function(b){ if(!S.ia.key) $("#iaKey",b).focus(); });
+}
+
 function vGym(){
   const a = S.gym.active;
   const sess = S.gym.sessions.slice().sort((x,y)=>y.start-x.start);
@@ -2072,12 +2465,13 @@ function render(){
     : S.tab==="gastos" ? vGastos()
     : S.tab==="notas"  ? vNotas()
     : S.tab==="cultura" ? vCultura()
+    : S.tab==="ia" ? vIA()
     : vGym();
   view.scrollTop = keepScroll;
 
   const pb = $("#primaryBtn");
   pb.hidden = false;
-  pb.setAttribute("aria-label", {habitos:"Nuevo hábito",tareas:"Añadir",gastos:"Nuevo gasto",notas:"Nueva nota",gym:"Añadir ejercicio",cultura:"Añadir a la lista"}[S.tab]);
+  pb.setAttribute("aria-label", {habitos:"Nuevo hábito",tareas:"Añadir",gastos:"Nuevo gasto",notas:"Nueva nota",gym:"Añadir ejercicio",cultura:"Añadir a la lista",ia:"Ajustes del chat"}[S.tab]);
 
   const f = $("#taskForm");
   if(f) f.addEventListener("submit", e=>{
@@ -2094,6 +2488,31 @@ function render(){
     notaQuery = e.target.value;
     $("#notesList").innerHTML = notesHtml();
   });
+
+  const fIA = $("#iaForm");
+  if(fIA){
+    const caja = $("#iaTexto");
+    /* La caja crece con el texto hasta un maximo, como en cualquier chat. */
+    const crecer = function(){
+      caja.style.height = "auto";
+      caja.style.height = Math.min(130, caja.scrollHeight) + "px";
+    };
+    caja.addEventListener("input", crecer);
+    fIA.addEventListener("submit", function(e){
+      e.preventDefault();
+      const t = caja.value;
+      caja.value = ""; crecer();
+      iaPreguntar(t);
+    });
+    caja.addEventListener("keydown", function(e){
+      /* Con teclado fisico, Enter envia; Mayus+Enter hace salto de linea. */
+      if(e.key === "Enter" && !e.shiftKey){
+        e.preventDefault();
+        fIA.dispatchEvent(new Event("submit"));
+      }
+    });
+    if(S.tab === "ia") iaBajar();
+  }
 
   const ps = $("#progSel");
   if(ps) ps.addEventListener("change", e=>{
@@ -2481,7 +2900,7 @@ function sheetAvisos(){
 }
 
 function sheetAjustes(){
-  const data = JSON.stringify(S);
+  const data = JSON.stringify(estadoSinSecretos());
   openSheet("Ajustes",
     '<div><span class="lbl-s">Aspecto</span><div class="seg">'+
       ["auto","light","dark"].map(t=>'<button data-act="setTheme" data-theme="'+t+'" aria-pressed="'+(S.theme===t)+'">'+({auto:"Automático",light:"Claro",dark:"Oscuro"}[t])+'</button>').join("")+
@@ -2538,6 +2957,7 @@ document.addEventListener("click", function(e){
       else if(S.tab==="gastos") sheetGasto();
       else if(S.tab==="notas") sheetNota(null);
       else if(S.tab==="cultura") sheetCulNuevo();
+      else if(S.tab==="ia") sheetIA();
       else if(S.gymTab==="rutinas") openRoutine(null);
       else if(S.gymTab==="progreso") sheetGoal();
       else if(S.gym.active) sheetAddEx("session");
@@ -2564,7 +2984,7 @@ document.addEventListener("click", function(e){
         return r.json().then(function(meta){
           S.sync.on = true;
           if(meta.rev === 0){
-            /* Buz\u00f3n vac\u00edo: este dispositivo siembra los datos. */
+            /* Buzón vacío: este dispositivo siembra los datos. */
             S.sync.rev = 0; S.sync.at = null;
             persist();
             return syncSubir(true).then(function(){ say("Activada. Tus datos ya est\u00e1n en el servidor."); });
@@ -2594,7 +3014,7 @@ document.addEventListener("click", function(e){
       break;
     }
     case "cfQuedarme": {
-      /* Escribimos sobre la revisi\u00f3n que hay ahora en el servidor: eso
+      /* Escribimos sobre la revisión que hay ahora en el servidor: eso
          sustituye lo suyo por lo nuestro. */
       S.sync.rev = +el.dataset.rev || 0;
       S.sync.on = true;
@@ -2668,6 +3088,26 @@ document.addEventListener("click", function(e){
       save(); closeSheet(); render(); break;
     }
     case "delNote": S.notes = S.notes.filter(x=>x.id!==id); save(); closeSheet(); render(); break;
+
+    /* ─── IA ─── */
+    case "iaConfig": sheetIA(); break;
+    case "iaCtx":
+      S.ia.contexto = el.getAttribute("aria-pressed") !== "true";
+      el.setAttribute("aria-pressed", S.ia.contexto ? "true" : "false");
+      save();
+      break;
+    case "iaGuardar": {
+      S.ia.key = $("#iaKey").value.trim();
+      save(); closeSheet(); render();
+      toast(S.ia.key ? "Listo, ya puedes preguntar." : "Clave borrada.");
+      break;
+    }
+    case "iaLimpiar":
+      S.ia.msgs = [];
+      save(); closeSheet(); render();
+      toast("Conversacion nueva.");
+      break;
+    case "iaSug": iaPreguntar(el.dataset.q); break;
 
     /* ─── cultura ─── */
     case "culTab": S.culTab = el.dataset.c; save(); render(); break;
@@ -2911,7 +3351,7 @@ document.addEventListener("click", function(e){
       /* Aquí sí se puede descargar: la app vive en su propio dominio, no dentro
          del visor de artifacts, que bloquea las descargas. */
       try{
-        const blob = new Blob([JSON.stringify(S)], {type:"application/json"});
+        const blob = new Blob([JSON.stringify(estadoSinSecretos())], {type:"application/json"});
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
         a.download = "bitacora-" + today() + ".json";
@@ -2933,7 +3373,7 @@ document.addEventListener("click", function(e){
           try{
             const n = JSON.parse(lector.result);
             if(!n || !n.habits) throw new Error("bad");
-            S = n; save(); closeSheet(); render();
+            S = conservarLocal(n); save(); closeSheet(); render();
             toast("Datos restaurados desde " + file.name);
           }catch(err){
             $("#bkMsg").textContent = "Ese archivo no es una copia de Bitácora.";
@@ -2949,7 +3389,7 @@ document.addEventListener("click", function(e){
       try{
         const n = JSON.parse($("#bkData").value);
         if(!n || !n.habits) throw new Error("bad");
-        S = n; save(); closeSheet(); render();
+        S = conservarLocal(n); save(); closeSheet(); render();
       }catch(err){ $("#bkMsg").textContent = "Ese texto no es una copia válida. Pega el bloque completo."; }
       break;
     }
