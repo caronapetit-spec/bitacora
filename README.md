@@ -99,6 +99,64 @@ espera a que lo cierres para no cortarte a media serie.
 En **Ajustes → Versión** se ve la que tienes instalada y hay un botón para forzar la
 comprobación.
 
+## Diario, nivel y revisión semanal
+
+### Cómo estás
+
+En la portada, tres toques al día: **ánimo** y **energía** del 1 al 5, y **horas de sueño**.
+Tocar otra vez un número lo desmarca.
+
+### Experiencia y niveles
+
+| Acción | XP |
+|---|---|
+| Hábito cumplido (por día) | 10 |
+| Entrenamiento | 50 |
+| Bloque de foco | 20 |
+| Libro, peli, serie o juego terminado | 40 |
+| Día apuntado en el diario | 5 |
+| Tarea hecha | 5 |
+
+Cada nivel cuesta más: 50, 200, 450, 800… (`50 × (n−1)²`), con un título cada tres.
+
+**La XP no se guarda: se calcula entera desde tus datos** cada vez. Así no se descuadra
+nunca, y todo lo que habías hecho antes de que existiera cuenta desde el primer día.
+
+### Revisión semanal
+
+Desde la portada (y destacada los domingos). Entrenos, horas de foco, gasto y XP ganada,
+cada uno **comparado con la semana anterior**; barras de ánimo y sueño día a día; hábitos
+cumplidos frente a su meta; ingresos, gastos y dónde se fue más; volumen levantado; y lo
+terminado. Se puede navegar hacia semanas anteriores.
+
+### Lo que dicen tus datos
+
+La revisión cruza módulos que nunca se hablaban:
+
+- el sueño de las noches **después** de entrenar, frente a las de descanso;
+- el ánimo los días que entrenas;
+- la energía cuando duermes 7 horas o más;
+- el ánimo los días que cumples todos tus hábitos diarios;
+- el gasto en ocio y compras con el ánimo bajo;
+- los minutos de foco tras dormir bien.
+
+Mira los últimos 60 días y cada hallazgo **exige al menos 4 días en cada grupo** y una
+diferencia apreciable; si no, dice que faltan datos en vez de inventar. Y habla de
+*cuando*, nunca de *porque*: son coincidencias, no causas.
+
+Para que el foco entre en esto, el pomodoro guarda ahora un **histórico por día**; antes
+solo sabía lo de hoy.
+
+## Ingresos y saldo
+
+Los ingresos van en **su propia lista**, no mezclados con los gastos: el presupuesto, las
+categorías y las comparaciones asumen que todo lo de `expenses` es una salida.
+
+Al apuntar un movimiento eliges *Gasto* o *Ingreso* (el importe se conserva si cambias).
+La pestaña enseña el **saldo del mes** — ingresos menos gastos, y qué porcentaje de lo que
+ha entrado te has gastado — y los ingresos salen en verde entre los movimientos. Un gasto
+fijo puede ser también ingreso, así que la nómina se apunta sola.
+
 ## Inventario y lista de la compra
 
 La compra **no se escribe a mano**: sale del inventario. Cada producto tiene un solo
@@ -132,10 +190,23 @@ de ese ejercicio: cada sesión con sus series, de lo más reciente a lo más vie
 un máximo levantado, pero permite comparar una serie de 5 con una de 12, que a ojo no se
 puede.
 
+**Medidas corporales.** Cintura, cadera, pecho, brazo y muslo, con el cambio desde la
+primera medida en verde o rojo según vaya en la buena dirección (la cintura, bajando; el
+brazo, subiendo). El peso engaña cuando ganas músculo y pierdes grasa a la vez.
+
+**Récords por repeticiones.** En el historial de cada ejercicio: tu mejor peso para **al
+menos** 1, 3, 5 y 10 repeticiones. Tu récord a 6 y el de 12 son cosas distintas.
+
 **Descarga cada 5 semanas** (configurable). Cuando llevas ese tiempo subiendo, la pestaña
 avisa; al aceptar, los pesos de las rutinas bajan **al 60 %** durante una semana y vuelven
 solos al acabar. El calentamiento no se toca y la sobrecarga progresiva se desactiva
 mientras dura: la descarga es el freno que evita estancarse o lesionarse.
+
+## Notas con etiquetas
+
+Las etiquetas **salen del propio texto**: cualquier `#palabra` en una nota. No hay gestor de
+etiquetas que mantener, y funcionan también en las notas que ya tenías. Arriba de la lista
+aparecen todas con su recuento, y tocando una se filtra.
 
 ## Reloj del iPhone
 
@@ -243,6 +314,13 @@ limita al 28 para que exista en todos los meses.
 Tres estados por ficha, y los definen los campos que faltan: sin fecha de inicio está
 **pendiente**; con fecha de fin, **terminado**. Así puedes apuntar lo que quieres leer o
 ver más adelante, y pasarlo a en curso con un toque.
+
+**Ritmo de lectura.** Cada vez que guardas el punto de libro queda registrado. Con eso la
+app sabe a qué ritmo lees **ahora** — usa el tramo de las últimas tres semanas, y si no hay
+registro, la media desde que empezaste — y te dice cuándo lo acabas: *"12 pág/día · lo
+acabas el 24 oct"*.
+
+**Citas.** Frases guardadas dentro de la ficha de cada obra, con página en los libros.
 
 Las **series** marcan por dónde vas con temporada y episodio (`T2 E5`), igual que los
 libros marcan la página.

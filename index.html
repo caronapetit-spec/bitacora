@@ -24,6 +24,7 @@
   --m-gym:#C9503B;
   --m-cultura:#2A8C9E;
   --m-foco:#B0553F;
+  --good:#2F9E76;
   --bad:#C2403C;
   --shadow:0 1px 2px rgba(20,24,35,.05), 0 10px 30px rgba(20,24,35,.07);
   --r:15px;
@@ -48,6 +49,7 @@
     --m-gym:#EE8168;
     --m-cultura:#57C4D6;
     --m-foco:#E39177;
+    --good:#4FCBA0;
     --bad:#EF7A74;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
     color-scheme:dark;
@@ -70,6 +72,7 @@
   --m-gym:#EE8168;
   --m-cultura:#57C4D6;
   --m-foco:#E39177;
+  --good:#4FCBA0;
   --bad:#EF7A74;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
   color-scheme:dark;
@@ -333,6 +336,15 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
 .cat-row .track i{display:block;height:100%;background:var(--accent);border-radius:99px}
 .cat-row .amt{font-family:"IBM Plex Mono",monospace;font-size:12px;font-variant-numeric:tabular-nums;color:var(--text-2)}
 .cat-row.pasado .track i{background:var(--bad)}
+.row-val.ing{color:var(--good)}
+.saldo .saldo-fila{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:var(--text-2)}
+.saldo .saldo-total{
+  display:flex;justify-content:space-between;align-items:baseline;
+  border-top:1px solid var(--line);margin-top:6px;padding-top:9px;font-size:14px;
+}
+.saldo .saldo-total b{font-family:"Fraunces",Georgia,serif;font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+.saldo.pos .saldo-total b{color:var(--good)}
+.saldo.neg .saldo-total b{color:var(--bad)}
 .cat-row.pasado .amt{color:var(--bad);font-weight:600}
 .cat-row{grid-template-columns:66px 1fr auto auto}
 .cat-row .vs{
@@ -429,6 +441,68 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
 .foco .bar{width:100%}
 .foco-btns{display:flex;gap:8px;width:100%}
 .foco.descanso.vivo{background:color-mix(in srgb,var(--m-habitos) 8%,var(--surface-2))}
+
+/* ─── revision semanal ─── */
+.sem-nav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sem-nav .mono{font-size:11.5px;color:var(--text-2)}
+.sem-dias{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px}
+.sem-dia{display:flex;flex-direction:column;align-items:center;gap:4px}
+.sem-b{width:100%;height:56px;background:var(--surface-3);border-radius:6px;display:flex;align-items:flex-end;overflow:hidden}
+.sem-b i{display:block;width:100%;background:var(--accent);border-radius:6px 6px 0 0}
+.sem-s{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--text-2)}
+.sem-k{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--text-3)}
+.tile .tl .vs{font-family:"IBM Plex Mono",monospace;font-size:9.5px;margin-left:3px}
+.vs.sube-bien{color:var(--good)}
+.vs.sube-mal{color:var(--bad)}
+.corr-t{font-size:14px;line-height:1.45}
+.corr-t b{font-weight:600;color:var(--accent)}
+
+/* ─── nivel ─── */
+.nivel{
+  display:flex;align-items:center;gap:13px;width:100%;text-align:left;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);
+  padding:12px 15px;
+}
+.nivel-n{
+  font-family:"Fraunces",Georgia,serif;font-size:30px;font-weight:700;line-height:1;
+  color:var(--accent);min-width:38px;text-align:center;font-variant-numeric:tabular-nums;
+}
+.nivel-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.nivel-t b{font-size:14px;font-weight:600}
+.nivel-t .bar{margin-top:3px}
+.nivel-x{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--text-3)}
+
+/* ─── diario ─── */
+.dia-fila{display:flex;align-items:center;gap:10px}
+.dia-lbl{font-size:13px;color:var(--text-2);width:64px;flex:none}
+.dia-esc{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;flex:1}
+.dia-esc button{
+  height:34px;border-radius:9px;border:1px solid var(--line-2);
+  font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--text-3);
+}
+.dia-esc button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+:root[data-theme="dark"] .dia-esc button[aria-pressed="true"]{color:#0B0D12}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dia-esc button[aria-pressed="true"]{color:#0B0D12}}
+.dia-sueno{display:flex;align-items:center;gap:8px;flex:1}
+.dia-sueno .field{width:84px;padding:8px;text-align:center}
+.dia-sueno span{font-size:12.5px;color:var(--text-3)}
+
+/* ─── citas ─── */
+.citas{display:flex;flex-direction:column;gap:8px}
+.cita{
+  border-left:3px solid var(--accent);background:var(--surface-2);
+  border-radius:0 10px 10px 0;padding:10px 12px 6px;
+}
+.cita p{margin:0;font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:14.5px;line-height:1.5}
+.cita-pie{display:flex;justify-content:space-between;align-items:center;margin-top:2px}
+.cita-pie .mono{font-size:10px;color:var(--text-3)}
+
+/* ─── etiquetas en notas ─── */
+.tags{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.tags::-webkit-scrollbar{display:none}
+.tags .chip{flex:none;font-size:12.5px}
+.note .ntags{display:flex;gap:5px;flex-wrap:wrap}
+.note .ntag{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--accent)}
 
 /* ─── pantalla Hoy ─── */
 .hoy-bloque{
@@ -553,6 +627,14 @@ button.set:hover{border-color:var(--accent)}
 .prog .pd{font-family:"IBM Plex Mono",monospace;font-size:8.5px;color:var(--text-3)}
 
 .rt-row{display:flex;flex-direction:column;gap:7px;padding:11px 0;border-bottom:1px solid var(--line)}
+.rm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.rm-c{
+  background:var(--surface-2);border:1px solid var(--line);border-radius:11px;
+  padding:9px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;
+}
+.rm-n{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em}
+.rm-v{font-family:"Fraunces",Georgia,serif;font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--accent)}
+.rm-d{font-family:"IBM Plex Mono",monospace;font-size:8.5px;color:var(--text-3);text-align:center}
 .rt-row:last-child{border-bottom:0}
 .rt-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .rt-head b{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -739,6 +821,7 @@ const CULTURA = [
 const culCat = id => CULTURA.filter(c=>c.id===id)[0] || CULTURA[0];
 
 const CATS = ["Comida","Casa","Transporte","Ocio","Salud","Compras","Otros"];
+const CATS_ING = ["Nómina","Extra","Regalo","Venta","Otros"];
 
 /* Los cinco tipos de material, los mismos que usa FitPals para que las dos
    apps hablen igual. */
@@ -774,7 +857,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v29";
+const BUILD = "v30";
 
 function seed(){
   const H = (name,offs)=>{
@@ -893,11 +976,33 @@ function seed(){
     ],
     expenses:exp,
     notes:[
-      {id:uid(),text:"Ideas para el roguelike\n\n- Las salas se generan al cruzar la puerta, no antes\n- Al morir se conserva una sola mejora\n- Enemigo cápsula: que persiga solo si te ve",pinned:true,ts:Date.now()-3e6},
-      {id:uid(),text:"Proveedores\n\nQueso azul — pedir antes del jueves\nCecina — subió un 8 %",pinned:false,ts:Date.now()-9e6}
+      {id:uid(),text:"Ideas para el roguelike\n\n- Las salas se generan al cruzar la puerta, no antes\n- Al morir se conserva una sola mejora\n- Enemigo cápsula: que persiga solo si te ve\n\n#rpg #ideas",pinned:true,ts:Date.now()-3e6},
+      {id:uid(),text:"Proveedores\n\nQueso azul — pedir antes del jueves\nCecina — subió un 8 %\n\n#proveedores",pinned:false,ts:Date.now()-9e6}
     ],
     gymTab:"sesion",
     culTab:"libros",
+    diario:(function(){
+      /* Dos semanas de ejemplo con algo de patron: se duerme mas y se esta mejor
+         los dias despues de entrenar, para que las correlaciones tengan que decir. */
+      /* Los entrenos de ejemplo son hace 2, 4, 6, 9 y 11 dias. El animo sube el
+         mismo dia que entrenas; el sueno y la energia, al dia siguiente, que es
+         cuando se nota haber dormido esa noche. */
+      const d = {}, entrenos = [2,4,6,9,11];
+      for(let i=1;i<=16;i++){
+        const entrenaHoy  = entrenos.indexOf(i)   >= 0;
+        const entrenoAyer = entrenos.indexOf(i+1) >= 0;
+        d[daysAgo(i)] = {
+          animo:   entrenaHoy  ? 4 : (i%3 ? 3 : 2),
+          energia: entrenoAyer ? 4 : 3,
+          sueno:   entrenoAyer ? 7.5 + (i%2)*0.5 : 6.5 - (i%3)*0.5
+        };
+      }
+      return d;
+    })(),
+    xpNivel:0,
+    incomes:[
+      {id:uid(), amount:1850, note:"Nómina", cat:"Nómina", date:(function(){ const d=new Date(); d.setDate(1); return key(d); })(), fijo:null}
+    ],
     reloj:{atajoTemp:"", atajoAlarma:"", pomodoro:true, recordatorios:true, gym:false},
     foco:{
       cfg:{trabajo:25, corto:5, largo:15, ciclos:4},
@@ -914,7 +1019,9 @@ function seed(){
       {id:uid(), amount:45,    cat:"Salud", note:"Cuota gimnasio", dia:1}
     ],
     cultura:[
-      {id:uid(),cat:"libros",title:"Dune",by:"Frank Herbert",started:daysAgo(24),done:null,score:null,page:212,pages:680},
+      {id:uid(),cat:"libros",title:"Dune",by:"Frank Herbert",started:daysAgo(24),done:null,score:null,page:212,pages:680,
+       pageLog:[{date:daysAgo(14),page:60},{date:daysAgo(7),page:130},{date:daysAgo(1),page:212}],
+       citas:[{id:uid(),texto:"El miedo es el asesino de la mente.",pag:12,ts:Date.now()-9e8}]},
       {id:uid(),cat:"libros",title:"El nombre del viento",by:"Patrick Rothfuss",started:daysAgo(96),done:daysAgo(41),score:9,page:662,pages:662},
       {id:uid(),cat:"juegos",title:"Hollow Knight",by:"Team Cherry",started:daysAgo(11),done:null,score:null},
       {id:uid(),cat:"juegos",title:"Elden Ring",by:"FromSoftware",started:daysAgo(210),done:daysAgo(88),score:10},
@@ -940,6 +1047,11 @@ function seed(){
       ],
       profile:{heightCm:178,age:34},
       weights:wlog,
+      medidas:[
+        {date:daysAgo(56), cintura:86,  pecho:101, brazo:35.5, muslo:57, cadera:98},
+        {date:daysAgo(28), cintura:84.5,pecho:102, brazo:36,   muslo:57.5,cadera:97},
+        {date:daysAgo(3),  cintura:83,  pecho:103, brazo:36.5, muslo:58.5,cadera:96.5}
+      ],
       restDefault:90,
       stepKg:2.5,
       deloadCada:5,
@@ -966,6 +1078,7 @@ function load(){
     s.gym.routines  = s.gym.routines  || [];
     s.gym.goals     = s.gym.goals     || [];
     s.gym.weights   = s.gym.weights   || [];
+    s.gym.medidas   = s.gym.medidas   || [];
     s.gym.profile   = s.gym.profile   || {};
     if(s.gym.active===undefined) s.gym.active = null;
     if(!s.gym.restDefault) s.gym.restDefault = 90;
@@ -976,10 +1089,18 @@ function load(){
     migrateRoutines(s.gym);
     s.gymTab = s.gymTab || "sesion";
     s.culTab = s.culTab || "libros";
+    s.diario = s.diario || {};
+    s.incomes = s.incomes || [];
+    if(s.xpNivel === undefined) s.xpNivel = 0;
     s.reloj = s.reloj || {atajoTemp:"", atajoAlarma:"", pomodoro:true, recordatorios:true, gym:false};
     s.foco = s.foco || {cfg:{trabajo:25,corto:5,largo:15,ciclos:4}, fase:"trabajo", fin:0, corriendo:false, ciclo:0, dia:"", pomos:0, minutos:0, atajo:""};
     s.foco.cfg = s.foco.cfg || {trabajo:25,corto:5,largo:15,ciclos:4};
     /* El recuento del dia se reinicia solo al cambiar de dia. */
+    /* Historico por dia: sin el, la revision semanal y las correlaciones no
+       sabrian cuanto trabajaste mas alla de hoy. */
+    s.foco.hist = s.foco.hist || {};
+    if(s.foco.dia && s.foco.pomos && !s.foco.hist[s.foco.dia])
+      s.foco.hist[s.foco.dia] = {bloques:s.foco.pomos, minutos:s.foco.minutos};
     if(s.foco.dia !== today()){ s.foco.dia = today(); s.foco.pomos = 0; s.foco.minutos = 0; }
     s.avisos = s.avisos || [];
     /* La lista de la compra antigua se convierte en inventario: lo que estaba
@@ -1026,6 +1147,7 @@ function save(){
   S.changedAt = new Date().toISOString();
   persist();
   syncPendiente();
+  if(typeof revisarNivel === "function" && S.xpNivel) setTimeout(revisarNivel, 0);
 }
 cerrarDescarga();
 aplicarFijos();
@@ -1035,9 +1157,11 @@ persist();   /* deja guardadas las conversiones de formato y los fijos del mes *
    de ejercicios, que son estructura útil y no datos inventados. */
 function wipeContent(){
   S.tasks = []; S.expenses = []; S.notes = []; S.cultura = []; S.inv = [];
+  S.diario = {}; S.xpNivel = 0; S.incomes = [];
+  if(S.foco) S.foco.hist = {};
   S.habits.forEach(h=>h.days = {});
   S.gym.sessions = []; S.gym.active = null;
-  S.gym.routines = []; S.gym.goals = []; S.gym.weights = [];
+  S.gym.routines = []; S.gym.goals = []; S.gym.weights = []; S.gym.medidas = [];
   S.gym.profile = {};
 }
 
@@ -1052,6 +1176,7 @@ function applyTheme(){
    el id del fijo que los genero, para no duplicarlos si abres la app cinco
    veces el mismo dia. */
 function aplicarFijos(){
+  S.incomes = S.incomes || [];
   const hoy = new Date();
   const ym = hoy.getFullYear() + "-" + pad(hoy.getMonth()+1);
   let nuevos = 0;
@@ -1061,10 +1186,15 @@ function aplicarFijos(){
     const ya = S.expenses.some(function(e){
       return e.fijo === f.id && e.date.slice(0,7) === ym;
     });
-    if(ya) return;
-    S.expenses.push({
+    const destino = f.tipo === "ingreso" ? S.incomes : S.expenses;
+    const yaIng = f.tipo === "ingreso" && (S.incomes||[]).some(function(e){
+      return e.fijo === f.id && e.date.slice(0,7) === ym;
+    });
+    if(ya || yaIng) return;
+    destino.push({
       id:uid(), amount:Number(f.amount)||0, cat:f.cat || "Otros",
-      note:f.note || "Gasto fijo", date:ym + "-" + pad(dia), fijo:f.id
+      note:f.note || (f.tipo === "ingreso" ? "Ingreso fijo" : "Gasto fijo"),
+      date:ym + "-" + pad(dia), fijo:f.id
     });
     nuevos++;
   });
@@ -1139,6 +1269,11 @@ function rachaTexto(h){
   return st===1 ? "1 d\u00eda seguido" : st + " d\u00edas seguidos";
 }
 function doneToday(){ return S.habits.filter(h=>cumplido(h, today())).length; }
+function monthIncomes(off){
+  const d = new Date(); d.setDate(1); d.setMonth(d.getMonth()-(off||0));
+  const y=d.getFullYear(), m=d.getMonth();
+  return (S.incomes||[]).filter(e=>{ const x=parseKey(e.date); return x.getFullYear()===y && x.getMonth()===m; });
+}
 function monthExpenses(off){
   const d = new Date(); d.setDate(1); d.setMonth(d.getMonth()-(off||0));
   const y=d.getFullYear(), m=d.getMonth();
@@ -1382,6 +1517,27 @@ function mejor1RM(ex){
   });
   return mejor;
 }
+/* Mejor peso levantado para al menos N repeticiones. Tu record a 6 reps y el de
+   12 son cosas distintas, y un unico record los mezcla. */
+const RM_REPS = [1, 3, 5, 10];
+function recordsPorReps(ex){
+  const out = {};
+  RM_REPS.forEach(function(n){ out[n] = null; });
+  allSessions().forEach(function(s){
+    (s.entries||[]).forEach(function(en){
+      if(en.ex !== ex) return;
+      en.sets.forEach(function(st){
+        if(isWarm(st) || isTodo(st) || !st.kg || !st.reps) return;
+        RM_REPS.forEach(function(n){
+          if(st.reps >= n && (!out[n] || st.kg > out[n].kg))
+            out[n] = {kg:st.kg, reps:st.reps, date:s.date};
+        });
+      });
+    });
+  });
+  return out;
+}
+
 /* Todas las veces que hiciste un ejercicio, de lo mas reciente a lo mas viejo. */
 function historialEjercicio(ex){
   const out = [];
@@ -1828,6 +1984,54 @@ function stopRest(){
   render();
 }
 
+/* ══════════ experiencia y niveles ══════════
+   La XP no se guarda: se calcula entera desde tus datos cada vez. Asi no se
+   descuadra nunca, y lo que ya habias hecho antes de esta funcion cuenta desde
+   el primer dia. */
+const XP = {habito:10, entreno:50, bloque:20, terminado:40, diario:5, tarea:5};
+
+function xpDetalle(desde, hasta){
+  const dentro = function(k){ return (!desde || k >= desde) && (!hasta || k <= hasta); };
+  let habitos = 0;
+  S.habits.forEach(function(h){
+    Object.keys(h.days).forEach(function(k){ if(dentro(k) && cumplido(h,k)) habitos++; });
+  });
+  const entrenos = S.gym.sessions.filter(function(x){ return dentro(x.date); }).length;
+  const hist = (S.foco && S.foco.hist) || {};
+  let bloques = 0;
+  Object.keys(hist).forEach(function(k){ if(dentro(k)) bloques += hist[k].bloques || 0; });
+  const terminados = S.cultura.filter(function(x){ return x.done && dentro(x.done); }).length;
+  const diarios = Object.keys(S.diario||{}).filter(function(k){
+    const e = S.diario[k]; return dentro(k) && e && (e.animo || e.energia || e.sueno);
+  }).length;
+  const tareas = desde || hasta ? 0 : S.tasks.filter(function(t){ return t.done; }).length;
+  return {
+    habitos:habitos, entrenos:entrenos, bloques:bloques,
+    terminados:terminados, diarios:diarios, tareas:tareas,
+    total: habitos*XP.habito + entrenos*XP.entreno + bloques*XP.bloque +
+           terminados*XP.terminado + diarios*XP.diario + tareas*XP.tarea
+  };
+}
+/* Cada nivel cuesta un poco mas que el anterior: 50, 200, 450, 800... */
+const xpParaNivel = n => 50 * (n-1) * (n-1);
+function nivelDe(xp){
+  let n = 1;
+  while(xpParaNivel(n+1) <= xp) n++;
+  return n;
+}
+const TITULOS = ["Novato","Aprendiz","Constante","Disciplinado","Metódico","Veterano","Imparable","Maestro","Leyenda"];
+const tituloNivel = n => TITULOS[Math.min(TITULOS.length-1, Math.floor((n-1)/3))];
+
+/* Si has subido de nivel desde la ultima vez, se celebra una sola vez. */
+function revisarNivel(){
+  const n = nivelDe(xpDetalle().total);
+  if(S.xpNivel && n > S.xpNivel){
+    toast("¡Nivel " + n + "! " + tituloNivel(n) + ".");
+    buzz();
+  }
+  if(n !== S.xpNivel){ S.xpNivel = n; persist(); }
+}
+
 /* ══════════ recordatorios ══════════
    Lo honesto primero: con la app cerrada del todo, iOS no deja que una web
    avise. Asi que esto hace dos cosas que si funcionan:
@@ -1882,6 +2086,251 @@ function repasarAvisos(){
   p.forEach(function(a){ a.visto = today(); });
   persist();
   toast(p.length === 1 ? p[0].texto : p.map(function(a){ return a.texto; }).join(" · "));
+}
+
+/* ══════════ correlaciones ══════════
+   Se cruzan dos grupos de dias y se mira si la diferencia es apreciable. Con
+   pocos dias cualquier diferencia es ruido, asi que cada hallazgo exige un
+   minimo de dias en cada grupo; si no, se dice que faltan datos en vez de
+   inventar una conclusion. Y se habla de "cuando", nunca de "porque". */
+const CORR_MIN = 4;       /* dias minimos en cada grupo */
+const CORR_VENTANA = 60;  /* se miran los ultimos 60 dias */
+
+function diasVentana(){
+  const out = [];
+  for(let i=0;i<CORR_VENTANA;i++) out.push(daysAgo(i));
+  return out;
+}
+const media = a => a.length ? a.reduce(function(t,x){ return t+x; },0)/a.length : 0;
+const entrenoEl = k => S.gym.sessions.some(function(x){ return x.date === k; });
+function diaSiguiente(k){ const d = parseKey(k); d.setDate(d.getDate()+1); return key(d); }
+
+function correlaciones(){
+  const dias = diasVentana();
+  const D = S.diario || {};
+  const out = [];
+  let faltan = 0;
+
+  function comparar(grupoA, grupoB, valor, fmt){
+    const a = grupoA.map(valor).filter(function(v){ return v > 0; });
+    const b = grupoB.map(valor).filter(function(v){ return v > 0; });
+    if(a.length < CORR_MIN || b.length < CORR_MIN){ faltan++; return null; }
+    return {a:media(a), b:media(b), na:a.length, nb:b.length};
+  }
+
+  /* 1. entrenar y dormir: la noche siguiente a entrenar frente a la de descanso */
+  const conEntreno = dias.filter(entrenoEl), sinEntreno = dias.filter(function(k){ return !entrenoEl(k); });
+  let r = comparar(conEntreno, sinEntreno, function(k){ const e = D[diaSiguiente(k)]; return e ? e.sueno : 0; });
+  if(r && Math.abs(r.a-r.b) >= 0.25){
+    const min = Math.round(Math.abs(r.a-r.b)*60);
+    out.push({t:"Las noches después de entrenar duermes <b>"+min+" minutos "+(r.a>r.b?"más":"menos")+"</b>.",
+              d:fmtKg(Math.round(r.a*10)/10)+" h frente a "+fmtKg(Math.round(r.b*10)/10)+" h · "+r.na+" y "+r.nb+" noches"});
+  }
+
+  /* 2. entrenar y animo */
+  r = comparar(conEntreno, sinEntreno, function(k){ const e = D[k]; return e ? e.animo : 0; });
+  if(r && Math.abs(r.a-r.b) >= 0.4){
+    out.push({t:"Los días que entrenas tu ánimo es <b>"+(r.a>r.b?"más alto":"más bajo")+"</b>.",
+              d:fmtKg(Math.round(r.a*10)/10)+" frente a "+fmtKg(Math.round(r.b*10)/10)+" sobre 5 · "+r.na+" y "+r.nb+" días"});
+  }
+
+  /* 3. dormir y energia */
+  const bienDormido = dias.filter(function(k){ return D[k] && D[k].sueno >= 7; });
+  const malDormido  = dias.filter(function(k){ return D[k] && D[k].sueno > 0 && D[k].sueno < 7; });
+  r = comparar(bienDormido, malDormido, function(k){ return D[k].energia || 0; });
+  if(r && Math.abs(r.a-r.b) >= 0.4){
+    out.push({t:"Cuando duermes 7 horas o más tienes <b>"+(r.a>r.b?"más":"menos")+" energía</b>.",
+              d:fmtKg(Math.round(r.a*10)/10)+" frente a "+fmtKg(Math.round(r.b*10)/10)+" sobre 5 · "+r.na+" y "+r.nb+" días"});
+  }
+
+  /* 4. habitos y animo */
+  const todos = dias.filter(function(k){ return S.habits.length && S.habits.every(function(h){ return !Number(h.semanal) ? cumplido(h,k) : true; }); });
+  const noTodos = dias.filter(function(k){ return todos.indexOf(k) < 0; });
+  r = comparar(todos, noTodos, function(k){ const e = D[k]; return e ? e.animo : 0; });
+  if(r && Math.abs(r.a-r.b) >= 0.4){
+    out.push({t:"Los días que cumples todos tus hábitos diarios, tu ánimo es <b>"+(r.a>r.b?"mejor":"peor")+"</b>.",
+              d:fmtKg(Math.round(r.a*10)/10)+" frente a "+fmtKg(Math.round(r.b*10)/10)+" · "+r.na+" y "+r.nb+" días"});
+  }
+
+  /* 5. animo y gasto en ocio y compras */
+  const gastoCap = function(k){
+    return S.expenses.filter(function(e){ return e.date===k && (e.cat==="Ocio"||e.cat==="Compras") && !e.fijo; })
+      .reduce(function(t,e){ return t+e.amount; }, 0);
+  };
+  const animoBajo = dias.filter(function(k){ return D[k] && D[k].animo && D[k].animo <= 2; });
+  const animoAlto = dias.filter(function(k){ return D[k] && D[k].animo >= 4; });
+  if(animoBajo.length >= CORR_MIN && animoAlto.length >= CORR_MIN){
+    const a = media(animoBajo.map(gastoCap)), b = media(animoAlto.map(gastoCap));
+    if(Math.max(a,b) > 3 && Math.abs(a-b) >= 5){
+      out.push({t:"Con el ánimo bajo gastas <b>"+(a>b?"más":"menos")+"</b> en ocio y compras.",
+                d:money.format(a)+" al día frente a "+money.format(b)+" · "+animoBajo.length+" y "+animoAlto.length+" días"});
+    }
+  }else faltan++;
+
+  /* 6. dormir y trabajo concentrado */
+  const H = (S.foco && S.foco.hist) || {};
+  r = comparar(bienDormido, malDormido, function(k){ return H[k] ? H[k].minutos : 0; });
+  if(r && Math.abs(r.a-r.b) >= 20){
+    out.push({t:"Tras dormir bien trabajas <b>"+Math.round(Math.abs(r.a-r.b))+" minutos "+(r.a>r.b?"más":"menos")+"</b> en foco.",
+              d:Math.round(r.a)+" min frente a "+Math.round(r.b)+" · "+r.na+" y "+r.nb+" días"});
+  }
+
+  return {hallazgos:out, sinDatos:faltan};
+}
+
+
+/* ══════════ revision semanal ══════════ */
+let semanaOff = 0;          /* 0 = esta semana, 1 = la anterior... */
+
+function rangoSemana(off){
+  const lunes = lunesDe(new Date());
+  lunes.setDate(lunes.getDate() - 7*off);
+  const dias = [];
+  for(let i=0;i<7;i++){ const d = new Date(lunes); d.setDate(lunes.getDate()+i); dias.push(key(d)); }
+  return dias;
+}
+function datosSemana(off){
+  const dias = rangoSemana(off), ini = dias[0], fin = dias[6];
+  const dentro = function(k){ return k >= ini && k <= fin; };
+  const ses = S.gym.sessions.filter(function(x){ return dentro(x.date); });
+  const gastos = S.expenses.filter(function(e){ return dentro(e.date); });
+  const ingresos = (S.incomes||[]).filter(function(e){ return dentro(e.date); });
+  const H = (S.foco && S.foco.hist) || {};
+  let minutos = 0; dias.forEach(function(k){ if(H[k]) minutos += H[k].minutos || 0; });
+  const D = S.diario || {};
+  const conDiario = dias.filter(function(k){ return D[k]; });
+  const cumpl = S.habits.map(function(h){
+    const hechos = dias.filter(function(k){ return cumplido(h,k); }).length;
+    const meta = Number(h.semanal) || 7;
+    return {h:h, hechos:hechos, meta:meta};
+  });
+  const porCat = {};
+  gastos.forEach(function(e){ porCat[e.cat] = (porCat[e.cat]||0) + e.amount; });
+  const topCat = Object.keys(porCat).sort(function(a,b){ return porCat[b]-porCat[a]; })[0];
+  return {
+    dias:dias, ini:ini, fin:fin,
+    entrenos:ses.length, volumen:ses.reduce(function(t,x){ return t+volumeOf(x); },0),
+    gasto:sum(gastos), ingreso:ingresos.reduce(function(t,x){ return t+x.amount; },0),
+    topCat:topCat, topCatImporte:topCat ? porCat[topCat] : 0,
+    minutos:minutos, habitos:cumpl,
+    animo:media(conDiario.map(function(k){ return D[k].animo; }).filter(Boolean)),
+    energia:media(conDiario.map(function(k){ return D[k].energia; }).filter(Boolean)),
+    sueno:media(conDiario.map(function(k){ return D[k].sueno; }).filter(Boolean)),
+    terminados:S.cultura.filter(function(x){ return x.done && dentro(x.done); }),
+    xp:xpDetalle(ini, fin).total
+  };
+}
+
+function flecha(ahora, antes, mejorSiSube){
+  if(!antes && !ahora) return "";
+  if(!antes) return '<span class="vs sube-bien">nuevo</span>';
+  const pc = Math.round((ahora-antes)/antes*100);
+  if(pc === 0) return '<span class="vs">igual</span>';
+  const bien = mejorSiSube ? pc > 0 : pc < 0;
+  return '<span class="vs '+(bien?"sube-bien":"sube-mal")+'">'+(pc>0?"+":"")+pc+"%</span>";
+}
+
+function sheetSemana(){
+  const w = datosSemana(semanaOff), a = datosSemana(semanaOff+1);
+  const L = parseKey(w.ini), F = parseKey(w.fin);
+  const titulo = semanaOff === 0 ? "Esta semana" : (semanaOff === 1 ? "La semana pasada" : "Hace "+semanaOff+" semanas");
+  const rango = L.getDate()+" "+MESES_K[L.getMonth()]+" – "+F.getDate()+" "+MESES_K[F.getMonth()];
+  const D = S.diario || {};
+
+  /* barras de animo y sueno por dia */
+  const barras = '<div class="sem-dias">'+w.dias.map(function(k,i){
+    const e = D[k] || {};
+    return '<div class="sem-dia">'+
+      '<span class="sem-b"><i style="height:'+((e.animo||0)*20)+'%"></i></span>'+
+      '<span class="sem-s">'+(e.sueno?fmtKg(e.sueno):"–")+'</span>'+
+      '<span class="sem-k">'+DIAS_CORTOS[i]+'</span>'+
+    '</div>';
+  }).join("")+'</div>';
+
+  const corr = correlaciones();
+
+  openSheet(titulo,
+    '<div class="sem-nav">'+
+      '<button class="btn ghost sm" data-act="semAnt">← anterior</button>'+
+      '<span class="mono">'+rango+'</span>'+
+      (semanaOff>0?'<button class="btn ghost sm" data-act="semSig">siguiente →</button>':'<span style="width:88px"></span>')+
+    '</div>'+
+
+    '<div class="tiles">'+
+      '<div class="tile"><span class="tv">'+w.entrenos+'</span><span class="tl">entrenos '+flecha(w.entrenos,a.entrenos,true)+'</span></div>'+
+      '<div class="tile"><span class="tv">'+Math.floor(w.minutos/60)+'h '+pad(w.minutos%60)+'</span><span class="tl">de foco '+flecha(w.minutos,a.minutos,true)+'</span></div>'+
+      '<div class="tile"><span class="tv">'+money0.format(w.gasto)+' €</span><span class="tl">gastado '+flecha(w.gasto,a.gasto,false)+'</span></div>'+
+      '<div class="tile"><span class="tv">+'+money0.format(w.xp)+'</span><span class="tl">XP ganada '+flecha(w.xp,a.xp,true)+'</span></div>'+
+    '</div>'+
+
+    '<section><h2 class="sec">Ánimo y sueño</h2><div class="panel">'+
+      barras+
+      '<div class="kv"><span>Ánimo medio</span><b class="mono">'+(w.animo?fmtKg(Math.round(w.animo*10)/10)+" / 5":"–")+'</b></div>'+
+      '<div class="kv"><span>Energía media</span><b class="mono">'+(w.energia?fmtKg(Math.round(w.energia*10)/10)+" / 5":"–")+'</b></div>'+
+      '<div class="kv"><span>Sueño medio</span><b class="mono">'+(w.sueno?fmtKg(Math.round(w.sueno*10)/10)+" h":"–")+'</b></div>'+
+    '</div></section>'+
+
+    '<section><h2 class="sec">Hábitos</h2><div class="panel">'+
+      (w.habitos.length ? w.habitos.map(function(x){
+        const pct = Math.min(100, Math.round(x.hechos/x.meta*100));
+        return '<div class="goal'+(x.hechos>=x.meta?" ok":"")+'">'+
+          '<span class="gn">'+esc(x.h.name)+'</span>'+
+          '<span class="gv">'+x.hechos+' de '+x.meta+'</span>'+
+          '<span class="bar"><i style="width:'+pct+'%"></i></span></div>';
+      }).join("") : '<p class="hint">Sin hábitos.</p>')+
+    '</div></section>'+
+
+    '<section><h2 class="sec">Dinero y gimnasio</h2><div class="panel">'+
+      (w.ingreso?'<div class="kv"><span>Ingresos</span><b class="mono">'+money.format(w.ingreso)+'</b></div>':'')+
+      '<div class="kv"><span>Gastos</span><b class="mono">'+money.format(w.gasto)+'</b></div>'+
+      (w.topCat?'<div class="kv"><span>Donde más</span><b>'+esc(w.topCat)+' · '+money.format(w.topCatImporte)+'</b></div>':'')+
+      '<div class="kv"><span>Volumen levantado</span><b class="mono">'+money0.format(w.volumen)+' kg·rep '+flecha(w.volumen,a.volumen,true)+'</b></div>'+
+    '</div></section>'+
+
+    (w.terminados.length
+      ? '<section><h2 class="sec">Terminado</h2><div class="stack">'+w.terminados.map(function(x){
+          return '<div class="row"><div class="row-main"><span class="row-title">'+esc(x.title)+'</span>'+
+            '<span class="row-sub mono">'+esc(culCat(x.cat).label)+'</span></div>'+
+            (x.score?'<span class="score">'+x.score+'<small>/10</small></span>':'')+'</div>';
+        }).join("")+'</div></section>'
+      : '')+
+
+    '<section><h2 class="sec">Lo que dicen tus datos</h2>'+
+      (corr.hallazgos.length
+        ? '<div class="stack">'+corr.hallazgos.map(function(h){
+            return '<div class="row"><div class="row-main">'+
+              '<span class="corr-t">'+h.t+'</span>'+
+              '<span class="row-sub mono">'+h.d+'</span></div></div>';
+          }).join("")+'</div>'
+        : '<div class="empty">Aún no hay suficientes días para sacar conclusiones.<br>Apunta ánimo, energía y sueño en <b>Hoy</b> durante un par de semanas.</div>')+
+      '<p class="hint" style="margin-top:9px">Se miran los últimos '+CORR_VENTANA+' días y cada hallazgo pide al menos '+CORR_MIN+' días en cada lado. Son coincidencias en tus datos, <b>no causas</b>: que duermas más tras entrenar no demuestra que sea por entrenar.</p>'+
+    '</section>'
+  );
+}
+
+function sheetXP(){
+  const d = xpDetalle(), nv = nivelDe(d.total);
+  const fila = function(txt, n, pts){
+    return '<div class="kv"><span>'+txt+'</span><b class="mono">'+money0.format(n)+' × '+pts+' = '+money0.format(n*pts)+'</b></div>';
+  };
+  openSheet("Nivel "+nv+" · "+tituloNivel(nv),
+    '<div class="panel">'+
+      fila("Hábitos cumplidos", d.habitos, XP.habito)+
+      fila("Entrenamientos", d.entrenos, XP.entreno)+
+      fila("Bloques de foco", d.bloques, XP.bloque)+
+      fila("Libros, pelis, series, juegos", d.terminados, XP.terminado)+
+      fila("Días apuntados en el diario", d.diarios, XP.diario)+
+      fila("Tareas hechas", d.tareas, XP.tarea)+
+      '<div class="kv"><span><b>Total</b></span><b class="mono">'+money0.format(d.total)+' XP</b></div>'+
+    '</div>'+
+    '<p class="hint">La experiencia no se guarda: se <b>calcula desde tus datos</b> cada vez, así que no se descuadra y cuenta todo lo que hiciste antes de que existiera. Cada nivel cuesta más que el anterior.</p>'+
+    '<div><span class="lbl-s">Próximos niveles</span>'+
+      [1,2,3].map(function(i){
+        const n = nv+i;
+        return '<div class="kv"><span>Nivel '+n+' · '+tituloNivel(n)+'</span><b class="mono">'+money0.format(xpParaNivel(n))+' XP</b></div>';
+      }).join("")+
+    '</div>'
+  );
 }
 
 function sheetReloj(){
@@ -2031,6 +2480,8 @@ function focoRevisar(){
   if(!f.corriendo || f.fin === 0 || focoRestante() > 0) return false;
   if(f.fase === "trabajo"){
     f.pomos++; f.minutos += focoMin("trabajo"); f.ciclo++;
+    f.hist = f.hist || {};
+    f.hist[today()] = {bloques:f.pomos, minutos:f.minutos};
   }
   const sig = focoSiguiente();
   f.corriendo = false; f.fin = 0;
@@ -2158,6 +2609,7 @@ function vHoy(){
   /* ─ dinero ─ */
   const hoyGasto = S.expenses.filter(function(e){ return e.date === today(); });
   const mes = monthExpenses(0), totalMes = sum(mes);
+  const ingMesHoy = monthIncomes(0).reduce(function(t,e){ return t+e.amount; }, 0);
   const tope = Number(S.budget.total)||0;
   bloques.push('<div class="hoy-bloque">'+
     '<div class="hoy-cab"><h2>Dinero</h2><button data-act="irA" data-t="gastos">ver →</button></div>'+
@@ -2167,6 +2619,10 @@ function vHoy(){
         '<span class="v">'+money.format(Math.abs(tope-totalMes))+' de '+money0.format(tope)+' €</span></div>'+
         '<span class="bar"><i style="width:'+Math.min(100,Math.round(totalMes/tope*100))+'%"></i></span>'
       : '<div class="hoy-linea"><span class="t">Este mes</span><span class="v">'+money.format(totalMes)+'</span></div>')+
+    (ingMesHoy
+      ? '<div class="hoy-linea"><span class="t">Saldo del mes</span>'+
+        '<span class="v" style="color:var('+(ingMesHoy-totalMes>=0?"--good":"--bad")+')">'+(ingMesHoy-totalMes>=0?"+":"−")+money.format(Math.abs(ingMesHoy-totalMes))+'</span></div>'
+      : '')+
   '</div>');
 
   /* ─ cultura en curso ─ */
@@ -2209,11 +2665,46 @@ function vHoy(){
       : '<span class="hoy-vacio">Nada más por hoy.</span>')+
   '</div>');
 
+  /* ─ nivel ─ */
+  const xp = xpDetalle().total, nv = nivelDe(xp);
+  const base = xpParaNivel(nv), sig = xpParaNivel(nv+1);
+  const pctNv = Math.round((xp-base)/(sig-base)*100);
+  const nivel = '<button class="nivel" data-act="xpVer">'+
+    '<span class="nivel-n">'+nv+'</span>'+
+    '<span class="nivel-t"><b>'+tituloNivel(nv)+'</b>'+
+      '<span class="bar"><i style="width:'+pctNv+'%"></i></span>'+
+      '<span class="nivel-x">'+money0.format(xp)+' XP · '+money0.format(sig-xp)+' para el nivel '+(nv+1)+'</span></span>'+
+  '</button>';
+
+  /* ─ diario: animo, energia, sueno ─ */
+  const dh = S.diario[today()] || {};
+  const escala = function(campo, etiqueta){
+    return '<div class="dia-fila"><span class="dia-lbl">'+etiqueta+'</span><div class="dia-esc">'+
+      [1,2,3,4,5].map(function(n){
+        return '<button data-act="diarioSet" data-c="'+campo+'" data-n="'+n+'" aria-pressed="'+(dh[campo]===n)+'">'+n+'</button>';
+      }).join("")+'</div></div>';
+  };
+  const diario = '<div class="hoy-bloque">'+
+    '<div class="hoy-cab"><h2>¿Cómo estás?</h2>'+
+      '<button data-act="semana">tu semana →</button></div>'+
+    escala("animo","Ánimo")+
+    escala("energia","Energía")+
+    '<div class="dia-fila"><span class="dia-lbl">Dormiste</span>'+
+      '<div class="dia-sueno"><input class="field mono" id="diaSueno" inputmode="decimal" value="'+(dh.sueno?fmtKg(dh.sueno):"")+'" placeholder="7,5">'+
+      '<span>horas</span></div></div>'+
+  '</div>';
+
+  const esDomingo = hoy.getDay() === 0;
+  const semanaBtn = esDomingo
+    ? '<button class="btn wide" data-act="semana">Es domingo: repasa tu semana</button>'
+    : '';
+
   return demoBanner()+
     '<div class="hero">'+
       '<span class="eyebrow">'+esc(fullDate(hoy))+'</span>'+
       '<h1 class="title">Hoy</h1>'+
     '</div>'+
+    nivel + semanaBtn + diario +
     bloques.join("");
 }
 
@@ -2476,6 +2967,20 @@ function vGastos(){
       }).join("")
     : '<p class="hint">Sin gastos este mes.</p>';
 
+  /* Saldo: sin ingresos no sabes si el mes cierra en positivo. */
+  const ingMes = monthIncomes(0);
+  const totalIng = ingMes.reduce(function(t,e){ return t+e.amount; }, 0);
+  const saldo = totalIng - total;
+  const saldoHtml = '<section><h2 class="sec">Saldo del mes</h2>'+
+    '<div class="panel saldo '+(saldo>=0?"pos":"neg")+'">'+
+      '<div class="saldo-fila"><span>Ingresos</span><b class="mono">'+money.format(totalIng)+'</b></div>'+
+      '<div class="saldo-fila"><span>Gastos</span><b class="mono">−'+money.format(total)+'</b></div>'+
+      '<div class="saldo-total"><span>'+(saldo>=0?"Te sobran":"Te faltan")+'</span>'+
+        '<b>'+money.format(Math.abs(saldo))+'</b></div>'+
+      (totalIng>0?'<p class="hint" style="margin-top:6px">Has gastado el <b>'+Math.round(total/totalIng*100)+' %</b> de lo que ha entrado este mes.</p>':
+        '<p class="hint" style="margin-top:6px">Apunta tus ingresos para ver si el mes cierra en positivo.</p>')+
+    '</div></section>';
+
   /* Presupuesto: lo que queda, y a que ritmo vas para lo que resta de mes. */
   const tope = Number(S.budget.total) || 0;
   let presu = "";
@@ -2524,14 +3029,16 @@ function vGastos(){
         '<span class="k">'+m.k+'</span>'+
       '</div>').join("")+'</div>';
 
-  const recientes = S.expenses.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
+  const recientes = S.expenses.map(function(e){ return Object.assign({ing:false}, e); })
+    .concat((S.incomes||[]).map(function(e){ return Object.assign({ing:true}, e); }))
+    .sort((a,b)=>b.date.localeCompare(a.date)).slice(0,14);
   const listHtml = recientes.length
     ? '<div class="stack">'+recientes.map(e=>
         '<div class="row">'+
           '<div class="row-main"><span class="row-title">'+esc(e.note||e.cat)+'</span>'+
           '<span class="row-sub mono">'+esc(e.cat)+' · '+relDate(e.date)+(e.fijo?' · fijo':'')+'</span></div>'+
-          '<span class="row-val">'+money.format(e.amount)+'</span>'+
-          '<button class="x" data-act="delExp" data-id="'+e.id+'" aria-label="Borrar">'+svg(I.x)+'</button>'+
+          '<span class="row-val'+(e.ing?' ing':'')+'">'+(e.ing?'+':'')+money.format(e.amount)+'</span>'+
+          '<button class="x" data-act="'+(e.ing?'delIng':'delExp')+'" data-id="'+e.id+'" aria-label="Borrar">'+svg(I.x)+'</button>'+
         '</div>').join("")+'</div>'
     : '<div class="empty">Aún no has anotado ningún gasto.<br>Toca <b>+</b> arriba.</div>';
 
@@ -2540,6 +3047,7 @@ function vGastos(){
       '<span class="eyebrow">'+MESES[d.getMonth()]+' '+d.getFullYear()+' · '+mes.length+' gasto'+(mes.length===1?"":"s")+'</span>'+
       '<h1 class="title money">'+money.format(total)+'</h1>'+
     '</div>'+
+    saldoHtml+
     presu+
     '<section><h2 class="sec">Por categoría'+(mesAnt.length?' · frente a '+nombreMesAnt:'')+'</h2><div class="panel">'+catHtml+'</div></section>'+
     '<section><h2 class="sec">Últimos 6 meses</h2><div class="panel">'+
@@ -2554,13 +3062,27 @@ function vGastos(){
 
 /* ─── notas ─── */
 let notaQuery = "";
+/* Las etiquetas salen del texto: cualquier #palabra. Asi no hay un gestor de
+   etiquetas que mantener, y funcionan tambien en las notas que ya tenias. */
+function tagsDe(texto){
+  const vistos = {}, out = [];
+  (String(texto||"").match(/#[A-Za-z0-9À-ſ_-]+/g) || []).forEach(function(t){
+    const k = t.slice(1).toLowerCase();
+    if(!vistos[k]){ vistos[k] = 1; out.push(k); }
+  });
+  return out;
+}
+let notaTag = "";
+
 function noteCard(n){
   const lines = n.text.split("\n").filter(l=>l.trim());
   const t = lines[0] || "Nota vacía";
   const p = lines.slice(1).join(" ");
+  const tg = tagsDe(n.text);
   return '<button class="note" data-act="openNote" data-id="'+n.id+'">'+
     '<span class="nt">'+(n.pinned?svg(I.pin):"")+esc(t.slice(0,60))+'</span>'+
     (p?'<span class="np">'+esc(p)+'</span>':"")+
+    (tg.length?'<span class="ntags">'+tg.map(function(x){ return '<span class="ntag">#'+esc(x)+'</span>'; }).join("")+'</span>':"")+
     '<span class="nd">'+relDate(key(new Date(n.ts)))+'</span>'+
   '</button>';
 }
@@ -2568,6 +3090,7 @@ function notesHtml(){
   const q = notaQuery.trim().toLowerCase();
   const list = S.notes
     .filter(n=>!q || n.text.toLowerCase().indexOf(q)>=0)
+    .filter(n=>!notaTag || tagsDe(n.text).indexOf(notaTag)>=0)
     .sort((a,b)=>(b.pinned-a.pinned)||(b.ts-a.ts));
   if(!list.length) return '<div class="empty">'+(q?"Ninguna nota coincide con «"+esc(notaQuery)+"».":"No hay notas todavía.<br>Toca <b>+</b> para escribir una.")+'</div>';
   return '<div class="notes">'+list.map(noteCard).join("")+'</div>';
@@ -2579,6 +3102,19 @@ function vNotas(){
       '<h1 class="title">Notas</h1>'+
     '</div>'+
     '<input class="field" id="noteSearch" type="search" placeholder="Buscar…" value="'+esc(notaQuery)+'" autocomplete="off">'+
+    (function(){
+      const cuenta = {};
+      S.notes.forEach(function(n){ tagsDe(n.text).forEach(function(t){ cuenta[t] = (cuenta[t]||0)+1; }); });
+      const todas = Object.keys(cuenta).sort(function(a,b){ return cuenta[b]-cuenta[a] || a.localeCompare(b); });
+      if(notaTag && !cuenta[notaTag]) notaTag = "";
+      if(!todas.length) return '<p class="hint">Escribe <b>#etiqueta</b> en cualquier nota para agruparlas.</p>';
+      return '<div class="tags">'+
+        '<button class="chip" data-act="notaTag" data-t="" aria-pressed="'+(!notaTag)+'">Todas</button>'+
+        todas.map(function(t){
+          return '<button class="chip" data-act="notaTag" data-t="'+esc(t)+'" aria-pressed="'+(notaTag===t)+'">#'+esc(t)+' '+cuenta[t]+'</button>';
+        }).join("")+
+      '</div>';
+    })()+
     '<div id="notesList">'+notesHtml()+'</div>';
 }
 
@@ -2757,6 +3293,59 @@ function progChart(exName){
       '<span class="pd">'+d.getDate()+"/"+(d.getMonth()+1)+'</span></div>';
   }).join("")+'</div>';
 }
+/* Medidas: el peso engana cuando ganas musculo y pierdes grasa a la vez; la
+   cintura baja y el brazo sube aunque la bascula no se mueva. */
+const MEDIDAS = [
+  {k:"cintura", n:"Cintura", bajarEsBueno:true},
+  {k:"cadera",  n:"Cadera",  bajarEsBueno:true},
+  {k:"pecho",   n:"Pecho",   bajarEsBueno:false},
+  {k:"brazo",   n:"Brazo",   bajarEsBueno:false},
+  {k:"muslo",   n:"Muslo",   bajarEsBueno:false}
+];
+function medidasHtml(){
+  const m = S.gym.medidas.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+  if(!m.length) return '<p class="hint">Sin medidas. Apúntalas cada pocas semanas, con cinta y a la misma hora.</p>';
+  const ult = m[m.length-1], pri = m[0];
+  return MEDIDAS.map(function(md){
+    const v = ult[md.k];
+    if(!v) return '';
+    const prev = pri !== ult ? pri[md.k] : 0;
+    let cambio = '';
+    if(prev){
+      const d = Math.round((v-prev)*10)/10;
+      if(d){
+        const bien = md.bajarEsBueno ? d < 0 : d > 0;
+        cambio = ' <span class="vs '+(bien?"sube-bien":"sube-mal")+'">'+(d>0?"+":"")+fmtKg(d)+'</span>';
+      }
+    }
+    return '<div class="kv"><span>'+md.n+'</span><b class="mono">'+fmtKg(v)+' cm'+cambio+'</b></div>';
+  }).join("") +
+  (m.length > 1 ? '<p class="hint" style="margin-top:6px">Cambio desde '+relDate(pri.date)+'. En verde lo que va en la buena dirección.</p>' : '');
+}
+function sheetMedidas(){
+  const ult = S.gym.medidas.slice().sort(function(a,b){ return b.date.localeCompare(a.date); })[0] || {};
+  openSheet("Medidas",
+    '<p class="hint">En centímetros. Deja en blanco lo que no quieras medir.</p>'+
+    '<div class="rt-grid" style="grid-template-columns:repeat(2,1fr)">'+
+      MEDIDAS.map(function(md){
+        return '<div><label for="md_'+md.k+'">'+md.n+'</label>'+
+          '<input class="field" id="md_'+md.k+'" inputmode="decimal" value="'+(ult[md.k]?fmtKg(ult[md.k]):"")+'" placeholder="–"></div>';
+      }).join("")+
+    '</div>'+
+    '<div><label class="lbl-s" for="mdF">Fecha</label><input class="field" id="mdF" type="date" value="'+today()+'"></div>'+
+    '<button class="btn wide" data-act="saveMedidas">Guardar</button>'+
+    (S.gym.medidas.length
+      ? '<div><span class="lbl-s">Registros</span><div class="stack">'+
+          S.gym.medidas.slice().sort(function(a,b){ return b.date.localeCompare(a.date); }).map(function(x){
+            const partes = MEDIDAS.filter(function(md){ return x[md.k]; }).map(function(md){ return md.n.toLowerCase()+" "+fmtKg(x[md.k]); });
+            return '<div class="row"><div class="row-main"><span class="row-title mono">'+relDate(x.date)+'</span>'+
+              '<span class="row-sub">'+esc(partes.join(" · "))+'</span></div>'+
+              '<button class="x" data-act="delMedida" data-d="'+x.date+'" aria-label="Borrar">'+svg(I.x)+'</button></div>';
+          }).join("")+'</div></div>'
+      : '')
+  );
+}
+
 function bodyChart(){
   const w = S.gym.weights.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(-8);
   if(!w.length) return '<p class="hint">Anota tu peso de vez en cuando para ver la tendencia.</p>';
@@ -2829,6 +3418,10 @@ function gymProgreso(){
       '<button class="btn ghost sm" data-act="addWeight" style="flex:1">Anotar peso</button>'+
       '<button class="btn ghost sm" data-act="editProfile" style="flex:1">Altura y edad</button>'+
     '</div>'+
+  '</div></section>'+
+  '<section><h2 class="sec">Medidas</h2><div class="panel">'+
+    medidasHtml()+
+    '<button class="btn ghost sm wide" data-act="medidas" style="margin-top:11px">Anotar medidas</button>'+
   '</div></section>';
 
   let unl = 0, tot = 0;
@@ -2856,6 +3449,36 @@ const culPct = it => (it.pages>0) ? Math.max(0, Math.min(100, Math.round((it.pag
    pendiente; con fecha de fin, terminado. */
 const culPend = it => !it.started && !it.done;
 const culCurso = it => !!it.started && !it.done;
+/* Ritmo de lectura. Si hay registro de paginas reciente se usa ese tramo, que
+   refleja como lees AHORA; si no, la media desde que empezaste el libro. */
+function ritmoLectura(it){
+  if(it.cat !== "libros" || !culCurso(it) || !(it.pages > 0) || !(it.page > 0)) return null;
+  let pagDia = 0;
+  const hace21 = daysAgo(21);
+  const log = (it.pageLog||[]).filter(function(x){ return x.date >= hace21; })
+    .sort(function(a,b){ return a.date.localeCompare(b.date); });
+  if(log.length >= 2){
+    const a = log[0], b = log[log.length-1];
+    const dias = Math.round((parseKey(b.date) - parseKey(a.date)) / 86400000);
+    if(dias >= 3 && b.page > a.page) pagDia = (b.page - a.page) / dias;
+  }
+  if(!pagDia){
+    const dias = Math.max(1, Math.round((parseKey(today()) - parseKey(it.started)) / 86400000));
+    pagDia = it.page / dias;
+  }
+  if(pagDia <= 0) return null;
+  const quedan = Math.max(0, it.pages - it.page);
+  const diasFin = Math.ceil(quedan / pagDia);
+  const fin = new Date(); fin.setDate(fin.getDate() + diasFin);
+  return {pagDia:pagDia, diasFin:diasFin, fin:fin};
+}
+function ritmoTexto(r){
+  if(!r) return "";
+  const pd = r.pagDia >= 10 ? Math.round(r.pagDia) : Math.round(r.pagDia*10)/10;
+  return fmtKg(pd) + " pág/día · " +
+    (r.diasFin <= 0 ? "lo acabas hoy" : "lo acabas el " + r.fin.getDate() + " " + MESES_K[r.fin.getMonth()]);
+}
+
 /* Las series marcan por donde van con temporada y episodio. */
 function culEpi(it){
   if(it.cat !== "series") return "";
@@ -2884,7 +3507,8 @@ function culFila(it){
       (culCurso(it) && it.pages>0
         ? '<span class="cul-prog"><span class="bar"><i style="width:'+pct+'%"></i></span>'+
           '<span class="pc">'+pct+'%</span>'+
-          '<span class="row-sub mono" style="grid-column:1/-1">página '+(it.page||0)+' de '+it.pages+'</span></span>'
+          '<span class="row-sub mono" style="grid-column:1/-1">página '+(it.page||0)+' de '+it.pages+
+            (ritmoLectura(it) ? ' · '+ritmoTexto(ritmoLectura(it)) : '')+'</span></span>'
         : '')+
     '</div>'+
     (it.score ? '<span class="score">'+it.score+'<small>/10</small></span>' : '<span class="row-val">→</span>')+
@@ -2952,6 +3576,28 @@ function sheetCulNuevo(){
     b=>$("#cuT",b).focus());
 }
 
+/* Citas y subrayados, dentro de la ficha de cada obra. */
+function citasHtml(it){
+  const c = it.citas || [];
+  const libro = it.cat === "libros";
+  return '<div><span class="lbl-s">Citas'+(c.length?" · "+c.length:"")+'</span>'+
+    (c.length
+      ? '<div class="citas">'+c.slice().sort(function(a,b){ return (a.pag||0)-(b.pag||0) || a.ts-b.ts; }).map(function(q){
+          return '<div class="cita">'+
+            '<p>“'+esc(q.texto)+'”</p>'+
+            '<div class="cita-pie">'+(q.pag?'<span class="mono">pág. '+q.pag+'</span>':'<span></span>')+
+              '<button class="x" data-act="citaDel" data-id="'+it.id+'" data-q="'+q.id+'" aria-label="Borrar cita">'+svg(I.x)+'</button></div>'+
+          '</div>';
+        }).join("")+'</div>'
+      : '')+
+    '<textarea class="field" id="citaTxt" placeholder="Una frase que quieras guardar…" style="min-height:64px;margin-top:8px"></textarea>'+
+    '<div style="display:flex;gap:8px;margin-top:8px">'+
+      (libro?'<input class="field mono" id="citaPag" inputmode="numeric" placeholder="pág." style="width:80px;text-align:center">':'')+
+      '<button class="btn ghost sm" data-act="citaAdd" data-id="'+it.id+'" style="flex:1">Guardar cita</button>'+
+    '</div>'+
+  '</div>';
+}
+
 function sheetCulItem(id){
   const it = S.cultura.filter(x=>x.id===id)[0]; if(!it) return;
   const c = culCat(it.cat);
@@ -2976,6 +3622,10 @@ function sheetCulItem(id){
           '<div><label class="lbl-s" for="cuPt">De un total de</label><input class="field mono" id="cuPt" inputmode="numeric" value="'+(it.pages||0)+'" style="text-align:center"></div>'+
         '</div>'+
         (it.pages>0 ? '<div class="cul-prog" style="margin-top:11px"><span class="bar"><i style="width:'+pct+'%"></i></span><span class="pc">'+pct+'%</span></div>' : '')+
+        (ritmoLectura(it)
+          ? '<p class="hint" style="margin-top:9px">A <b>'+ritmoTexto(ritmoLectura(it)).replace(" · ", "</b>, ")+
+            '. Te quedan '+(it.pages-it.page)+' páginas.</p>'
+          : '')+
         '<button class="btn ghost sm wide" data-act="culPage" data-id="'+it.id+'" style="margin-top:11px">Guardar el punto de libro</button>'+
       '</div>'
     : '';
@@ -2993,7 +3643,7 @@ function sheetCulItem(id){
   '</div>';
 
   openSheet(it.title,
-    datos + marcador + marcaSerie + (culPend(it) ? '' : notas) +
+    datos + marcador + marcaSerie + (culPend(it) ? '' : notas) + citasHtml(it) +
     (it.done
       ? '<button class="btn ghost wide" data-act="culReopen" data-id="'+it.id+'">Volver a ponerlo en curso</button>'
       : culPend(it)
@@ -3189,25 +3839,34 @@ function sheetHabito(id){
     '<button class="btn danger wide" data-act="delHabit" data-id="'+h.id+'">Eliminar hábito</button>'
   );
 }
+let movTipo = "gasto";
 function sheetGasto(){
-  openSheet("Nuevo gasto",
+  const ing = movTipo === "ingreso";
+  const cats = ing ? CATS_ING : CATS;
+  openSheet(ing ? "Nuevo ingreso" : "Nuevo gasto",
+    '<div class="seg">'+
+      '<button data-act="movTipo" data-t="gasto" aria-pressed="'+(!ing)+'">Gasto</button>'+
+      '<button data-act="movTipo" data-t="ingreso" aria-pressed="'+ing+'">Ingreso</button>'+
+    '</div>'+
     '<div><label class="lbl-s" for="eAmt">Importe</label>'+
     '<input class="field mono" id="eAmt" inputmode="decimal" placeholder="0,00" style="font-size:26px;text-align:center;padding:16px"></div>'+
     '<div><span class="lbl-s">Categoría</span><div class="chips" id="eCats">'+
-      CATS.map((c,i)=>'<button class="chip" data-act="pickCat" data-cat="'+c+'" aria-pressed="'+(i===0)+'">'+c+'</button>').join("")+
+      cats.map((c,i)=>'<button class="chip" data-act="pickCat" data-cat="'+c+'" aria-pressed="'+(i===0)+'">'+c+'</button>').join("")+
     '</div></div>'+
     '<div><label class="lbl-s" for="eNote">Concepto (opcional)</label>'+
     '<input class="field" id="eNote" placeholder="Ej: compra semanal"></div>'+
     '<div><label class="lbl-s" for="eDate">Fecha</label>'+
     '<input class="field" id="eDate" type="date" value="'+today()+'"></div>'+
-    '<button class="btn wide" data-act="saveExp">Guardar gasto</button>',
+    '<button class="btn wide" data-act="saveExp">'+(ing ? "Guardar ingreso" : "Guardar gasto")+'</button>',
     b=>$("#eAmt",b).focus());
 }
 function saveExp(){
   const amt = parseFloat(($("#eAmt").value||"").replace(",","."));
   if(!amt || amt<=0){ $("#eAmt").focus(); return; }
   const cat = ($("#eCats").querySelector('[aria-pressed="true"]')||{dataset:{cat:"Otros"}}).dataset.cat;
-  S.expenses.push({id:uid(),amount:Math.round(amt*100)/100,cat:cat,note:$("#eNote").value.trim(),date:$("#eDate").value||today()});
+  const mov = {id:uid(),amount:Math.round(amt*100)/100,cat:cat,note:$("#eNote").value.trim(),date:$("#eDate").value||today()};
+  if(movTipo === "ingreso") S.incomes.push(mov); else S.expenses.push(mov);
+  movTipo = "gasto";
   save(); closeSheet(); render();
 }
 function sheetPresupuesto(){
@@ -3232,7 +3891,7 @@ function sheetFijos(){
         return '<div class="row"><div class="row-main">'+
           '<span class="row-title">'+esc(f.note||f.cat)+'</span>'+
           '<span class="row-sub mono">'+esc(f.cat)+' · día '+f.dia+' de cada mes</span></div>'+
-          '<span class="row-val">'+money.format(f.amount)+'</span>'+
+          '<span class="row-val'+(f.tipo==="ingreso"?" ing":"")+'">'+(f.tipo==="ingreso"?"+":"")+money.format(f.amount)+'</span>'+
           '<button class="x" data-act="delFijo" data-id="'+f.id+'" aria-label="Quitar">'+svg(I.x)+'</button></div>';
       }).join("")+'</div>'
     : '<div class="empty">Sin gastos fijos.<br>El alquiler, la luz, las suscripciones…</div>';
@@ -3247,8 +3906,10 @@ function sheetFijos(){
       '</div>'+
       '<label class="lbl-s" for="fN" style="margin-top:9px">Concepto</label>'+
       '<input class="field" id="fN" placeholder="Ej: alquiler">'+
+      '<label class="lbl-s" for="fT" style="margin-top:9px">Tipo</label>'+
+      '<select class="field" id="fT"><option value="gasto">Gasto</option><option value="ingreso">Ingreso (nómina, alquiler que cobras…)</option></select>'+
       '<label class="lbl-s" for="fC" style="margin-top:9px">Categoría</label>'+
-      '<select class="field" id="fC">'+CATS.map(function(c){ return '<option>'+esc(c)+'</option>'; }).join("")+'</select>'+
+      '<select class="field" id="fC">'+CATS.concat(CATS_ING.filter(function(c){ return CATS.indexOf(c)<0; })).map(function(c){ return '<option>'+esc(c)+'</option>'; }).join("")+'</select>'+
       '<button class="btn wide" data-act="saveFijo" style="margin-top:11px">Añadir</button>'+
     '</div>'+
     '<p class="hint">El día se limita al 28 para que exista en todos los meses.</p>'
@@ -3369,8 +4030,22 @@ function sheetHistEjercicio(ex){
   const prs = records();
   const rec = prs[ex];
   const rm = mejor1RM(ex);
+  const porReps = recordsPorReps(ex);
+  const hayReps = RM_REPS.some(function(n){ return porReps[n]; });
 
   openSheet(ex,
+    (hayReps
+      ? '<div><span class="lbl-s">Mejor peso por repeticiones</span><div class="rm-grid">'+
+          RM_REPS.map(function(n){
+            const r = porReps[n];
+            return '<div class="rm-c">'+
+              '<span class="rm-n">'+n+(n===1?" rep":" reps")+'</span>'+
+              '<span class="rm-v">'+(r ? fmtKg(r.kg) : "–")+'</span>'+
+              '<span class="rm-d">'+(r ? (r.reps>n ? "hiciste "+r.reps : relDate(r.date)) : "sin datos")+'</span>'+
+            '</div>';
+          }).join("")+
+        '</div><p class="hint" style="margin-top:7px">El máximo peso que has movido para <b>al menos</b> esas repeticiones. Si a 5 reps pone <i>hiciste 8</i>, es que nunca has cargado más haciendo solo 5.</p></div>'
+      : '')+
     '<div class="panel">'+
       (rec?'<div class="kv"><span>Récord</span><b class="mono">'+rec.kg+' kg × '+rec.reps+'</b></div>':'')+
       (rm?'<div class="kv"><span>1RM estimado</span><b class="mono">~'+fmtKg(rm)+' kg</b></div>':'')+
@@ -3692,6 +4367,16 @@ document.addEventListener("click", function(e){
 
     case "settings": sheetAjustes(); break;
     case "irA": S.tab = el.dataset.t; save(); render(); break;
+    case "diarioSet": {
+      const c = el.dataset.c, n = +el.dataset.n;
+      const e = S.diario[today()] = S.diario[today()] || {};
+      e[c] = (e[c] === n) ? 0 : n;          /* tocar otra vez lo desmarca */
+      save(); render(); break;
+    }
+    case "xpVer": sheetXP(); break;
+    case "semAnt": semanaOff++; sheetSemana(); break;
+    case "semSig": semanaOff = Math.max(0, semanaOff-1); sheetSemana(); break;
+    case "semana": semanaOff = 0; sheetSemana(); break;
     case "irCompra": S.tab = "tareas"; S.list = "compra"; save(); render(); break;
 
     /* ─── Reloj del iPhone ─── */
@@ -3934,6 +4619,14 @@ document.addEventListener("click", function(e){
       el.setAttribute("aria-pressed","true"); break;
     case "saveExp": saveExp(); break;
     case "delExp": S.expenses = S.expenses.filter(x=>x.id!==id); save(); render(); break;
+    case "delIng": S.incomes = S.incomes.filter(x=>x.id!==id); save(); render(); break;
+    case "movTipo": {
+      const importe = $("#eAmt") ? $("#eAmt").value : "";
+      movTipo = el.dataset.t;
+      sheetGasto();
+      if(importe) $("#eAmt").value = importe;
+      break;
+    }
     case "presupuesto": sheetPresupuesto(); break;
     case "savePresu": {
       S.budget.total = parseFloat(($("#bpT").value||"0").replace(",","."))||0;
@@ -3951,7 +4644,7 @@ document.addEventListener("click", function(e){
       const a = parseFloat(($("#fA").value||"0").replace(",","."))||0;
       if(a <= 0){ $("#fA").focus(); break; }
       S.fixed.push({
-        id:uid(), amount:a, cat:$("#fC").value,
+        id:uid(), amount:a, cat:$("#fC").value, tipo:$("#fT").value,
         note:$("#fN").value.trim(),
         dia:Math.min(28, Math.max(1, parseInt($("#fD").value,10)||1))
       });
@@ -3966,6 +4659,7 @@ document.addEventListener("click", function(e){
 
     /* notas */
     case "openNote": sheetNota(id); break;
+    case "notaTag": notaTag = el.dataset.t; render(); break;
     case "saveNote": saveNote(id); break;
     case "pinNote": {
       const n = S.notes.filter(x=>x.id===id)[0];
@@ -4022,6 +4716,9 @@ document.addEventListener("click", function(e){
       it.page  = Math.max(0, parseInt($("#cuPg").value,10)||0);
       it.pages = Math.max(0, parseInt($("#cuPt").value,10)||0);
       if(it.pages && it.page>it.pages) it.page = it.pages;
+      /* Registro de paginas: es lo que permite saber tu ritmo de ahora. */
+      it.pageLog = (it.pageLog||[]).filter(function(x){ return x.date !== today(); });
+      it.pageLog.push({date:today(), page:it.page});
       save(); closeSheet(); render();
       toast("Punto de libro en la página "+it.page+(it.pages?" · "+culPct(it)+"% leído":""));
       break;
@@ -4038,6 +4735,20 @@ document.addEventListener("click", function(e){
       const it = S.cultura.filter(x=>x.id===id)[0]; if(!it) break;
       it.done = null;
       save(); closeSheet(); render(); break;
+    }
+    case "citaAdd": {
+      const it = S.cultura.filter(x=>x.id===id)[0]; if(!it) break;
+      const t = $("#citaTxt").value.trim();
+      if(!t){ $("#citaTxt").focus(); break; }
+      const pg = $("#citaPag");
+      it.citas = it.citas || [];
+      it.citas.push({id:uid(), texto:t, pag: pg ? (parseInt(pg.value,10)||0) : 0, ts:Date.now()});
+      save(); sheetCulItem(id); break;
+    }
+    case "citaDel": {
+      const it = S.cultura.filter(x=>x.id===id)[0]; if(!it) break;
+      it.citas = (it.citas||[]).filter(function(q){ return q.id !== el.dataset.q; });
+      save(); sheetCulItem(id); break;
     }
     case "culDel":
       S.cultura = S.cultura.filter(x=>x.id!==id);
@@ -4210,6 +4921,22 @@ document.addEventListener("click", function(e){
       S.gym.goals = S.gym.goals.filter(x=>x.id!==id);
       save(); render(); sheetGoal(); break;
     case "addWeight": sheetWeight(); break;
+    case "medidas": sheetMedidas(); break;
+    case "saveMedidas": {
+      const reg = {date: $("#mdF").value || today()};
+      let alguna = false;
+      MEDIDAS.forEach(function(md){
+        const v = parseFloat(($("#md_"+md.k).value||"").replace(",","."));
+        if(v > 0){ reg[md.k] = v; alguna = true; }
+      });
+      if(!alguna){ toast("Apunta al menos una medida."); break; }
+      S.gym.medidas = S.gym.medidas.filter(function(x){ return x.date !== reg.date; });
+      S.gym.medidas.push(reg);
+      save(); closeSheet(); render(); break;
+    }
+    case "delMedida":
+      S.gym.medidas = S.gym.medidas.filter(function(x){ return x.date !== el.dataset.d; });
+      save(); render(); sheetMedidas(); break;
     case "saveWeight": {
       const kg = parseFloat(($("#wKg").value||"0").replace(",","."))||0;
       if(kg<=0){ $("#wKg").focus(); break; }
@@ -4367,6 +5094,13 @@ function iconDataURI(){
 /* Lo tecleado en una casilla se guarda al salir de ella, para que no se pierda
    al pulsar cualquier boton que redibuje la pantalla. */
 view.addEventListener("change", function(e){
+  if(e.target.id === "diaSueno"){
+    const v = parseFloat((e.target.value||"").replace(",","."));
+    const d = S.diario[today()] = S.diario[today()] || {};
+    if(v > 0 && v < 24) d.sueno = v; else delete d.sueno;
+    save();
+    return;
+  }
   const m = e.target.id && e.target.id.match(/^st[KR](\d+)_\d+$/);
   if(!m) return;
   leerFilas(+m[1]);
@@ -4417,6 +5151,7 @@ document.addEventListener("visibilitychange", function(){
 /* arranque */
 focoRevisar();
 render();
+if(!S.xpNivel) { S.xpNivel = nivelDe(xpDetalle().total); persist(); }
 focoTic();
 repasarAvisos();
 programarAvisos();
