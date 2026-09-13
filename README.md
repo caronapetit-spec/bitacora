@@ -106,12 +106,17 @@ comprobación.
 En la portada, tres toques al día: **ánimo** y **energía** del 1 al 5, y **horas de sueño**.
 Tocar otra vez un número lo desmarca.
 
+Debajo, **una línea sobre el día**. Se guarda al salir de la casilla. En la revisión semanal
+salen las líneas de esa semana junto al ánimo, y *Todo el diario* las junta por meses: los
+números dicen que un día fue un 2; la línea dice por qué.
+
 ### Experiencia y niveles
 
 | Acción | XP |
 |---|---|
 | Hábito cumplido (por día) | 10 |
 | Entrenamiento | 50 |
+| Sesión de cardio | 30 |
 | Bloque de foco | 20 |
 | Libro, peli, serie o juego terminado | 40 |
 | Día apuntado en el diario | 5 |
@@ -146,6 +151,53 @@ diferencia apreciable; si no, dice que faltan datos en vez de inventar. Y habla 
 
 Para que el foco entre en esto, el pomodoro guarda ahora un **histórico por día**; antes
 solo sabía lo de hoy.
+
+## Objetivos del año
+
+Desde la portada: *leer 12 libros*, *180 entrenos*, *300 km de cardio*, *3.000 € de ahorro*,
+*200 días de un hábito* u *horas de foco*. **No se apunta nada dos veces**: cada objetivo solo
+guarda el tipo, la cifra y el año, y el progreso se lee de Cultura, Gimnasio, Gastos,
+Hábitos o Pomodoro.
+
+La barra lleva una **marca vertical** con donde deberías ir a estas alturas del año para
+llegar justo, y debajo si vas por delante o por detrás y a qué cifra llegas si sigues igual.
+Los de años anteriores quedan en la hoja con el resultado final.
+
+## Fechas importantes
+
+Cumpleaños y otras fechas con día y mes; el año es opcional y sirve para decir cuántos
+cumple o cuántos años hace. Salen en *Hoy* dos semanas antes (arriba del todo si faltan tres
+días o menos), y al abrir la app el día antes y el mismo día hay un aviso, una vez al día.
+El 29 de febrero se celebra el 28 los años que no son bisiestos.
+
+## Hábitos para dejar
+
+Al crear un hábito eliges **Hacerlo** o **Dejarlo**. Los de dejar van al revés: solo apuntas
+el día que caes (*he caído*), y la racha cuenta los días **sin** hacerlo desde la última
+caída o desde la fecha en que dices que empezaste. Cada día limpio cuenta como cumplido, así
+que suma XP, entra en el mapa de calor y en la revisión semanal. En su ficha: mejor racha,
+días limpios, caídas y la opción de apuntar una caída de otro día.
+
+Cambiar un hábito de modo borra sus días apuntados, porque pasarían a significar lo contrario.
+
+## Tareas: prioridad y pasos
+
+Cada tarea tiene prioridad **alta, media o baja** (se elige al añadirla o en su ficha) y la
+lista se ordena sola; las de siempre pasaron a *media*. Tocando una tarea se abre su ficha
+con **pasos**, cada uno con su casilla y una barra de avance. Al marcar el último, la tarea se
+completa sola; si desmarcas uno o añades otro, se reabre.
+
+## Gimnasio: la última vez y cardio
+
+**La última vez.** En la sesión, encima de las series de cada ejercicio, sale lo que hiciste
+la vez anterior. Si vienes de una rutina se busca primero en esa rutina.
+
+**Cardio.** Carrera, andar, bici, elíptica, remo y natación, aparte de la fuerza: duración
+(`45`, `45:30` o `1:05:30`), distancia opcional, fecha y notas. El ritmo sale en la unidad
+de cada deporte: min/km corriendo o andando, km/h en bici, /500 m en remo, /100 m nadando.
+En *Progreso*, los km y sesiones del mes y, por deporte, el mejor ritmo y la más larga. El
+cardio cuenta para la XP, para los objetivos de entrenos y km y como día de entreno en las
+correlaciones.
 
 ## Ingresos y saldo
 

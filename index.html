@@ -487,6 +487,62 @@ textarea.field{resize:vertical;min-height:120px;line-height:1.6}
 .dia-sueno .field{width:84px;padding:8px;text-align:center}
 .dia-sueno span{font-size:12.5px;color:var(--text-3)}
 
+/* ─── linea del diario ─── */
+textarea.field.dia-linea{min-height:0;height:auto;padding:10px 12px;font-size:14px;line-height:1.45;resize:none}
+.diario-lista{display:flex;flex-direction:column;gap:8px}
+.diario-e{border-left:3px solid var(--accent);background:var(--surface-2);border-radius:0 10px 10px 0;padding:8px 12px}
+.diario-cab{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--text-3)}
+.diario-cab .mono{font-size:10px}
+.diario-e p{margin:3px 0 0;font-family:"Fraunces",Georgia,serif;font-size:14.5px;line-height:1.45}
+
+/* ─── objetivos del ano ─── */
+.meta{display:flex;flex-direction:column;gap:5px;padding:3px 0}
+.meta-cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px}
+.meta-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta-v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.meta-v small{color:var(--text-3);font-size:10.5px}
+.meta-bar{position:relative;display:block;height:6px;border-radius:99px;background:var(--surface-3)}
+.meta-bar i{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .35s ease}
+.meta-bar b{position:absolute;top:-3px;width:2px;height:12px;margin-left:-1px;border-radius:2px;background:var(--text-2)}
+.meta.ok .meta-bar i{background:var(--good)}
+.meta-t{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--text-3)}
+.meta-t.detras{color:var(--bad)}
+.meta.ok .meta-t{color:var(--good)}
+.metas-lista{display:flex;flex-direction:column;gap:11px}
+.meta-fila{display:flex;align-items:center;gap:8px}
+.meta-fila .meta{flex:1;min-width:0}
+
+/* ─── fechas ─── */
+.hoy-linea small{color:var(--text-3);font-size:12px}
+.hoy-linea.pronto .v{color:var(--accent);font-weight:600}
+.fd-grid{display:grid;grid-template-columns:70px 1fr 84px;gap:8px;margin-top:8px}
+.fd-grid .field{text-align:center;padding:12px 8px}
+
+/* ─── habitos para dejar ─── */
+.dejar-n{
+  min-width:30px;height:30px;padding:0 6px;flex:none;border-radius:99px;
+  display:grid;place-items:center;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;
+  color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);
+}
+.dejar-n.cayo{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+
+/* ─── tareas: prioridad y pasos ─── */
+.prio-tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:1px 5px;flex:none}
+.prio-tag.p1{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.prio-tag.p3{color:var(--text-3);background:var(--surface-3)}
+.task-sub{display:flex;align-items:center;gap:8px}
+.task-sub .bar{flex:1;margin-top:0;max-width:140px}
+.task-sub .mono{font-size:10.5px;color:var(--text-3)}
+.prio-new{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-3)}
+.prio-new .seg{flex:1}
+.prio-new .seg button{padding:6px;font-size:12.5px}
+
+/* ─── la ultima vez ─── */
+.ultima{display:flex;flex-direction:column;gap:6px;background:var(--surface-2);border:1px dashed var(--line-2);border-radius:10px;padding:8px 10px}
+.ultima-t{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--text-3);letter-spacing:.02em}
+.ultima .set{font-size:11px;padding:3px 7px}
+
 /* ─── citas ─── */
 .citas{display:flex;flex-direction:column;gap:8px}
 .cita{
@@ -857,7 +913,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v30";
+const BUILD = "v31";
 
 function seed(){
   const H = (name,offs)=>{
@@ -957,6 +1013,13 @@ function seed(){
         const h = Object.assign(H("2 L de agua",[1,3,4,6,8]), {tipo:"cantidad", unidad:"L", objetivo:2});
         Object.keys(h.days).forEach(function(k,i){ h.days[k] = i%3 ? 2 : 1.5; });
         return h;
+      })(),
+      /* Un habito para dejar: los dias apuntados son las caidas. */
+      (function(){
+        const h = {id:uid(), name:"Sin redes después de las 23 h", days:{}, tipo:"si", unidad:"", objetivo:0, semanal:0,
+                   modo:"dejar", desde:daysAgo(30)};
+        h.days[daysAgo(19)] = 1; h.days[daysAgo(8)] = 1;
+        return h;
       })()
     ],
     inv:[
@@ -969,10 +1032,13 @@ function seed(){
       {id:uid(), name:"Detergente",      falta:false}
     ],
     tasks:[
-      {id:uid(),text:"Terminar el Character Blueprint del RPG",done:false,list:"tareas",ts:Date.now()},
-      {id:uid(),text:"Llamar al proveedor de jamón",done:false,list:"tareas",ts:Date.now()-1e6},
-      {id:uid(),text:"Revisar caja de la semana",done:true,list:"tareas",ts:Date.now()-2e6},
-      {id:uid(),text:"Pedir el jamón de la semana",done:false,list:"tareas",ts:Date.now()-3e5}
+      {id:uid(),text:"Terminar el Character Blueprint del RPG",done:false,list:"tareas",ts:Date.now(),prio:1,
+       subs:[{id:uid(),text:"Crear el Character Blueprint",done:true},{id:uid(),text:"Cápsula y cámara en tercera persona",done:true},
+             {id:uid(),text:"Input Mapping Context con WASD",done:false},{id:uid(),text:"Probar el movimiento",done:false}]},
+      {id:uid(),text:"Llamar al proveedor de jamón",done:false,list:"tareas",ts:Date.now()-1e6,prio:2,subs:[]},
+      {id:uid(),text:"Revisar caja de la semana",done:true,list:"tareas",ts:Date.now()-2e6,prio:2,subs:[]},
+      {id:uid(),text:"Ordenar la carpeta de fotos",done:false,list:"tareas",ts:Date.now()-5e6,prio:3,subs:[]},
+      {id:uid(),text:"Pedir el jamón de la semana",done:false,list:"tareas",ts:Date.now()-3e5,prio:2,subs:[]}
     ],
     expenses:exp,
     notes:[
@@ -997,9 +1063,25 @@ function seed(){
           sueno:   entrenoAyer ? 7.5 + (i%2)*0.5 : 6.5 - (i%3)*0.5
         };
       }
+      d[daysAgo(1)].linea = "Buen día de gamedev: la cámara ya sigue al personaje.";
+      d[daysAgo(2)].linea = "Pierna pesada, pero salí del gimnasio con otra cara.";
+      d[daysAgo(3)].linea = "Mucho lío en la tienda y dormí fatal.";
       return d;
     })(),
     xpNivel:0,
+    metas:[
+      {id:uid(), tipo:"libros",   objetivo:12,   anio:new Date().getFullYear()},
+      {id:uid(), tipo:"entrenos", objetivo:180,  anio:new Date().getFullYear()},
+      {id:uid(), tipo:"cardioKm", objetivo:300,  anio:new Date().getFullYear()}
+    ],
+    fechas:(function(){
+      const d1 = new Date(); d1.setDate(d1.getDate()+2);
+      const d2 = new Date(); d2.setDate(d2.getDate()+40);
+      return [
+        {id:uid(), nombre:"Mamá", tipo:"cumple", dia:d1.getDate(), mes:d1.getMonth()+1, anio:1962},
+        {id:uid(), nombre:"Aniversario de la tienda", tipo:"fecha", dia:d2.getDate(), mes:d2.getMonth()+1, anio:2019}
+      ];
+    })(),
     incomes:[
       {id:uid(), amount:1850, note:"Nómina", cat:"Nómina", date:(function(){ const d=new Date(); d.setDate(1); return key(d); })(), fijo:null}
     ],
@@ -1052,6 +1134,12 @@ function seed(){
         {date:daysAgo(28), cintura:84.5,pecho:102, brazo:36,   muslo:57.5,cadera:97},
         {date:daysAgo(3),  cintura:83,  pecho:103, brazo:36.5, muslo:58.5,cadera:96.5}
       ],
+      cardio:[
+        {id:uid(), date:daysAgo(1),  tipo:"carrera", seg:1740, km:5.2, notas:"", ts:Date.now()-864e5},
+        {id:uid(), date:daysAgo(5),  tipo:"bici",    seg:3600, km:21,  notas:"", ts:Date.now()-5*864e5},
+        {id:uid(), date:daysAgo(8),  tipo:"carrera", seg:2100, km:6,   notas:"Rodaje suave", ts:Date.now()-8*864e5},
+        {id:uid(), date:daysAgo(12), tipo:"andar",   seg:3300, km:5.5, notas:"", ts:Date.now()-12*864e5}
+      ],
       restDefault:90,
       stepKg:2.5,
       deloadCada:5,
@@ -1079,6 +1167,7 @@ function load(){
     s.gym.goals     = s.gym.goals     || [];
     s.gym.weights   = s.gym.weights   || [];
     s.gym.medidas   = s.gym.medidas   || [];
+    s.gym.cardio    = s.gym.cardio    || [];
     s.gym.profile   = s.gym.profile   || {};
     if(s.gym.active===undefined) s.gym.active = null;
     if(!s.gym.restDefault) s.gym.restDefault = 90;
@@ -1091,6 +1180,8 @@ function load(){
     s.culTab = s.culTab || "libros";
     s.diario = s.diario || {};
     s.incomes = s.incomes || [];
+    s.metas  = s.metas  || [];
+    s.fechas = s.fechas || [];
     if(s.xpNivel === undefined) s.xpNivel = 0;
     s.reloj = s.reloj || {atajoTemp:"", atajoAlarma:"", pomodoro:true, recordatorios:true, gym:false};
     s.foco = s.foco || {cfg:{trabajo:25,corto:5,largo:15,ciclos:4}, fase:"trabajo", fin:0, corriendo:false, ciclo:0, dia:"", pomos:0, minutos:0, atajo:""};
@@ -1127,12 +1218,18 @@ function load(){
     s.sync = s.sync || {on:false, rev:0, at:null};
     s.changedAt = s.changedAt || new Date().toISOString();
     s.notes = s.notes || []; s.tasks = s.tasks || []; s.expenses = s.expenses || [];
+    /* Las tareas de antes pasan a prioridad media y sin pasos. */
+    s.tasks.forEach(function(t){
+      if(t.prio === undefined) t.prio = 2;
+      if(!Array.isArray(t.subs)) t.subs = [];
+    });
     /* Los habitos de antes eran todos si/no diarios: se quedan igual. */
     (s.habits||[]).forEach(function(h){
       if(h.tipo === undefined)     h.tipo = "si";
       if(h.unidad === undefined)   h.unidad = "";
       if(h.objetivo === undefined) h.objetivo = 0;
       if(h.semanal === undefined)  h.semanal = 0;
+      if(h.modo === undefined)     h.modo = "hacer";
     });
     return s;
   }catch(e){ return seed(); }
@@ -1157,11 +1254,12 @@ persist();   /* deja guardadas las conversiones de formato y los fijos del mes *
    de ejercicios, que son estructura útil y no datos inventados. */
 function wipeContent(){
   S.tasks = []; S.expenses = []; S.notes = []; S.cultura = []; S.inv = [];
-  S.diario = {}; S.xpNivel = 0; S.incomes = [];
+  S.diario = {}; S.xpNivel = 0; S.incomes = []; S.metas = []; S.fechas = [];
   if(S.foco) S.foco.hist = {};
   S.habits.forEach(h=>h.days = {});
   S.gym.sessions = []; S.gym.active = null;
-  S.gym.routines = []; S.gym.goals = []; S.gym.weights = []; S.gym.medidas = [];
+  S.gym.routines = []; S.gym.goals = []; S.gym.weights = []; S.gym.medidas = []; S.gym.cardio = [];
+  S.habits.forEach(function(h){ if(h.modo === "dejar") h.desde = today(); });
   S.gym.profile = {};
 }
 
@@ -1205,6 +1303,9 @@ function aplicarFijos(){
 /* Un dia cuenta como cumplido segun el tipo de habito: los de cantidad piden
    llegar al objetivo; los de si/no, con marcarlos basta. */
 function cumplido(h, k){
+  /* Los habitos para dejar van al reves: el dia cuenta si NO has caido,
+     desde que empezaste a dejarlo y hasta hoy. */
+  if(h.modo === "dejar") return !!h.desde && k >= h.desde && k <= today() && !h.days[k];
   const v = h.days[k];
   if(!v) return false;
   if(h.tipo === "cantidad" && h.objetivo > 0) return Number(v) >= Number(h.objetivo);
@@ -1236,7 +1337,28 @@ function semanaActual(h){
 /* Racha. Con meta semanal se cuenta en SEMANAS, y la semana en curso no la
    rompe hasta que acaba: si vas 3 de 5 y es miercoles, todavia no has fallado.
    Sin meta semanal, dias seguidos como siempre. */
+const diasEntre = (a,b) => Math.round((parseKey(b) - parseKey(a)) / 86400000);
+/* Dias limpios seguidos desde la ultima caida (o desde que empezaste). */
+function rachaDejar(h){
+  if(!h.desde || h.days[today()]) return 0;
+  const ult = Object.keys(h.days).filter(function(k){ return k <= today(); }).sort().pop();
+  let ini = h.desde;
+  if(ult){ const sig = diaSiguiente(ult); if(sig > ini) ini = sig; }
+  return Math.max(0, diasEntre(ini, today()) + 1);
+}
+function mejorRachaDejar(h){
+  if(!h.desde) return 0;
+  const caidas = Object.keys(h.days).filter(function(k){ return k >= h.desde && k <= today(); }).sort();
+  let mejor = 0, ini = h.desde;
+  caidas.forEach(function(c){
+    mejor = Math.max(mejor, diasEntre(ini, c));
+    ini = diaSiguiente(c);
+  });
+  if(!h.days[today()]) mejor = Math.max(mejor, diasEntre(ini, today()) + 1);
+  return mejor;
+}
 function streak(h){
+  if(h.modo === "dejar") return rachaDejar(h);
   if(Number(h.semanal) > 0){
     const meta = Number(h.semanal);
     let n = 0;
@@ -1259,6 +1381,10 @@ function streak(h){
 /* Texto de la racha, que cambia de unidad segun el tipo. */
 function rachaTexto(h){
   const st = streak(h);
+  if(h.modo === "dejar"){
+    if(h.days[today()]) return "has caído hoy · mañana vuelves a empezar";
+    return st === 1 ? "1 día sin caer" : st + " días sin caer";
+  }
   if(Number(h.semanal) > 0){
     const sm = semanaActual(h);
     const base = sm.hechos + " de " + sm.meta + " esta semana";
@@ -1988,27 +2114,37 @@ function stopRest(){
    La XP no se guarda: se calcula entera desde tus datos cada vez. Asi no se
    descuadra nunca, y lo que ya habias hecho antes de esta funcion cuenta desde
    el primer dia. */
-const XP = {habito:10, entreno:50, bloque:20, terminado:40, diario:5, tarea:5};
+const XP = {habito:10, entreno:50, cardio:30, bloque:20, terminado:40, diario:5, tarea:5};
 
 function xpDetalle(desde, hasta){
   const dentro = function(k){ return (!desde || k >= desde) && (!hasta || k <= hasta); };
   let habitos = 0;
   S.habits.forEach(function(h){
+    if(h.modo === "dejar"){
+      if(!h.desde) return;
+      const d = parseKey(h.desde), fin = today();
+      for(let k = h.desde, i = 0; k <= fin && i < 4000; i++){
+        if(dentro(k) && cumplido(h,k)) habitos++;
+        d.setDate(d.getDate()+1); k = key(d);
+      }
+      return;
+    }
     Object.keys(h.days).forEach(function(k){ if(dentro(k) && cumplido(h,k)) habitos++; });
   });
   const entrenos = S.gym.sessions.filter(function(x){ return dentro(x.date); }).length;
+  const cardios = (S.gym.cardio||[]).filter(function(x){ return dentro(x.date); }).length;
   const hist = (S.foco && S.foco.hist) || {};
   let bloques = 0;
   Object.keys(hist).forEach(function(k){ if(dentro(k)) bloques += hist[k].bloques || 0; });
   const terminados = S.cultura.filter(function(x){ return x.done && dentro(x.done); }).length;
   const diarios = Object.keys(S.diario||{}).filter(function(k){
-    const e = S.diario[k]; return dentro(k) && e && (e.animo || e.energia || e.sueno);
+    const e = S.diario[k]; return dentro(k) && e && (e.animo || e.energia || e.sueno || e.linea);
   }).length;
   const tareas = desde || hasta ? 0 : S.tasks.filter(function(t){ return t.done; }).length;
   return {
-    habitos:habitos, entrenos:entrenos, bloques:bloques,
+    habitos:habitos, entrenos:entrenos, cardios:cardios, bloques:bloques,
     terminados:terminados, diarios:diarios, tareas:tareas,
-    total: habitos*XP.habito + entrenos*XP.entreno + bloques*XP.bloque +
+    total: habitos*XP.habito + entrenos*XP.entreno + cardios*XP.cardio + bloques*XP.bloque +
            terminados*XP.terminado + diarios*XP.diario + tareas*XP.tarea
   };
 }
@@ -2030,6 +2166,176 @@ function revisarNivel(){
     buzz();
   }
   if(n !== S.xpNivel){ S.xpNivel = n; persist(); }
+}
+
+/* ══════════ cardio ══════════
+   Aparte de la fuerza: no tiene series ni pesos, tiene distancia y tiempo. El
+   ritmo se da en la unidad en que se piensa cada deporte. */
+const CARDIO = [
+  {id:"carrera",  n:"Carrera",  r:"km"},
+  {id:"andar",    n:"Andar",    r:"km"},
+  {id:"bici",     n:"Bici",     r:"kmh"},
+  {id:"eliptica", n:"Elíptica", r:"kmh"},
+  {id:"remo",     n:"Remo",     r:"500"},
+  {id:"natacion", n:"Natación", r:"100"},
+  {id:"otro",     n:"Otro",     r:"kmh"}
+];
+const cardioTipo = id => CARDIO.filter(function(c){ return c.id === id; })[0] || CARDIO[CARDIO.length-1];
+const mmss = sg => { sg = Math.round(sg); return Math.floor(sg/60) + ":" + pad(sg%60); };
+/* "45" son minutos; "45:30", minutos y segundos; "1:05:30", horas. */
+function parseDur(t){
+  const p = String(t||"").trim().replace(",", ".").split(":").map(function(x){ return parseFloat(x); });
+  if(p.some(isNaN) || !p.length) return 0;
+  if(p.length === 1) return Math.round(p[0]*60);
+  if(p.length === 2) return Math.round(p[0]*60 + p[1]);
+  return Math.round(p[0]*3600 + p[1]*60 + p[2]);
+}
+function durCardio(sg){
+  if(sg >= 3600) return Math.floor(sg/3600) + " h " + pad(Math.floor(sg%3600/60));
+  return (sg % 60) ? mmss(sg) : Math.round(sg/60) + " min";
+}
+/* Valor comparable del ritmo: segundos por unidad (menos es mejor) o km/h (mas es mejor). */
+function ritmoNum(c){
+  if(!(c.km > 0) || !(c.seg > 0)) return 0;
+  const t = cardioTipo(c.tipo);
+  if(t.r === "kmh") return c.km / (c.seg/3600);
+  const por = t.r === "km" ? 1 : t.r === "500" ? 0.5 : 0.1;
+  return c.seg / (c.km/por);
+}
+function ritmoCardioTxt(c){
+  const v = ritmoNum(c); if(!v) return "";
+  const t = cardioTipo(c.tipo);
+  if(t.r === "kmh") return fmtKg(Math.round(v*10)/10) + " km/h";
+  return mmss(v) + (t.r === "km" ? " /km" : t.r === "500" ? " /500 m" : " /100 m");
+}
+function mejorRitmo(a, b, tipo){
+  if(!a) return b; if(!b) return a;
+  const kmh = cardioTipo(tipo).r === "kmh";
+  return kmh ? (ritmoNum(b) > ritmoNum(a) ? b : a) : (ritmoNum(b) < ritmoNum(a) ? b : a);
+}
+function cardioFila(c){
+  const t = cardioTipo(c.tipo);
+  const rt = ritmoCardioTxt(c);
+  return '<button class="row" data-act="cardioVer" data-id="'+c.id+'"><div class="row-main">'+
+    '<span class="row-title">'+t.n+(c.km>0?' · '+fmtKg(c.km)+' km':'')+'</span>'+
+    '<span class="row-sub mono">'+relDate(c.date)+' · '+durCardio(c.seg)+(rt?' · '+rt:'')+'</span>'+
+  '</div><span class="row-val">→</span></button>';
+}
+
+/* ══════════ objetivos del ano ══════════
+   No se apunta nada dos veces: cada objetivo lee lo que ya registras en su
+   modulo. Solo se guarda el tipo, la cifra y el ano. */
+const enAno = (k, y) => !!k && k.slice(0,4) === String(y);
+const METAS = {
+  libros:   {n:"Libros leídos",        get:function(m){ return S.cultura.filter(function(x){ return x.cat==="libros" && enAno(x.done, m.anio); }).length; }},
+  pelis:    {n:"Películas vistas",      get:function(m){ return S.cultura.filter(function(x){ return x.cat==="pelis"  && enAno(x.done, m.anio); }).length; }},
+  series:   {n:"Series terminadas",      get:function(m){ return S.cultura.filter(function(x){ return x.cat==="series" && enAno(x.done, m.anio); }).length; }},
+  juegos:   {n:"Juegos terminados",      get:function(m){ return S.cultura.filter(function(x){ return x.cat==="juegos" && enAno(x.done, m.anio); }).length; }},
+  entrenos: {n:"Entrenamientos",         get:function(m){
+    return S.gym.sessions.filter(function(x){ return enAno(x.date, m.anio); }).length +
+           (S.gym.cardio||[]).filter(function(x){ return enAno(x.date, m.anio); }).length; }},
+  cardioKm: {n:"Km de cardio", u:"km",   get:function(m){
+    return Math.round((S.gym.cardio||[]).filter(function(x){ return enAno(x.date, m.anio); })
+      .reduce(function(t,x){ return t + (Number(x.km)||0); }, 0) * 10) / 10; }},
+  foco:     {n:"Horas de foco", u:"h",   get:function(m){
+    const H = (S.foco && S.foco.hist) || {};
+    let min = 0; Object.keys(H).forEach(function(k){ if(enAno(k, m.anio)) min += H[k].minutos || 0; });
+    return Math.round(min/6)/10; }},
+  ahorro:   {n:"Ahorro", u:"€", dinero:true, get:function(m){
+    const ing = (S.incomes||[]).filter(function(x){ return enAno(x.date, m.anio); }).reduce(function(t,x){ return t+x.amount; }, 0);
+    const gas = S.expenses.filter(function(x){ return enAno(x.date, m.anio); }).reduce(function(t,x){ return t+x.amount; }, 0);
+    return Math.round(ing - gas); }},
+  habito:   {n:"Días de un hábito",     get:function(m){
+    const h = S.habits.filter(function(x){ return x.id === m.habito; })[0];
+    if(!h) return 0;
+    let n = 0;
+    const d = new Date(m.anio, 0, 1), fin = today();
+    for(let k = key(d); k.slice(0,4) === String(m.anio) && k <= fin; ){
+      if(cumplido(h, k)) n++;
+      d.setDate(d.getDate()+1); k = key(d);
+    }
+    return n; }}
+};
+function metaNombre(m){
+  if(m.tipo === "habito"){
+    const h = S.habits.filter(function(x){ return x.id === m.habito; })[0];
+    return h ? "Días de «" + h.name + "»" : "Hábito borrado";
+  }
+  return (METAS[m.tipo] || {n:m.tipo}).n;
+}
+function metaCifra(m, v){
+  const def = METAS[m.tipo] || {};
+  if(def.dinero) return money0.format(v) + " €";
+  return fmtKg(v) + (def.u ? " " + def.u : "");
+}
+/* Donde deberias ir a estas alturas del ano y a donde llegas si sigues igual. */
+function metaEstado(m){
+  const def = METAS[m.tipo];
+  const v = def ? def.get(m) : 0, obj = Number(m.objetivo) || 0;
+  const ahora = new Date(), y = Number(m.anio);
+  const ini = new Date(y, 0, 1), fin = new Date(y+1, 0, 1);
+  const frac = y < ahora.getFullYear() ? 1 : y > ahora.getFullYear() ? 0 : (ahora - ini) / (fin - ini);
+  return {
+    v:v, obj:obj, frac:frac,
+    pct: obj > 0 ? Math.max(0, Math.min(100, v/obj*100)) : 0,
+    esperado: obj * frac,
+    proy: frac >= 0.03 ? v / frac : null,
+    hecho: obj > 0 && v >= obj,
+    cerrado: frac >= 1
+  };
+}
+function metaTexto(m, e){
+  if(e.hecho) return e.cerrado ? "conseguido" : "¡conseguido!";
+  if(e.cerrado) return "te quedaste en el " + Math.round(e.pct) + " %";
+  if(e.proy === null) return "el año acaba de empezar";
+  const def = METAS[m.tipo] || {};
+  const proy = (def.dinero || !def.u) ? Math.round(e.proy) : Math.round(e.proy*10)/10;   /* los recuentos, enteros */
+  const delante = e.v >= e.esperado;
+  return (delante ? "vas por delante" : "vas por detrás") + " · a este ritmo, " + metaCifra(m, proy);
+}
+function metaHtml(m){
+  const e = metaEstado(m);
+  return '<div class="meta'+(e.hecho?" ok":"")+'">'+
+    '<div class="meta-cab"><span class="meta-n">'+esc(metaNombre(m))+'</span>'+
+      '<span class="meta-v">'+metaCifra(m, e.v)+' <small>de '+metaCifra(m, e.obj)+'</small></span></div>'+
+    '<span class="meta-bar"><i style="width:'+e.pct+'%"></i>'+
+      (!e.cerrado && e.frac > 0 && !e.hecho ? '<b style="left:'+Math.min(100, e.frac*100)+'%" title="donde deberías ir"></b>' : '')+
+    '</span>'+
+    '<span class="meta-t'+(!e.hecho && !e.cerrado && e.proy !== null && e.v < e.esperado ? " detras" : "")+'">'+metaTexto(m, e)+'</span>'+
+  '</div>';
+}
+
+/* ══════════ fechas importantes ══════════ */
+const bisiesto = y => (y%4===0 && y%100!==0) || y%400===0;
+function proximaFecha(f){
+  const hoy = parseKey(today());
+  const mk = function(y){
+    let d = Number(f.dia);
+    if(Number(f.mes) === 2 && d === 29 && !bisiesto(y)) d = 28;   /* el 29 de febrero, el 28 */
+    return new Date(y, Number(f.mes)-1, d);
+  };
+  let d = mk(hoy.getFullYear());
+  if(d < hoy) d = mk(hoy.getFullYear()+1);
+  return {d:d, dias:Math.round((d - hoy)/86400000), anos: f.anio ? d.getFullYear() - Number(f.anio) : 0};
+}
+function fechaCuando(n){
+  return n === 0 ? "hoy" : n === 1 ? "mañana" : "en " + n + " días";
+}
+function fechaDetalle(f, pr){
+  if(!pr.anos) return f.tipo === "cumple" ? "cumpleaños" : "";
+  return f.tipo === "cumple" ? "cumple " + pr.anos : pr.anos + (pr.anos === 1 ? " año" : " años");
+}
+const fechasOrden = () => S.fechas.map(function(f){ return {f:f, p:proximaFecha(f)}; })
+  .sort(function(a,b){ return a.p.dias - b.p.dias; });
+/* Una vez al dia, lo de hoy y lo de manana. */
+function repasarFechas(){
+  if(S.fechasAviso === today()) return;
+  const cerca = fechasOrden().filter(function(x){ return x.p.dias <= 1; });
+  S.fechasAviso = today(); persist();
+  if(!cerca.length) return;
+  toast(cerca.map(function(x){
+    return (x.p.dias ? "Mañana" : "Hoy") + ": " + (x.f.tipo === "cumple" ? "cumpleaños de " : "") + x.f.nombre;
+  }).join(" · "));
 }
 
 /* ══════════ recordatorios ══════════
@@ -2102,7 +2408,8 @@ function diasVentana(){
   return out;
 }
 const media = a => a.length ? a.reduce(function(t,x){ return t+x; },0)/a.length : 0;
-const entrenoEl = k => S.gym.sessions.some(function(x){ return x.date === k; });
+const entrenoEl = k => S.gym.sessions.some(function(x){ return x.date === k; }) ||
+                       (S.gym.cardio||[]).some(function(x){ return x.date === k; });
 function diaSiguiente(k){ const d = parseKey(k); d.setDate(d.getDate()+1); return key(d); }
 
 function correlaciones(){
@@ -2248,6 +2555,9 @@ function sheetSemana(){
   }).join("")+'</div>';
 
   const corr = correlaciones();
+  const lineas = w.dias.filter(function(k){ return D[k] && D[k].linea; }).reverse();
+  const cardioSem = (S.gym.cardio||[]).filter(function(c){ return c.date >= w.ini && c.date <= w.fin; });
+  const kmSem = cardioSem.reduce(function(t,c){ return t + (Number(c.km)||0); }, 0);
 
   openSheet(titulo,
     '<div class="sem-nav">'+
@@ -2270,6 +2580,13 @@ function sheetSemana(){
       '<div class="kv"><span>Sueño medio</span><b class="mono">'+(w.sueno?fmtKg(Math.round(w.sueno*10)/10)+" h":"–")+'</b></div>'+
     '</div></section>'+
 
+    '<section><h2 class="sec">Diario</h2>'+
+      (lineas.length
+        ? '<div class="diario-lista">'+lineas.map(diarioEntrada).join("")+'</div>'
+        : '<p class="hint">Sin líneas esta semana. Escribe una frase al día en <b>Hoy</b>.</p>')+
+      '<button class="btn ghost sm" data-act="diarioTodo" style="margin-top:9px">Todo el diario</button>'+
+    '</section>'+
+
     '<section><h2 class="sec">Hábitos</h2><div class="panel">'+
       (w.habitos.length ? w.habitos.map(function(x){
         const pct = Math.min(100, Math.round(x.hechos/x.meta*100));
@@ -2285,6 +2602,7 @@ function sheetSemana(){
       '<div class="kv"><span>Gastos</span><b class="mono">'+money.format(w.gasto)+'</b></div>'+
       (w.topCat?'<div class="kv"><span>Donde más</span><b>'+esc(w.topCat)+' · '+money.format(w.topCatImporte)+'</b></div>':'')+
       '<div class="kv"><span>Volumen levantado</span><b class="mono">'+money0.format(w.volumen)+' kg·rep '+flecha(w.volumen,a.volumen,true)+'</b></div>'+
+      (cardioSem.length?'<div class="kv"><span>Cardio</span><b class="mono">'+cardioSem.length+' · '+fmtKg(Math.round(kmSem*10)/10)+' km</b></div>':'')+
     '</div></section>'+
 
     (w.terminados.length
@@ -2308,6 +2626,31 @@ function sheetSemana(){
   );
 }
 
+const DIAS_SEM = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+function diarioEntrada(k){
+  const e = S.diario[k] || {}, d = parseKey(k);
+  return '<div class="diario-e">'+
+    '<div class="diario-cab"><span>'+DIAS_SEM[d.getDay()]+' '+d.getDate()+' '+MESES_K[d.getMonth()]+'</span>'+
+      (e.animo?'<span class="mono">ánimo '+e.animo+'/5</span>':'')+'</div>'+
+    '<p>'+esc(e.linea)+'</p>'+
+  '</div>';
+}
+function sheetDiario(){
+  const ks = Object.keys(S.diario||{}).filter(function(k){ return S.diario[k] && S.diario[k].linea; }).sort().reverse();
+  let mes = "", html = "";
+  ks.forEach(function(k){
+    const d = parseKey(k), m = MESES[d.getMonth()] + " " + d.getFullYear();
+    if(m !== mes){
+      if(mes) html += '</div>';
+      html += '<div class="cul-year">'+m.toUpperCase()+'</div><div class="diario-lista">';
+      mes = m;
+    }
+    html += diarioEntrada(k);
+  });
+  if(mes) html += '</div>';
+  openSheet("Diario", ks.length ? html : '<div class="empty">Todavía no hay líneas.<br>Escribe una en <b>Hoy</b>, debajo del sueño.</div>');
+}
+
 function sheetXP(){
   const d = xpDetalle(), nv = nivelDe(d.total);
   const fila = function(txt, n, pts){
@@ -2317,6 +2660,7 @@ function sheetXP(){
     '<div class="panel">'+
       fila("Hábitos cumplidos", d.habitos, XP.habito)+
       fila("Entrenamientos", d.entrenos, XP.entreno)+
+      fila("Sesiones de cardio", d.cardios, XP.cardio)+
       fila("Bloques de foco", d.bloques, XP.bloque)+
       fila("Libros, pelis, series, juegos", d.terminados, XP.terminado)+
       fila("Días apuntados en el diario", d.diarios, XP.diario)+
@@ -2525,7 +2869,7 @@ function vHoy(){
   const bloques = [];
 
   /* ─ habitos que faltan ─ */
-  const habFaltan = S.habits.filter(function(h){ return !cumplido(h, today()); });
+  const habFaltan = S.habits.filter(function(h){ return h.modo !== "dejar" && !cumplido(h, today()); });
   bloques.push('<div class="hoy-bloque">'+
     '<div class="hoy-cab"><h2>Hábitos</h2>'+
       '<button data-act="irA" data-t="habitos">'+doneToday()+' de '+S.habits.length+' →</button></div>'+
@@ -2542,7 +2886,8 @@ function vHoy(){
   '</div>');
 
   /* ─ tareas ─ */
-  const pend = S.tasks.filter(function(t){ return !t.done && t.list === "tareas"; });
+  const pend = S.tasks.filter(function(t){ return !t.done && t.list === "tareas"; })
+    .sort(function(a,b){ return ((a.prio||2)-(b.prio||2)) || (b.ts-a.ts); });
   bloques.push('<div class="hoy-bloque">'+
     '<div class="hoy-cab"><h2>Pendientes</h2>'+
       '<button data-act="irA" data-t="tareas">'+pend.length+' →</button></div>'+
@@ -2551,6 +2896,8 @@ function vHoy(){
           return '<div class="hoy-linea">'+
             '<button class="check" data-act="toggleTask" data-id="'+t.id+'" aria-label="Marcar">'+svg(I.check)+'</button>'+
             '<span class="t">'+esc(t.text)+'</span>'+
+            ((t.subs||[]).length ? '<span class="v">'+t.subs.filter(function(x){ return x.done; }).length+'/'+t.subs.length+'</span>' : '')+
+            (t.prio === 1 ? '<span class="prio-tag p1">alta</span>' : '')+
           '</div>';
         }).join("") + (pend.length>5?'<span class="hoy-vacio">y '+(pend.length-5)+' más</span>':'')
       : '<span class="hoy-vacio">Nada pendiente.</span>')+
@@ -2570,6 +2917,24 @@ function vHoy(){
       (faltan().length>5?'<span class="hoy-vacio">y '+(faltan().length-5)+' más</span>':'')+
     '</div>');
   }
+
+  /* ─ fechas: arriba si caen en tres dias o menos ─ */
+  const fOrden = fechasOrden();
+  const fCerca = fOrden.filter(function(x){ return x.p.dias <= 14; });
+  const fechasBloque = '<div class="hoy-bloque">'+
+    '<div class="hoy-cab"><h2>Fechas</h2><button data-act="fechas">gestionar →</button></div>'+
+    (fCerca.length
+      ? fCerca.map(function(x){
+          const det = fechaDetalle(x.f, x.p);
+          return '<div class="hoy-linea'+(x.p.dias<=1?" pronto":"")+'"><span class="t">'+esc(x.f.nombre)+(det?' <small>· '+det+'</small>':'')+'</span>'+
+            '<span class="v">'+fechaCuando(x.p.dias)+'</span></div>';
+        }).join("")
+      : fOrden.length
+        ? '<span class="hoy-vacio">Nada en dos semanas. La próxima: '+esc(fOrden[0].f.nombre)+', el '+fOrden[0].p.d.getDate()+' de '+MESES[fOrden[0].p.d.getMonth()]+'.</span>'
+        : '<span class="hoy-vacio">Añade cumpleaños y fechas que no quieras olvidar.</span>')+
+  '</div>';
+  const fechasArriba = fOrden.length && fOrden[0].p.dias <= 3;
+  if(fechasArriba) bloques.push(fechasBloque);
 
   /* ─ gimnasio ─ */
   const act = S.gym.active;
@@ -2601,6 +2966,15 @@ function vHoy(){
   const conCalendario = S.gym.routines.some(function(r){ return (r.dias||[]).length; });
   if(!act && conCalendario && !rutinasDeHoy().length){
     gym = '<span class="hoy-vacio">Hoy no toca entrenar. Día de descanso.</span>';
+  }
+  const cardioHoy = (S.gym.cardio||[]).filter(function(c){ return c.date === today(); });
+  if(cardioHoy.length){
+    /* Si hoy tocaba descanso de fuerza pero has hecho cardio, manda el cardio. */
+    if(!act && conCalendario && !rutinasDeHoy().length) gym = '';
+    gym += cardioHoy.map(function(c){
+      return '<div class="hoy-linea"><span class="t">Cardio: <b>'+cardioTipo(c.tipo).n+'</b>'+(c.km>0?' '+fmtKg(c.km)+' km':'')+'</span>'+
+        '<span class="v">'+durCardio(c.seg)+'</span></div>';
+    }).join("");
   }
   bloques.push('<div class="hoy-bloque">'+
     '<div class="hoy-cab"><h2>Gimnasio</h2><button data-act="irA" data-t="gym">ver →</button></div>'+
@@ -2652,6 +3026,18 @@ function vHoy(){
     '</div>');
   }
 
+  /* ─ objetivos del ano ─ */
+  const anio = new Date().getFullYear();
+  const metasAno = S.metas.filter(function(m){ return Number(m.anio) === anio; });
+  bloques.push('<div class="hoy-bloque">'+
+    '<div class="hoy-cab"><h2>Objetivos '+anio+'</h2><button data-act="metas">gestionar →</button></div>'+
+    (metasAno.length
+      ? metasAno.map(metaHtml).join("")
+      : '<span class="hoy-vacio">Márcate objetivos para el año. Se rellenan solos con lo que ya apuntas.</span>')+
+  '</div>');
+
+  if(!fechasArriba) bloques.push(fechasBloque);
+
   /* ─ recordatorios de hoy que quedan ─ */
   const porVenir = S.avisos.filter(function(a){
     return avisoToca(a) && minutosDe(a.hora) > ahoraMinutos();
@@ -2692,6 +3078,7 @@ function vHoy(){
     '<div class="dia-fila"><span class="dia-lbl">Dormiste</span>'+
       '<div class="dia-sueno"><input class="field mono" id="diaSueno" inputmode="decimal" value="'+(dh.sueno?fmtKg(dh.sueno):"")+'" placeholder="7,5">'+
       '<span>horas</span></div></div>'+
+    '<textarea class="field dia-linea" id="diaLinea" rows="2" maxlength="280" placeholder="Una línea sobre hoy…">'+esc(dh.linea||"")+'</textarea>'+
   '</div>';
 
   const esDomingo = hoy.getDay() === 0;
@@ -2785,6 +3172,17 @@ function vHabitos(){
 }
 
 function filaHabito(h){
+  if(h.modo === "dejar"){
+    const cayo = !!h.days[today()];
+    return '<div class="row">'+
+      '<span class="dejar-n'+(cayo?" cayo":"")+'" aria-hidden="true">'+streak(h)+'</span>'+
+      '<button class="row-main" data-act="habitDetail" data-id="'+h.id+'">'+
+        '<span class="row-title">'+esc(h.name)+'</span>'+
+        '<span class="row-sub mono">'+rachaTexto(h)+'</span>'+
+      '</button>'+
+      '<button class="btn ghost sm" data-act="caida" data-id="'+h.id+'">'+(cayo?"deshacer":"he caído")+'</button>'+
+    '</div>';
+  }
   const on = cumplido(h, today());
   const cant = h.tipo === "cantidad";
   const v = valorDia(h, today());
@@ -2834,6 +3232,59 @@ function heatOne(h){
 
 /* ─── listas ─── */
 const faltan = () => S.inv.filter(function(x){ return x.falta; });
+const PRIO = {1:"Alta", 2:"Media", 3:"Baja"};
+let taskPrio = 2;
+function sheetTarea(id){
+  const t = S.tasks.filter(x=>x.id===id)[0]; if(!t) return;
+  const subs = t.subs || [];
+  const hechos = subs.filter(function(x){ return x.done; }).length;
+  openSheet("Tarea",
+    '<textarea class="field" id="tkT" style="min-height:64px">'+esc(t.text)+'</textarea>'+
+    '<div><span class="lbl-s">Prioridad</span><div class="seg">'+
+      [1,2,3].map(function(p){
+        return '<button data-act="taskPrio" data-id="'+t.id+'" data-p="'+p+'" aria-pressed="'+((t.prio||2)===p)+'">'+PRIO[p]+'</button>';
+      }).join("")+
+    '</div></div>'+
+    '<div><span class="lbl-s">Pasos'+(subs.length?' · '+hechos+' de '+subs.length:'')+'</span>'+
+      (subs.length
+        ? '<span class="bar" style="margin:0 0 10px"><i style="width:'+Math.round(hechos/subs.length*100)+'%"></i></span>'+
+          '<div class="stack">'+subs.map(function(x){
+            return '<div class="row">'+
+              '<button class="check '+(x.done?"on":"")+'" data-act="subToggle" data-id="'+t.id+'" data-s="'+x.id+'" aria-pressed="'+x.done+'" aria-label="Marcar paso">'+svg(I.check)+'</button>'+
+              '<span class="row-title'+(x.done?" done":"")+'" style="flex:1;white-space:normal">'+esc(x.text)+'</span>'+
+              '<button class="x" data-act="subDel" data-id="'+t.id+'" data-s="'+x.id+'" aria-label="Quitar paso">'+svg(I.x)+'</button>'+
+            '</div>';
+          }).join("")+'</div>'
+        : '<p class="hint">Divide la tarea en pasos y verás cuánto llevas. Al marcar el último, la tarea se completa sola.</p>')+
+      '<div style="display:flex;gap:8px;margin-top:9px">'+
+        '<input class="field" id="subIn" placeholder="Añadir un paso…" autocomplete="off" enterkeyhint="done">'+
+        '<button class="btn" type="button" data-act="subAdd" data-id="'+t.id+'" aria-label="Añadir paso" style="padding:12px 15px">'+svg(I.plus)+'</button>'+
+      '</div>'+
+    '</div>'+
+    '<button class="btn danger wide" data-act="delTaskSheet" data-id="'+t.id+'">Eliminar tarea</button>',
+    function(b){
+      const tk = $("#tkT", b);
+      tk.addEventListener("change", function(){ leerTareaDOM(t); save(); render(); });
+      const si = $("#subIn", b);
+      si.addEventListener("keydown", function(e){
+        if(e.key === "Enter"){ e.preventDefault(); anadirPaso(t); }
+      });
+    });
+}
+function leerTareaDOM(t){
+  const tk = $("#tkT");
+  if(tk && tk.value.trim()) t.text = tk.value.trim();
+}
+function anadirPaso(t){
+  leerTareaDOM(t);
+  const si = $("#subIn"), v = si ? si.value.trim() : "";
+  if(!v){ if(si) si.focus(); return; }
+  t.subs = t.subs || [];
+  t.subs.push({id:uid(), text:v, done:false});
+  if(t.done) t.done = false;             /* un paso nuevo reabre la tarea */
+  save(); render(); sheetTarea(t.id);
+  const n = $("#subIn"); if(n) n.focus();
+}
 
 function vTareas(){
   const cual = S.list;
@@ -2846,14 +3297,26 @@ function vTareas(){
 
   /* ─── tareas ─── */
   if(cual === "tareas"){
-    const items = S.tasks.filter(t=>t.list==="tareas").sort((a,b)=>(a.done-b.done)||(b.ts-a.ts));
+    const items = S.tasks.filter(t=>t.list==="tareas").sort((a,b)=>(a.done-b.done)||((a.prio||2)-(b.prio||2))||(b.ts-a.ts));
     const pend = items.filter(t=>!t.done).length;
     const hechas = items.length-pend;
     const rows = items.length
       ? '<div class="stack">'+items.map(t=>
           '<div class="row">'+
             '<button class="check '+(t.done?"on":"")+'" data-act="toggleTask" data-id="'+t.id+'" aria-pressed="'+t.done+'" aria-label="Marcar">'+svg(I.check)+'</button>'+
-            '<span class="row-title '+(t.done?"done":"")+'">'+esc(t.text)+'</span>'+
+            '<button class="row-main" data-act="taskOpen" data-id="'+t.id+'">'+
+              '<span class="row-title '+(t.done?"done":"")+'">'+esc(t.text)+'</span>'+
+              (function(){
+                const subs = t.subs || [];
+                const tag = (!t.done && t.prio === 1) ? '<span class="prio-tag p1">alta</span>'
+                          : (!t.done && t.prio === 3) ? '<span class="prio-tag p3">baja</span>' : '';
+                if(!subs.length) return tag ? '<span class="row-sub">'+tag+'</span>' : '';
+                const h = subs.filter(function(x){ return x.done; }).length;
+                return '<span class="task-sub">'+tag+
+                  '<span class="bar"><i style="width:'+Math.round(h/subs.length*100)+'%"></i></span>'+
+                  '<span class="mono">'+h+'/'+subs.length+'</span></span>';
+              })()+
+            '</button>'+
             '<button class="x" data-act="delTask" data-id="'+t.id+'" aria-label="Borrar">'+svg(I.x)+'</button>'+
           '</div>').join("")+'</div>'
       : '<div class="empty">Sin tareas pendientes.<br>Escribe arriba para añadir.</div>';
@@ -2867,6 +3330,11 @@ function vTareas(){
         '<input class="field" id="taskInput" placeholder="Nueva tarea…" autocomplete="off" enterkeyhint="done">'+
         '<button class="btn" type="submit" aria-label="Añadir" style="padding:12px 15px">'+svg(I.plus)+'</button>'+
       '</form>'+
+      '<div class="prio-new"><span>Prioridad</span><div class="seg">'+
+        [1,2,3].map(function(p){
+          return '<button data-act="taskNewPrio" data-p="'+p+'" aria-pressed="'+(taskPrio===p)+'">'+PRIO[p]+'</button>';
+        }).join("")+
+      '</div></div>'+
       rows+
       (hechas? '<button class="btn ghost sm" data-act="clearDone" style="align-self:flex-start">Borrar '+hechas+' completada'+(hechas===1?"":"s")+'</button>' : "");
   }
@@ -3185,6 +3653,7 @@ function sessionHtml(a){
         (en.eq?' <span class="eq-tag">'+esc(en.eq)+'</span>':'')+
         (en.bumped?' <span class="ex-up">+'+fmtKg(en.bumped)+' kg</span>':'')+'</span>'+
         '<span class="ex-meta">'+meta+'</span></div>'+
+      ultimaVezHtml(en, a)+
       '<div class="strows">'+
         '<div class="sthead"><span>#</span><span>Peso (kg)</span><span>Reps</span><span>Tipo</span><span></span><span></span></div>'+
         en.sets.map((s,j)=>setRow(s, i, j)).join("")+
@@ -3205,6 +3674,28 @@ function sessionHtml(a){
   '</div>';
 }
 
+function cardioHistorial(){
+  const cs = (S.gym.cardio||[]).slice().sort(function(a,b){ return b.date.localeCompare(a.date) || b.ts - a.ts; });
+  if(!cs.length) return '';
+  return '<section><h2 class="sec">Cardio</h2><div class="stack">'+cs.slice(0,8).map(cardioFila).join("")+'</div></section>';
+}
+/* Lo que hiciste la ultima vez con ese ejercicio. Si vienes de una rutina, se
+   busca primero en esa misma rutina: el martes de Empuje dice mas que un jueves
+   de Full body. */
+function ultimaVez(ex, sesion){
+  const h = historialEjercicio(ex);
+  if(!h.length) return null;
+  return h.filter(function(v){ return v.sesion === sesion; })[0] || h[0];
+}
+function ultimaVezHtml(en, a){
+  const u = ultimaVez(en.ex, a.name);
+  if(!u) return '';
+  const trabajo = u.sets.filter(function(x){ return !isWarm(x); });
+  const series = trabajo.length ? trabajo : u.sets;
+  return '<div class="ultima"><span class="ultima-t">La última vez · '+relDate(u.fecha)+(u.sesion!==a.name?' · '+esc(u.sesion):'')+'</span>'+
+    '<div class="sets">'+series.map(function(x){ return setChip(x, false); }).join("")+'</div></div>';
+}
+
 function historyHtml(n){
   const sess = S.gym.sessions.slice().sort((x,y)=>y.start-x.start);
   if(!sess.length) return '<div class="empty">Todavía no hay entrenamientos guardados.</div>';
@@ -3220,7 +3711,7 @@ function historyHtml(n){
 /* ─── gym · sesión ─── */
 function gymSesion(){
   const a = S.gym.active;
-  if(a) return sessionHtml(a)+'<section><h2 class="sec">Historial</h2>'+historyHtml(6)+'</section>';
+  if(a) return sessionHtml(a)+'<section><h2 class="sec">Historial</h2>'+historyHtml(6)+'</section>'+cardioHistorial();
 
   const rt = S.gym.routines.length
     ? '<section><h2 class="sec">Empezar con una rutina</h2><div class="stack">'+
@@ -3252,9 +3743,13 @@ function gymSesion(){
         })()+'</div></section>'
     : "";
 
-  return '<button class="btn wide" data-act="startSess">Empezar entrenamiento libre</button>'+
+  return '<div style="display:flex;gap:8px">'+
+      '<button class="btn" data-act="startSess" style="flex:1.4">Entreno libre</button>'+
+      '<button class="btn ghost" data-act="cardio" style="flex:1">Cardio</button>'+
+    '</div>'+
     rt+
-    '<section><h2 class="sec">Historial</h2>'+historyHtml(10)+'</section>';
+    '<section><h2 class="sec">Historial</h2>'+historyHtml(10)+'</section>'+
+    cardioHistorial();
 }
 
 /* ─── gym · rutinas ─── */
@@ -3439,6 +3934,7 @@ function gymProgreso(){
     '<section><h2 class="sec">Objetivos</h2>'+goals+'</section>'+
     picker+
     '<section><h2 class="sec">Récords personales</h2>'+prHtml+'</section>'+
+    cardioProgreso()+
     cuerpo+
     '<section><h2 class="sec">Logros · '+unl+' de '+tot+'</h2><div class="panel">'+logros+'</div></section>';
 }
@@ -3725,7 +4221,7 @@ function render(){
       if(!S.inv.some(function(x){ return x.name.toLowerCase() === txt.toLowerCase(); }))
         S.inv.unshift({id:uid(), name:txt, falta:false});
     }else{
-      S.tasks.unshift({id:uid(),text:txt,done:false,list:"tareas",ts:Date.now()});
+      S.tasks.unshift({id:uid(),text:txt,done:false,list:"tareas",ts:Date.now(),prio:taskPrio,subs:[]});
     }
     save(); render();
     const n = $("#taskInput"); if(n) n.focus();
@@ -3758,10 +4254,22 @@ function render(){
 
 /* ══════════ hojas concretas ══════════ */
 function campposHabito(h){
-  h = h || {tipo:"si", unidad:"", objetivo:0, semanal:0, name:""};
+  h = h || {tipo:"si", unidad:"", objetivo:0, semanal:0, name:"", modo:"hacer", desde:""};
   const cant = h.tipo === "cantidad";
-  return '<div><label class="lbl-s" for="hName">Nombre</label>'+
-    '<input class="field" id="hName" value="'+esc(h.name||"")+'" placeholder="Ej: 3 h de gamedev" enterkeyhint="done"></div>'+
+  const dejar = h.modo === "dejar";
+  const modo = '<div><span class="lbl-s">Qué quieres</span><div class="seg">'+
+      '<button data-act="hModo" data-m="hacer" aria-pressed="'+(!dejar)+'">Hacerlo</button>'+
+      '<button data-act="hModo" data-m="dejar" aria-pressed="'+dejar+'">Dejarlo</button>'+
+    '</div></div>';
+  const nombre = '<div><label class="lbl-s" for="hName">Nombre</label>'+
+    '<input class="field" id="hName" value="'+esc(h.name||"")+'" placeholder="'+(dejar?"Ej: sin bollería":"Ej: 3 h de gamedev")+'" enterkeyhint="done"></div>';
+  if(dejar){
+    return modo + nombre +
+      '<div><label class="lbl-s" for="hDesde">Llevas sin hacerlo desde</label>'+
+      '<input class="field" id="hDesde" type="date" max="'+today()+'" value="'+(h.desde||today())+'"></div>'+
+      '<p class="hint">Al revés que los demás: la racha cuenta los días <b>sin</b> hacerlo, y solo apuntas el día que caes. Cada día limpio cuenta como cumplido.</p>';
+  }
+  return modo + nombre +
 
     '<div><span class="lbl-s">Como se apunta</span><div class="seg">'+
       '<button data-act="hTipo" data-t="si" aria-pressed="'+(!cant)+'">Hecho o no</button>'+
@@ -3786,7 +4294,7 @@ function campposHabito(h){
     '</div>';
 }
 function sheetNuevoHabito(){
-  hDraft = {name:"", tipo:"si", unidad:"", objetivo:0, semanal:0};
+  hDraft = {name:"", tipo:"si", unidad:"", objetivo:0, semanal:0, modo:"hacer", desde:""};
   openSheet("Nuevo habito",
     campposHabito(hDraft) + '<button class="btn wide" data-act="saveHabit">Crear habito</button>',
     b=>{ const i = $("#hName",b); if(i) i.focus(); });
@@ -3798,23 +4306,36 @@ function leerHabitoDOM(){
   const o = $("#hObj"); if(o) hDraft.objetivo = parseFloat((o.value||"0").replace(",","."))||0;
   const u = $("#hUni"); if(u) hDraft.unidad = u.value.trim();
   const sm = $("#hSem"); if(sm) hDraft.semanal = parseInt(sm.value,10)||0;
+  const ds = $("#hDesde"); if(ds) hDraft.desde = ds.value || today();
 }
 function saveHabit(){
   leerHabitoDOM();
   const v = (hDraft.name||"").trim();
   if(!v){ const i=$("#hName"); if(i) i.focus(); return; }
+  const dejar = hDraft.modo === "dejar";
+  if(dejar){
+    hDraft.tipo = "si"; hDraft.semanal = 0; hDraft.objetivo = 0; hDraft.unidad = "";
+    if(!hDraft.desde || hDraft.desde > today()) hDraft.desde = today();
+  }
   if(hDraft.id){
     const h = S.habits.filter(x=>x.id===hDraft.id)[0];
-    if(h){ h.name=v; h.tipo=hDraft.tipo; h.unidad=hDraft.unidad; h.objetivo=hDraft.objetivo; h.semanal=hDraft.semanal; }
+    if(h){
+      /* Cambiar de modo invierte el significado de los dias apuntados: se empieza de cero. */
+      if((h.modo||"hacer") !== hDraft.modo) h.days = {};
+      h.name=v; h.tipo=hDraft.tipo; h.unidad=hDraft.unidad; h.objetivo=hDraft.objetivo; h.semanal=hDraft.semanal;
+      h.modo = hDraft.modo; h.desde = dejar ? hDraft.desde : "";
+    }
   }else{
-    S.habits.push({id:uid(), name:v, days:{}, tipo:hDraft.tipo, unidad:hDraft.unidad, objetivo:hDraft.objetivo, semanal:hDraft.semanal});
+    S.habits.push({id:uid(), name:v, days:{}, tipo:hDraft.tipo, unidad:hDraft.unidad, objetivo:hDraft.objetivo, semanal:hDraft.semanal,
+                   modo:hDraft.modo, desde:dejar ? hDraft.desde : ""});
   }
   hDraft = null;
   save(); closeSheet(); render();
 }
 function sheetEditarHabito(id){
   const h = S.habits.filter(x=>x.id===id)[0]; if(!h) return;
-  hDraft = {id:h.id, name:h.name, tipo:h.tipo||"si", unidad:h.unidad||"", objetivo:h.objetivo||0, semanal:h.semanal||0};
+  hDraft = {id:h.id, name:h.name, tipo:h.tipo||"si", unidad:h.unidad||"", objetivo:h.objetivo||0, semanal:h.semanal||0,
+            modo:h.modo||"hacer", desde:h.desde||""};
   openSheet("Editar habito",
     campposHabito(hDraft) + '<button class="btn wide" data-act="saveHabit">Guardar</button>');
 }
@@ -3830,6 +4351,29 @@ function sheetCantidad(id){
 }
 function sheetHabito(id){
   const h = S.habits.filter(x=>x.id===id)[0]; if(!h) return;
+  if(h.modo === "dejar"){
+    const caidas = Object.keys(h.days).sort().reverse();
+    const limpios = h.desde ? Math.max(0, diasEntre(h.desde, today()) + 1) - caidas.filter(function(k){ return k >= h.desde; }).length : 0;
+    openSheet(h.name,
+      '<div class="panel">'+heatOne(h)+'</div>'+
+      '<div><div class="kv"><span>Racha actual</span><b class="mono">'+rachaTexto(h)+'</b></div>'+
+      '<div class="kv"><span>Mejor racha</span><b class="mono">'+mejorRachaDejar(h)+' días</b></div>'+
+      '<div class="kv"><span>Días limpios desde '+relDate(h.desde)+'</span><b class="mono">'+limpios+'</b></div>'+
+      '<div class="kv"><span>Caídas</span><b class="mono">'+caidas.length+'</b></div></div>'+
+      '<div><span class="lbl-s">Apuntar una caída de otro día</span>'+
+        '<div style="display:flex;gap:8px"><input class="field" id="cdF" type="date" min="'+(h.desde||"")+'" max="'+today()+'" value="'+daysAgo(1)+'">'+
+        '<button class="btn ghost sm" data-act="caidaFecha" data-id="'+h.id+'">Apuntar</button></div></div>'+
+      (caidas.length
+        ? '<div><span class="lbl-s">Caídas</span><div class="stack">'+caidas.slice(0,8).map(function(k){
+            return '<div class="row"><span class="row-title mono" style="flex:1">'+relDate(k)+'</span>'+
+              '<button class="x" data-act="caidaDel" data-id="'+h.id+'" data-d="'+k+'" aria-label="Quitar caída">'+svg(I.x)+'</button></div>';
+          }).join("")+'</div></div>'
+        : '')+
+      '<button class="btn ghost wide" data-act="editHabito" data-id="'+h.id+'">Editar este hábito</button>'+
+      '<button class="btn danger wide" data-act="delHabit" data-id="'+h.id+'">Eliminar hábito</button>'
+    );
+    return;
+  }
   const totalDias = Object.keys(h.days).length;
   openSheet(h.name,
     '<div class="panel">'+heatOne(h)+'</div>'+
@@ -3939,6 +4483,149 @@ function saveNote(id){
   }
   save(); closeSheet(); render();
 }
+function sheetMetas(){
+  const anio = new Date().getFullYear();
+  const actuales = S.metas.filter(function(m){ return Number(m.anio) === anio; });
+  const pasadas = S.metas.filter(function(m){ return Number(m.anio) < anio; })
+    .sort(function(a,b){ return b.anio - a.anio; });
+  openSheet("Objetivos " + anio,
+    (actuales.length
+      ? '<div class="panel metas-lista">'+actuales.map(function(m){
+          return '<div class="meta-fila">'+metaHtml(m)+
+            '<button class="x" data-act="metaDel" data-id="'+m.id+'" aria-label="Quitar objetivo">'+svg(I.x)+'</button></div>';
+        }).join("")+'</div>'+
+        '<p class="hint">La marca vertical es donde deberías ir a estas alturas del año para llegar justo.</p>'
+      : '')+
+    '<div><span class="lbl-s">Nuevo objetivo</span>'+
+      '<select class="field" id="mtT">'+
+        Object.keys(METAS).map(function(k){ return '<option value="'+k+'">'+METAS[k].n+'</option>'; }).join("")+
+      '</select>'+
+      '<select class="field" id="mtH" hidden style="margin-top:8px">'+
+        S.habits.map(function(h){ return '<option value="'+h.id+'">'+esc(h.name)+'</option>'; }).join("")+
+      '</select>'+
+      '<input class="field mono" id="mtO" inputmode="decimal" placeholder="Cifra para final de año" style="margin-top:8px;text-align:center">'+
+      '<p class="hint" id="mtHint" style="margin-top:7px"></p>'+
+    '</div>'+
+    '<button class="btn wide" data-act="metaSave">Añadir objetivo</button>'+
+    (pasadas.length
+      ? '<div><span class="lbl-s">Años anteriores</span><div class="panel">'+pasadas.map(function(m){
+          const e = metaEstado(m);
+          return '<div class="kv"><span>'+m.anio+' · '+esc(metaNombre(m))+'</span><b class="mono">'+metaCifra(m, e.v)+' / '+metaCifra(m, e.obj)+(e.hecho?' ✓':'')+'</b></div>';
+        }).join("")+'</div></div>'
+      : ''),
+    function(b){
+      const t = $("#mtT", b), h = $("#mtH", b), hint = $("#mtHint", b);
+      const pistas = {
+        libros:"Cuenta los libros que marcas como terminados este año en Cultura.",
+        pelis:"Cuenta las películas terminadas este año.",
+        series:"Cuenta las series terminadas este año.",
+        juegos:"Cuenta los juegos terminados este año.",
+        entrenos:"Suma los entrenamientos de fuerza y las sesiones de cardio.",
+        cardioKm:"Suma los kilómetros de todo el cardio.",
+        foco:"Suma el tiempo de los bloques de pomodoro.",
+        ahorro:"Ingresos menos gastos del año. Solo tiene sentido si apuntas también los ingresos.",
+        habito:"Cuenta los días que cumples ese hábito."
+      };
+      const upd = function(){ h.hidden = t.value !== "habito"; hint.textContent = pistas[t.value] || ""; };
+      t.addEventListener("change", upd); upd();
+    });
+}
+
+function sheetFechas(){
+  const lista = fechasOrden();
+  openSheet("Fechas",
+    (lista.length
+      ? '<div class="stack">'+lista.map(function(x){
+          const det = fechaDetalle(x.f, x.p);
+          return '<div class="row"><div class="row-main">'+
+            '<span class="row-title">'+esc(x.f.nombre)+'</span>'+
+            '<span class="row-sub mono">'+x.f.dia+' de '+MESES[x.f.mes-1]+(det?' · '+det:'')+' · '+fechaCuando(x.p.dias)+'</span></div>'+
+            '<button class="x" data-act="fechaDel" data-id="'+x.f.id+'" aria-label="Quitar">'+svg(I.x)+'</button></div>';
+        }).join("")+'</div>'
+      : '')+
+    '<div><span class="lbl-s">Nueva fecha</span>'+
+      '<div class="seg" id="fdTipo">'+
+        '<button data-act="fdTipo" data-t="cumple" aria-pressed="true">Cumpleaños</button>'+
+        '<button data-act="fdTipo" data-t="fecha" aria-pressed="false">Otra fecha</button>'+
+      '</div>'+
+      '<input class="field" id="fdN" placeholder="Nombre" autocomplete="off" style="margin-top:8px">'+
+      '<div class="fd-grid">'+
+        '<input class="field mono" id="fdD" inputmode="numeric" placeholder="Día">'+
+        '<select class="field" id="fdM">'+MESES.map(function(m,i){ return '<option value="'+(i+1)+'"'+(i===new Date().getMonth()?' selected':'')+'>'+m+'</option>'; }).join("")+'</select>'+
+        '<input class="field mono" id="fdA" inputmode="numeric" placeholder="Año">'+
+      '</div>'+
+      '<p class="hint" style="margin-top:7px">El año es opcional: si lo pones, te dice cuántos cumple o cuántos años hace.</p>'+
+    '</div>'+
+    '<button class="btn wide" data-act="fechaSave">Guardar fecha</button>'+
+    '<p class="hint">Salen en <b>Hoy</b> dos semanas antes, y el día antes y el mismo día te lo recuerda al abrir la app.</p>'
+  );
+}
+
+let cardioSel = "carrera";
+function sheetCardio(){
+  openSheet("Apuntar cardio",
+    '<div class="chips" id="cdTipos">'+CARDIO.map(function(c){
+      return '<button class="chip" data-act="cdTipo" data-t="'+c.id+'" aria-pressed="'+(c.id===cardioSel)+'">'+c.n+'</button>';
+    }).join("")+'</div>'+
+    '<div class="setform" style="grid-template-columns:1fr 1fr">'+
+      '<div><label class="lbl-s" for="cdDur">Duración</label><input class="field" id="cdDur" inputmode="decimal" placeholder="45 o 45:30"></div>'+
+      '<div><label class="lbl-s" for="cdKm">Distancia (km)</label><input class="field" id="cdKm" inputmode="decimal" placeholder="opcional"></div>'+
+    '</div>'+
+    '<p class="hint" id="cdRitmo">Minutos, o <b>mm:ss</b>, o <b>h:mm:ss</b>.</p>'+
+    '<div><label class="lbl-s" for="cdF">Fecha</label><input class="field" id="cdF" type="date" max="'+today()+'" value="'+today()+'"></div>'+
+    '<div><label class="lbl-s" for="cdN">Notas (opcional)</label><input class="field" id="cdN" autocomplete="off" placeholder="Rodaje suave, series, cuestas…"></div>'+
+    '<button class="btn wide" data-act="cardioSave">Guardar</button>',
+    function(b){
+      const dur = $("#cdDur", b), km = $("#cdKm", b), out = $("#cdRitmo", b);
+      const upd = function(){
+        const c = {tipo:cardioSel, seg:parseDur(dur.value), km:parseFloat((km.value||"").replace(",","."))||0};
+        const r = ritmoCardioTxt(c);
+        out.innerHTML = r ? 'Ritmo: <b>'+r+'</b>' : 'Minutos, o <b>mm:ss</b>, o <b>h:mm:ss</b>.';
+      };
+      dur.addEventListener("input", upd); km.addEventListener("input", upd);
+      dur.focus();
+    });
+}
+function sheetCardioVer(id){
+  const c = (S.gym.cardio||[]).filter(function(x){ return x.id === id; })[0]; if(!c) return;
+  const t = cardioTipo(c.tipo);
+  const mismos = S.gym.cardio.filter(function(x){ return x.tipo === c.tipo && ritmoNum(x); });
+  const mejor = mismos.reduce(function(a,b){ return mejorRitmo(a, b, c.tipo); }, null);
+  openSheet(t.n + (c.km>0 ? " · " + fmtKg(c.km) + " km" : ""),
+    '<div class="panel">'+
+      '<div class="kv"><span>Fecha</span><b class="mono">'+relDate(c.date)+'</b></div>'+
+      '<div class="kv"><span>Duración</span><b class="mono">'+durCardio(c.seg)+'</b></div>'+
+      (c.km>0?'<div class="kv"><span>Distancia</span><b class="mono">'+fmtKg(c.km)+' km</b></div>':'')+
+      (ritmoNum(c)?'<div class="kv"><span>Ritmo</span><b class="mono">'+ritmoCardioTxt(c)+(mejor && mejor.id===c.id && mismos.length>1?' · tu mejor':'')+'</b></div>':'')+
+    '</div>'+
+    (c.notas?'<p class="hint">'+esc(c.notas)+'</p>':'')+
+    '<button class="btn danger wide" data-act="cardioDel" data-id="'+c.id+'">Eliminar</button>'
+  );
+}
+function cardioProgreso(){
+  const cs = S.gym.cardio || [];
+  if(!cs.length) return '';
+  const mes = today().slice(0,7);
+  const delMes = cs.filter(function(c){ return c.date.slice(0,7) === mes; });
+  const kmMes = delMes.reduce(function(t,c){ return t + (Number(c.km)||0); }, 0);
+  const tipos = CARDIO.filter(function(t){ return cs.some(function(c){ return c.tipo === t.id; }); });
+  return '<section><h2 class="sec">Cardio</h2>'+
+    '<div class="tiles">'+
+      '<div class="tile"><span class="tv">'+fmtKg(Math.round(kmMes*10)/10)+'</span><span class="tl">km este mes</span></div>'+
+      '<div class="tile"><span class="tv">'+delMes.length+'</span><span class="tl">sesiones este mes</span></div>'+
+    '</div>'+
+    '<div class="panel" style="margin-top:9px">'+tipos.map(function(t){
+      const suyos = cs.filter(function(c){ return c.tipo === t.id; });
+      const km = suyos.reduce(function(a,c){ return a + (Number(c.km)||0); }, 0);
+      const mejor = suyos.filter(ritmoNum).reduce(function(a,b){ return mejorRitmo(a, b, t.id); }, null);
+      const larga = suyos.reduce(function(a,b){ return (Number(b.km)||0) > (Number(a.km)||0) ? b : a; }, suyos[0]);
+      return '<div class="goal"><span class="gn">'+t.n+' <span style="color:var(--text-3);font-weight:400;font-size:12px">· '+suyos.length+' · '+fmtKg(Math.round(km*10)/10)+' km</span></span>'+
+        '<span class="gv">'+(mejor?ritmoCardioTxt(mejor):'')+'</span>'+
+        '<span class="row-sub mono" style="grid-column:1/-1">'+(mejor?'mejor ritmo '+relDate(mejor.date):'sin distancias')+(larga && larga.km>0?' · la más larga '+fmtKg(larga.km)+' km':'')+'</span></div>';
+    }).join("")+'</div>'+
+  '</section>';
+}
+
 function sheetStart(){
   const nombres = ["Empuje","Tirón","Pierna","Full body","Cardio"];
   openSheet("Entrenamiento libre",
@@ -3946,6 +4633,7 @@ function sheetStart(){
     '<input class="field" id="sName" placeholder="Ej: Empuje" enterkeyhint="go"></div>'+
     '<div class="chips">'+nombres.map(n=>'<button class="chip" data-act="pickName" data-name="'+n+'">'+n+'</button>').join("")+'</div>'+
     '<button class="btn wide" data-act="doStart">Empezar</button>'+
+    '<button class="btn ghost wide" data-act="cardio">Es cardio: apuntarlo con distancia y tiempo</button>'+
     (S.gym.routines.length?'<p class="hint">Si entrenas siempre lo mismo, crea una <b>rutina</b> en la pestaña Rutinas: los ejercicios, series, pesos y descansos vienen ya puestos.</p>':""),
     b=>$("#sName",b).focus());
 }
@@ -4374,9 +5062,68 @@ document.addEventListener("click", function(e){
       save(); render(); break;
     }
     case "xpVer": sheetXP(); break;
+    case "diarioTodo": sheetDiario(); break;
     case "semAnt": semanaOff++; sheetSemana(); break;
     case "semSig": semanaOff = Math.max(0, semanaOff-1); sheetSemana(); break;
     case "semana": semanaOff = 0; sheetSemana(); break;
+
+    /* ─── objetivos del año ─── */
+    case "metas": sheetMetas(); break;
+    case "metaSave": {
+      const tipo = $("#mtT").value;
+      const obj = parseFloat(($("#mtO").value||"").replace(/\./g,"").replace(",","."));
+      if(!(obj > 0)){ $("#mtO").focus(); toast("Pon la cifra que quieres alcanzar."); break; }
+      const anio = new Date().getFullYear();
+      const hab = tipo === "habito" ? $("#mtH").value : "";
+      if(tipo === "habito" && !hab){ toast("Primero crea el hábito."); break; }
+      const ya = S.metas.filter(function(m){ return m.tipo === tipo && Number(m.anio) === anio && (m.habito||"") === hab; })[0];
+      if(ya) ya.objetivo = obj;
+      else S.metas.push({id:uid(), tipo:tipo, objetivo:obj, anio:anio, habito:hab});
+      save(); render(); sheetMetas(); break;
+    }
+    case "metaDel":
+      S.metas = S.metas.filter(x=>x.id!==id); save(); render(); sheetMetas(); break;
+
+    /* ─── fechas ─── */
+    case "fechas": sheetFechas(); break;
+    case "fdTipo":
+      Array.prototype.forEach.call($("#fdTipo").children, function(c){ c.setAttribute("aria-pressed", c === el); });
+      break;
+    case "fechaSave": {
+      const nombre = $("#fdN").value.trim();
+      const dia = parseInt($("#fdD").value, 10), mes = parseInt($("#fdM").value, 10);
+      const anioF = parseInt($("#fdA").value, 10);
+      if(!nombre){ $("#fdN").focus(); break; }
+      const maxDia = [31,29,31,30,31,30,31,31,30,31,30,31][mes-1];
+      if(!(dia >= 1 && dia <= maxDia)){ $("#fdD").focus(); toast("Ese día no existe en ese mes."); break; }
+      const pulsado = $("#fdTipo").querySelector('[aria-pressed="true"]');
+      S.fechas.push({id:uid(), nombre:nombre, tipo:pulsado ? pulsado.dataset.t : "cumple", dia:dia, mes:mes,
+                     anio:(anioF > 1900 && anioF <= new Date().getFullYear()) ? anioF : 0});
+      save(); render(); sheetFechas(); break;
+    }
+    case "fechaDel":
+      S.fechas = S.fechas.filter(x=>x.id!==id); save(); render(); sheetFechas(); break;
+
+    /* ─── cardio ─── */
+    case "cardio": sheetCardio(); break;
+    case "cdTipo":
+      cardioSel = el.dataset.t;
+      Array.prototype.forEach.call($("#cdTipos").children, function(c){ c.setAttribute("aria-pressed", c === el); });
+      { const d = $("#cdDur"); if(d) d.dispatchEvent(new Event("input")); }
+      break;
+    case "cardioSave": {
+      const seg = parseDur($("#cdDur").value);
+      if(!(seg > 0)){ $("#cdDur").focus(); toast("Apunta cuánto duró."); break; }
+      const km = parseFloat(($("#cdKm").value||"").replace(",","."));
+      S.gym.cardio.push({id:uid(), date:$("#cdF").value || today(), tipo:cardioSel, seg:seg,
+                         km:(km > 0 ? Math.round(km*100)/100 : 0), notas:$("#cdN").value.trim(), ts:Date.now()});
+      save(); closeSheet(); render();
+      toast("Cardio apuntado. +" + XP.cardio + " XP");
+      break;
+    }
+    case "cardioVer": sheetCardioVer(id); break;
+    case "cardioDel":
+      S.gym.cardio = S.gym.cardio.filter(x=>x.id!==id); save(); closeSheet(); render(); break;
     case "irCompra": S.tab = "tareas"; S.list = "compra"; save(); render(); break;
 
     /* ─── Reloj del iPhone ─── */
@@ -4562,6 +5309,31 @@ document.addEventListener("click", function(e){
     }
     case "habitDetail": sheetHabito(id); break;
     case "editHabito": sheetEditarHabito(id); break;
+    case "hModo":
+      leerHabitoDOM();
+      hDraft.modo = el.dataset.m;
+      openSheet(hDraft.id?"Editar habito":"Nuevo habito",
+        campposHabito(hDraft) + '<button class="btn wide" data-act="saveHabit">'+(hDraft.id?"Guardar":"Crear habito")+'</button>');
+      break;
+    case "caida": {
+      const h = S.habits.filter(x=>x.id===id)[0]; if(!h) break;
+      if(h.days[today()]){ delete h.days[today()]; save(); render(); break; }
+      const tenia = streak(h);
+      h.days[today()] = 1; save(); render();
+      toast(tenia > 1 ? "Apuntado. Eran "+tenia+" días; mañana vuelves a empezar." : "Apuntado. Mañana vuelves a empezar.");
+      break;
+    }
+    case "caidaFecha": {
+      const h = S.habits.filter(x=>x.id===id)[0]; if(!h) break;
+      const k = $("#cdF").value;
+      if(!k || k > today()){ toast("Elige un día que ya haya pasado."); break; }
+      if(h.desde && k < h.desde) h.desde = k;
+      h.days[k] = 1; save(); render(); sheetHabito(h.id); break;
+    }
+    case "caidaDel": {
+      const h = S.habits.filter(x=>x.id===id)[0]; if(!h) break;
+      delete h.days[el.dataset.d]; save(); render(); sheetHabito(h.id); break;
+    }
     case "hTipo":
       leerHabitoDOM();
       hDraft.tipo = el.dataset.t;
@@ -4587,6 +5359,41 @@ document.addEventListener("click", function(e){
       save(); render(); break;
     }
     case "delTask": S.tasks = S.tasks.filter(x=>x.id!==id); save(); render(); break;
+    case "taskOpen": sheetTarea(id); break;
+    case "taskNewPrio": {
+      taskPrio = +el.dataset.p;
+      const inp = $("#taskInput"), txt = inp ? inp.value : "";
+      render();
+      const n = $("#taskInput"); if(n){ n.value = txt; }
+      break;
+    }
+    case "taskPrio": {
+      const t = S.tasks.filter(x=>x.id===id)[0]; if(!t) break;
+      leerTareaDOM(t);
+      t.prio = +el.dataset.p; save(); render(); sheetTarea(id); break;
+    }
+    case "subAdd": {
+      const t = S.tasks.filter(x=>x.id===id)[0]; if(t) anadirPaso(t);
+      break;
+    }
+    case "subToggle": {
+      const t = S.tasks.filter(x=>x.id===id)[0]; if(!t) break;
+      leerTareaDOM(t);
+      const x = (t.subs||[]).filter(v=>v.id===el.dataset.s)[0]; if(!x) break;
+      x.done = !x.done;
+      const todos = t.subs.every(v=>v.done);
+      if(todos && !t.done){ t.done = true; toast("Todos los pasos hechos: tarea completada."); }
+      else if(!todos && t.done){ t.done = false; }
+      save(); render(); sheetTarea(id); break;
+    }
+    case "subDel": {
+      const t = S.tasks.filter(x=>x.id===id)[0]; if(!t) break;
+      leerTareaDOM(t);
+      t.subs = (t.subs||[]).filter(v=>v.id!==el.dataset.s);
+      save(); render(); sheetTarea(id); break;
+    }
+    case "delTaskSheet":
+      S.tasks = S.tasks.filter(x=>x.id!==id); save(); closeSheet(); render(); break;
     case "clearDone": S.tasks = S.tasks.filter(t=>!(t.done && t.list==="tareas")); save(); render(); break;
 
     /* ─── inventario y compra ─── */
@@ -5094,6 +5901,13 @@ function iconDataURI(){
 /* Lo tecleado en una casilla se guarda al salir de ella, para que no se pierda
    al pulsar cualquier boton que redibuje la pantalla. */
 view.addEventListener("change", function(e){
+  if(e.target.id === "diaLinea"){
+    const v = (e.target.value||"").trim();
+    const d = S.diario[today()] = S.diario[today()] || {};
+    if(v) d.linea = v; else delete d.linea;
+    save();
+    return;
+  }
   if(e.target.id === "diaSueno"){
     const v = parseFloat((e.target.value||"").replace(",","."));
     const d = S.diario[today()] = S.diario[today()] || {};
@@ -5139,6 +5953,7 @@ document.addEventListener("visibilitychange", function(){
     buscarActualizacion(true);
     syncAhora(true);            /* al volver, recoge lo del otro dispositivo */
     repasarAvisos();
+    repasarFechas();
     programarAvisos();
     if(focoRevisar()) render();
     focoTic();
@@ -5154,6 +5969,7 @@ render();
 if(!S.xpNivel) { S.xpNivel = nivelDe(xpDetalle().total); persist(); }
 focoTic();
 repasarAvisos();
+setTimeout(repasarFechas, 2600);   /* despues del aviso de recordatorios, sin pisarlo */
 programarAvisos();
 syncAhora(true);
 })();
