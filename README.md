@@ -137,6 +137,48 @@ avisa; al aceptar, los pesos de las rutinas bajan **al 60 %** durante una semana
 solos al acabar. El calentamiento no se toca y la sobrecarga progresiva se desactiva
 mientras dura: la descarga es el freno que evita estancarse o lesionarse.
 
+## Reloj del iPhone
+
+Lo que suena desde la app **Reloj** es una alarma del sistema: suena con Bitácora **cerrada
+del todo**, con el móvil en silencio y en Concentración. Es lo único que una web no puede
+garantizar por sí misma sin un servidor de push, y así sale gratis.
+
+Una web no puede tocar la app Reloj, pero sí lanzar un **atajo** tuyo con datos dentro:
+
+```
+shortcuts://run-shortcut?name=Temporizador&input=text&text=1500
+shortcuts://run-shortcut?name=Alarma&input=text&text=19:00|Tres horas de gamedev
+```
+
+Dos atajos, con los pasos exactos en *Ajustes → Reloj del iPhone*:
+
+- **Temporizador** — recibe segundos: *Obtener números de la entrada* → *Iniciar
+  temporizador*.
+- **Alarma** — recibe `HH:MM|texto`: *Dividir texto* por `|` → la hora con *Obtener
+  fechas de la entrada* → *Crear alarma* con esa hora y el texto como etiqueta.
+
+Dónde se usa:
+
+| | |
+|---|---|
+| **Pomodoro** | encendido — al empezar cada bloque |
+| **Recordatorios** | encendido — al crearlos, y con un botón *Reloj* en cada uno |
+| **Descanso del gimnasio** | **apagado**: serían unos veinte saltos a Atajos por sesión |
+
+Donde suena el del Reloj, la app **no programa su propia alarma de audio**: dos alarmas a
+la vez solo molestan.
+
+**Las pegas, sin adornos:**
+
+- Cada lanzamiento **saca de Bitácora** para abrir Atajos, y se vuelve a mano. No hay forma
+  de que el atajo devuelva a la app instalada: abrir su dirección iría a Safari, que tiene
+  su propia copia de los datos.
+- Las alarmas se crean **sin repetición**. Atajos no deja recibir los días de la semana
+  desde fuera de forma fiable; para que se repitan hay que marcar los días una vez en el
+  Reloj.
+- El nombre del atajo tiene que coincidir **exactamente**. Si no, iOS abre Atajos y dice que
+  no lo encuentra. Hay botones de *Probar* para comprobarlo antes de fiarse.
+
 ## Pomodoro
 
 Pestaña **Foco**: bloques de trabajo y descansos, con descanso largo cada N bloques. Todo

@@ -1,7 +1,7 @@
 /* Service worker de Bitácora.
    Guarda la app en el teléfono para que abra sin internet.
    Sube el número de CACHE cada vez que cambies index.html. */
-const CACHE = "bitacora-v28";
+const CACHE = "bitacora-v29";
 const FILES = [
   ".",
   "index.html",

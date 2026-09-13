@@ -774,7 +774,7 @@ const EJERCICIOS = [
 
 /* ══════════ estado ══════════ */
 const LS = "bitacora.v1";
-const BUILD = "v28";
+const BUILD = "v29";
 
 function seed(){
   const H = (name,offs)=>{
@@ -898,6 +898,7 @@ function seed(){
     ],
     gymTab:"sesion",
     culTab:"libros",
+    reloj:{atajoTemp:"", atajoAlarma:"", pomodoro:true, recordatorios:true, gym:false},
     foco:{
       cfg:{trabajo:25, corto:5, largo:15, ciclos:4},
       fase:"trabajo", fin:0, corriendo:false, ciclo:0,
@@ -975,6 +976,7 @@ function load(){
     migrateRoutines(s.gym);
     s.gymTab = s.gymTab || "sesion";
     s.culTab = s.culTab || "libros";
+    s.reloj = s.reloj || {atajoTemp:"", atajoAlarma:"", pomodoro:true, recordatorios:true, gym:false};
     s.foco = s.foco || {cfg:{trabajo:25,corto:5,largo:15,ciclos:4}, fase:"trabajo", fin:0, corriendo:false, ciclo:0, dia:"", pomos:0, minutos:0, atajo:""};
     s.foco.cfg = s.foco.cfg || {trabajo:25,corto:5,largo:15,ciclos:4};
     /* El recuento del dia se reinicia solo al cambiar de dia. */
@@ -1469,6 +1471,22 @@ function toast(msg){
   toastT = setTimeout(function(){ t.hidden = true; }, 4500);
 }
 
+/* ══════════ Reloj del iPhone, via Atajos ══════════
+   Lanza un atajo del usuario pasandole texto. iOS sale de Bitacora para abrir
+   Atajos un instante: no hay forma de que vuelva sola a la app instalada (abrir
+   su direccion iria a Safari, que es otra copia con otros datos). */
+function lanzarAtajo(nombre, texto){
+  if(!nombre) return false;
+  const url = "shortcuts://run-shortcut?name=" + encodeURIComponent(nombre) +
+    (texto !== undefined ? "&input=text&text=" + encodeURIComponent(texto) : "");
+  persist();                              /* por si iOS descarga la pagina */
+  setTimeout(function(){ location.href = url; }, 80);
+  return true;
+}
+/* Si hay que usar el temporizador del sistema en este sitio. */
+const relojTemp = donde => !!(S.reloj && S.reloj[donde] && S.reloj.atajoTemp);
+const relojAlarma = () => !!(S.reloj && S.reloj.recordatorios && S.reloj.atajoAlarma);
+
 /* ══════════ cronómetro de descanso ══════════ */
 let rest = null, restInt = null, audioCtx = null, keepAlive = null, alarmNodes = [];
 const fmtClock = ms=>{ const s = Math.ceil(ms/1000); return Math.floor(s/60)+":"+pad(s%60); };
@@ -1777,8 +1795,10 @@ function tickRest(){
   if(left<=0){
     const ex = rest.ex;
     rest = null; clearInterval(restInt); restInt = null;
-    buzz();
-    notify("Descanso terminado", ex ? "Siguiente serie de "+ex : "A por la siguiente serie");
+    if(!relojTemp("gym")){
+      buzz();
+      notify("Descanso terminado", ex ? "Siguiente serie de "+ex : "A por la siguiente serie");
+    }
     setTimeout(stopKeepAlive, 4000);
     render();
   }
@@ -1786,14 +1806,20 @@ function tickRest(){
 function startRest(secs, exName){
   secs = Number(secs)||0;
   if(secs<=0) return;
+  /* Con el Reloj del iPhone activado para el gimnasio, suena el del sistema y
+     no el nuestro: dos alarmas a la vez solo molestan. */
+  const nativo = relojTemp("gym");
   unlockAudio();
-  startKeepAlive();
-  scheduleAlarm(secs);        /* suena aunque iOS congele el JavaScript */
+  if(!nativo){
+    startKeepAlive();
+    scheduleAlarm(secs);      /* suena aunque iOS congele el JavaScript */
+  }
   askNotif();
   pushScheduleRest(secs);     /* aviso en pantalla si hay servidor configurado */
   rest = {until:Date.now()+secs*1000, total:secs, ex:exName||""};
   clearInterval(restInt);
   restInt = setInterval(tickRest, 250);
+  if(nativo) lanzarAtajo(S.reloj.atajoTemp, String(secs));
 }
 function stopRest(){
   rest = null;
@@ -1858,6 +1884,46 @@ function repasarAvisos(){
   toast(p.length === 1 ? p[0].texto : p.map(function(a){ return a.texto; }).join(" · "));
 }
 
+function sheetReloj(){
+  const r = S.reloj;
+  const sw = function(k, txt){
+    return '<button class="chip" data-act="relojSw" data-k="'+k+'" aria-pressed="'+(r[k]?"true":"false")+'">'+txt+'</button>';
+  };
+  openSheet("Reloj del iPhone",
+    '<p class="hint">Bitácora puede lanzar el <b>temporizador</b> y crear <b>alarmas</b> de la app Reloj a través de Atajos. Lo que suena desde el Reloj es una alarma del sistema: <b>suena con la app cerrada del todo</b>, en silencio y en Concentración.</p>'+
+    '<p class="hint">La pega: cada vez que se lanza, iOS te saca de Bitácora un instante para abrir Atajos, y vuelves tú.</p>'+
+
+    '<div><span class="lbl-s">Dónde usarlo</span><div class="chips">'+
+      sw("pomodoro","Pomodoro")+sw("recordatorios","Recordatorios")+sw("gym","Descanso del gimnasio")+
+    '</div>'+
+    '<p class="hint" style="margin-top:7px">El gimnasio va apagado a propósito: serían unos veinte saltos a Atajos por sesión, uno por serie.</p></div>'+
+
+    '<div><span class="lbl-s">Atajo 1 · temporizador</span><p class="hint"><ol>'+
+      '<li>En <b>Atajos</b>, crea uno nuevo y llámalo <b>Temporizador</b>.</li>'+
+      '<li>Añade <b>Obtener números de la entrada</b> (Get Numbers from Input), con la entrada del atajo.</li>'+
+      '<li>Añade <b>Iniciar temporizador</b> (Start Timer): duración <i>Números</i>, en <b>segundos</b>.</li>'+
+    '</ol></p>'+
+    '<input class="field" id="rlT" value="'+esc(r.atajoTemp||"")+'" placeholder="Temporizador" autocomplete="off">'+
+    (r.atajoTemp?'<button class="btn ghost sm" data-act="relojProbarT" style="margin-top:8px">Probar con 10 segundos</button>':'')+
+    '</div>'+
+
+    '<div><span class="lbl-s">Atajo 2 · alarma</span><p class="hint"><ol>'+
+      '<li>Crea otro y llámalo <b>Alarma</b>. Recibirá un texto como <code>19:00|Tres horas de gamedev</code>.</li>'+
+      '<li><b>Dividir texto</b> (Split Text) la entrada del atajo, por <i>Personalizado</i>: <code>|</code></li>'+
+      '<li><b>Obtener elemento de la lista</b>: primer elemento. Luego <b>Obtener fechas de la entrada</b> con ese elemento.</li>'+
+      '<li>Otra vez <b>Obtener elemento de la lista</b> sobre el texto dividido: último elemento.</li>'+
+      '<li><b>Crear alarma</b> (Create Alarm): hora <i>Fechas</i>, etiqueta <i>Elemento de la lista</i>.</li>'+
+    '</ol></p>'+
+    '<input class="field" id="rlA" value="'+esc(r.atajoAlarma||"")+'" placeholder="Alarma" autocomplete="off">'+
+    (r.atajoAlarma?'<button class="btn ghost sm" data-act="relojProbarA" style="margin-top:8px">Probar creando una alarma</button>':'')+
+    '<p class="hint" style="margin-top:8px">La alarma se crea <b>sin repetición</b>: Atajos no deja recibir los días de la semana desde fuera de forma fiable. Para que se repita, ábrela una vez en el Reloj y marca los días.</p>'+
+    '</div>'+
+
+    '<button class="btn wide" data-act="relojGuardar">Guardar</button>'+
+    '<p class="hint">Escribe el nombre <b>exactamente</b> como lo pusiste en Atajos. Si no coincide, iOS abrirá Atajos y dirá que no lo encuentra.</p>'
+  );
+}
+
 function sheetConcentracion(){
   openSheet("Concentración",
     '<p class="hint">Una web <b>no puede</b> bloquear el móvil ni limitar apps: eso es el <b>Modo Concentración</b> de iOS y no hay forma de activarlo desde una página. Lo que sí se puede es lanzar un <b>Atajo</b> tuyo que lo active.</p>'+
@@ -1882,6 +1948,9 @@ function sheetAvisosLista(){
           '<button class="check '+(a.on?"on":"")+'" data-act="avisoOn" data-id="'+a.id+'" aria-pressed="'+a.on+'" aria-label="Activar">'+svg(I.check)+'</button>'+
           '<div class="row-main"><span class="row-title">'+esc(a.texto)+'</span>'+
           '<span class="row-sub mono">'+esc(a.hora)+' · '+(a.dias||[]).map(function(d){ return DIAS_CORTOS[d-1]; }).join("")+'</span></div>'+
+          (relojAlarma()
+            ? '<button class="btn ghost sm" data-act="avisoReloj" data-id="'+a.id+'" title="Crear alarma en el Reloj">Reloj</button>'
+            : '')+
           '<button class="x" data-act="delAviso" data-id="'+a.id+'" aria-label="Quitar">'+svg(I.x)+'</button>'+
         '</div>';
       }).join("")+'</div>'
@@ -1903,6 +1972,9 @@ function sheetAvisosLista(){
     (perm !== "granted"
       ? '<button class="btn ghost wide" data-act="pedirNotif">Permitir notificaciones</button>'
       : '')+
+    (S.reloj.atajoAlarma
+      ? ''
+      : '<button class="btn ghost wide" data-act="reloj">Usar las alarmas del Reloj del iPhone</button>')+
     '<div><span class="lbl-s">Hasta dónde llega esto</span>'+
     '<p class="hint">Con la app <b>abierta o en segundo plano</b> el aviso salta a su hora. Con la app <b>cerrada del todo</b>, iOS no permite que una web te avise: al volver a abrirla te cuenta lo que se te haya pasado hoy. Para que suene con la app cerrada hace falta push desde un servidor, lo mismo que el aviso de fin de descanso.</p></div>'
   );
@@ -1936,10 +2008,16 @@ function focoArrancar(fase){
   f.fase = fase;
   f.fin = Date.now() + focoMin(fase)*60000;
   f.corriendo = true;
-  unlockAudio(); startKeepAlive();
-  scheduleAlarm(Math.round((f.fin - Date.now())/1000));
+  const nativo = relojTemp("pomodoro");
+  unlockAudio();
+  if(!nativo){
+    startKeepAlive();
+    scheduleAlarm(Math.round((f.fin - Date.now())/1000));
+  }
   askNotif();
   save(); render();
+  /* El temporizador del Reloj suena aunque cierres Bitacora del todo. */
+  if(nativo) lanzarAtajo(S.reloj.atajoTemp, String(focoMin(fase)*60));
 }
 function focoParar(){
   const f = S.foco;
@@ -1959,8 +2037,10 @@ function focoRevisar(){
   f.fase = sig;
   stopKeepAlive();
   save();
-  buzz();
-  notify("Bitácora", sig === "trabajo" ? "Descanso terminado. A trabajar." : "Bloque terminado. Descansa.");
+  if(!relojTemp("pomodoro")){
+    buzz();
+    notify("Bitácora", sig === "trabajo" ? "Descanso terminado. A trabajar." : "Bloque terminado. Descansa.");
+  }
   return true;
 }
 let focoInt = null;
@@ -2168,7 +2248,13 @@ function vFoco(){
       '<div class="tile"><span class="tv">'+Math.floor(f.minutos/60)+'h '+pad(f.minutos%60)+'</span><span class="tl">de trabajo hoy</span></div>'+
     '</div>'+
 
-    '<button class="btn ghost wide" data-act="focoConc">Activar concentración</button>'+
+    '<div style="display:flex;gap:8px">'+
+      '<button class="btn ghost" data-act="focoConc" style="flex:1">Concentración</button>'+
+      '<button class="btn ghost" data-act="reloj" style="flex:1">Reloj del iPhone</button>'+
+    '</div>'+
+    (relojTemp("pomodoro")
+      ? '<p class="hint">Al empezar un bloque se lanza el <b>temporizador del Reloj</b>: suena aunque cierres Bitácora.</p>'
+      : '')+
 
     '<section><h2 class="sec">Ajustes del ciclo</h2><div class="panel">'+
       '<div class="rt-grid"><div><label for="fcT">Trabajo</label><input class="field" id="fcT" inputmode="numeric" value="'+f.cfg.trabajo+'"></div>'+
@@ -2179,7 +2265,9 @@ function vFoco(){
       '<button class="btn ghost sm wide" data-act="focoCfg" style="margin-top:11px">Guardar el ciclo</button>'+
     '</div></section>'+
 
-    '<p class="hint">El aviso se programa en el motor de audio, así que suena <b>con la pantalla apagada</b> y el modo No molestar no lo silencia. Comparte ese motor con el descanso del gimnasio: si arrancas uno, el otro se calla.</p>';
+    (relojTemp("pomodoro")
+      ? ''
+      : '<p class="hint">El aviso se programa en el motor de audio, así que suena <b>con la pantalla apagada</b> y el modo No molestar no lo silencia — pero no si cierras la app del todo. Para eso, activa el <b>Reloj del iPhone</b>.</p>');
 }
 
 function vHabitos(){
@@ -3546,6 +3634,9 @@ function sheetAjustes(){
     '<div><span class="lbl-s">Sincronizaci\u00f3n</span>'+
       '<button class="btn ghost wide" data-act="sync">Sincronizar dispositivos</button>'+
       '<p class="hint" style="margin-top:8px">'+(S.sync.on?"Activada. Los datos se guardan tambi\u00e9n en tu servidor.":"Desactivada: los datos viven solo aqu\u00ed.")+'</p></div>'+
+    '<div><span class="lbl-s">Reloj del iPhone</span>'+
+      '<button class="btn ghost wide" data-act="reloj">Temporizador y alarmas del sistema</button>'+
+      '<p class="hint" style="margin-top:8px">'+((S.reloj.atajoTemp||S.reloj.atajoAlarma)?"Configurado.":"Sin configurar: suenan con la app cerrada del todo.")+'</p></div>'+
     '<div><span class="lbl-s">Avisos</span>'+
       '<button class="btn ghost wide" data-act="avisos">Aviso de fin de descanso</button>'+
       '<p class="hint" style="margin-top:8px">Alarma sonora con el móvil bloqueado, notificaciones y push. '+(S.push.on?"Push activado.":"")+'</p></div>'+
@@ -3603,6 +3694,30 @@ document.addEventListener("click", function(e){
     case "irA": S.tab = el.dataset.t; save(); render(); break;
     case "irCompra": S.tab = "tareas"; S.list = "compra"; save(); render(); break;
 
+    /* ─── Reloj del iPhone ─── */
+    case "reloj": sheetReloj(); break;
+    case "relojSw":
+      S.reloj[el.dataset.k] = el.getAttribute("aria-pressed") !== "true";
+      el.setAttribute("aria-pressed", S.reloj[el.dataset.k] ? "true" : "false");
+      save();
+      break;
+    case "relojGuardar":
+      S.reloj.atajoTemp = $("#rlT").value.trim();
+      S.reloj.atajoAlarma = $("#rlA").value.trim();
+      save(); closeSheet(); render();
+      toast("Guardado.");
+      break;
+    case "relojProbarT":
+      S.reloj.atajoTemp = $("#rlT").value.trim(); save();
+      lanzarAtajo(S.reloj.atajoTemp, "10");
+      break;
+    case "relojProbarA": {
+      S.reloj.atajoAlarma = $("#rlA").value.trim(); save();
+      const d = new Date(Date.now() + 2*60000);
+      lanzarAtajo(S.reloj.atajoAlarma, pad(d.getHours()) + ":" + pad(d.getMinutes()) + "|Prueba de Bitácora");
+      break;
+    }
+
     /* ─── pomodoro ─── */
     case "focoIr": focoArrancar(S.foco.fase); focoTic(); break;
     case "focoParar": focoParar(); break;
@@ -3629,7 +3744,7 @@ document.addEventListener("click", function(e){
       toast(S.foco.atajo ? "Atajo guardado." : "Atajo borrado.");
       break;
     case "focoLanzar":
-      if(S.foco.atajo) location.href = "shortcuts://run-shortcut?name=" + encodeURIComponent(S.foco.atajo);
+      lanzarAtajo(S.foco.atajo);
       break;
 
     /* ─── recordatorios ─── */
@@ -3651,7 +3766,15 @@ document.addEventListener("click", function(e){
       });
       if(!dias.length){ toast("Elige al menos un día."); break; }
       S.avisos.push({id:uid(), hora:h, texto:t, dias:dias, on:true, visto:""});
-      save(); programarAvisos(); sheetAvisosLista(); break;
+      save(); programarAvisos(); sheetAvisosLista();
+      /* Se crea tambien como alarma del Reloj, que si suena con la app cerrada. */
+      if(relojAlarma()) lanzarAtajo(S.reloj.atajoAlarma, h + "|" + t);
+      break;
+    }
+    case "avisoReloj": {
+      const a = S.avisos.filter(x=>x.id===id)[0]; if(!a) break;
+      lanzarAtajo(S.reloj.atajoAlarma, a.hora + "|" + a.texto);
+      break;
     }
     case "delAviso":
       S.avisos = S.avisos.filter(x=>x.id!==id);
